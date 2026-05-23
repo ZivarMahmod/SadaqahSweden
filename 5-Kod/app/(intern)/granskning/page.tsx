@@ -45,7 +45,7 @@ export default async function GranskningKoPage() {
   const me = await kraver(["granskare", "admin"]);
   const supabase = await createClient();
 
-  const [{ data: rader, error }, { count: vantandeBevis }] = await Promise.all([
+  const [{ data: rader, error }, { count: vantandeBevis }, { count: vantandeOrg }] = await Promise.all([
     supabase
       .from("granskning")
       .select(
@@ -60,6 +60,11 @@ export default async function GranskningKoPage() {
       .eq("bevis_typ", "resultat")
       .is("godkant_at", null)
       .eq("systemgenererad", false),
+    supabase
+      .from("organisation")
+      .select("id", { count: "exact", head: true })
+      .in("katalog_status", ["inskickad", "under_granskning", "komplettering_begard"])
+      .is("deleted_at", null),
   ]);
 
   // Aggregat — kö-stats
@@ -93,6 +98,9 @@ export default async function GranskningKoPage() {
             </Pill>
             <LinkButton href="/granskning/bevis" size="sm" variant="secondary" leftIcon={<Icon name="file-check" size={14} />}>
               Resultat-bevis {vantandeBevis ? `(${vantandeBevis})` : ""}
+            </LinkButton>
+            <LinkButton href="/granskning/organisationer" size="sm" variant="secondary" leftIcon={<Icon name="building" size={14} />}>
+              Föreningar {vantandeOrg ? `(${vantandeOrg})` : ""}
             </LinkButton>
           </div>
         </div>

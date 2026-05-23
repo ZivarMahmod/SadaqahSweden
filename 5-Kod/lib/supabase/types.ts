@@ -1671,6 +1671,19 @@ export type Database = {
       }
     }
     Functions: {
+      anmal_organisation: {
+        Args: {
+          p_beskrivning: string
+          p_besoksadress: string
+          p_logotyp_path?: string
+          p_namn: string
+          p_org_nummer: string
+          p_organisationstyp: string
+          p_region: string
+          p_stad: string
+        }
+        Returns: string
+      }
       avvisa_resultat_bevis: {
         Args: { p_bevis_id: string; p_motivering: string }
         Returns: undefined
@@ -1678,6 +1691,14 @@ export type Database = {
       backfill_connected_account_for_profil: {
         Args: { p_profile_id: string }
         Returns: number
+      }
+      begar_collab: {
+        Args: {
+          p_insamling_id: string
+          p_organisation_id: string
+          p_typ: Database["public"]["Enums"]["collab_typ"]
+        }
+        Returns: string
       }
       fatta_granskar_beslut: {
         Args: {
@@ -1689,6 +1710,10 @@ export type Database = {
       }
       godkann_resultat_bevis: {
         Args: { p_bevis_id: string }
+        Returns: undefined
+      }
+      granska_organisation: {
+        Args: { p_beslut: string; p_motivering?: string; p_org_id: string }
         Returns: undefined
       }
       markera_alla_notiser_lasta: { Args: never; Returns: number }
@@ -1704,6 +1729,10 @@ export type Database = {
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
         Returns: string
+      }
+      svara_collab: {
+        Args: { p_collab_id: string; p_godkand: boolean }
+        Returns: undefined
       }
       tilldela_granskning: {
         Args: { p_granskning_id: string }

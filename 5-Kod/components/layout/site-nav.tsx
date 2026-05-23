@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 
 const PUBLIC_LINKS = [
   { href: "/insamlingar", label: "Insamlingar" },
-  // TODO (M10): /foreningar — katalog, byggs i Steg 11.
+  { href: "/foreningar", label: "Föreningar" },
   // TODO (M12): /karta — geografisk vy, byggs i Steg 12.
   // TODO (M11): /om-plattformen — informationsida.
 ];
