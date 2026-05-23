@@ -45,14 +45,22 @@ export default async function GranskningKoPage() {
   const me = await kraver(["granskare", "admin"]);
   const supabase = await createClient();
 
-  const { data: rader, error } = await supabase
-    .from("granskning")
-    .select(
-      "id, runda, tilldelad_granskare_id, sla_deadline, inskickad_at, eskalerad, avgjord_at, insamling:insamling_id(public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_max_ore, insamlar_stad, hjalp_land, agare_id, profiles!insamling_agare_id_fkey(visningsnamn))",
-    )
-    .is("avgjord_at", null)
-    .order("inskickad_at", { ascending: true })
-    .limit(100);
+  const [{ data: rader, error }, { count: vantandeBevis }] = await Promise.all([
+    supabase
+      .from("granskning")
+      .select(
+        "id, runda, tilldelad_granskare_id, sla_deadline, inskickad_at, eskalerad, avgjord_at, insamling:insamling_id(public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_max_ore, insamlar_stad, hjalp_land, agare_id, profiles!insamling_agare_id_fkey(visningsnamn))",
+      )
+      .is("avgjord_at", null)
+      .order("inskickad_at", { ascending: true })
+      .limit(100),
+    supabase
+      .from("transparens_bevis")
+      .select("id", { count: "exact", head: true })
+      .eq("bevis_typ", "resultat")
+      .is("godkant_at", null)
+      .eq("systemgenererad", false),
+  ]);
 
   // Aggregat — kö-stats
   const totalOppna = rader?.length ?? 0;
@@ -76,13 +84,16 @@ export default async function GranskningKoPage() {
               besked. Plocka ett ärende eller fortsätt på ett du redan tilldelats.
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Pill tone="paper">
               <Icon name="user" size={12} /> {me.profil.visningsnamn}
             </Pill>
             <Pill tone="copper">
               <Icon name="shield-check" size={12} /> {me.roll}
             </Pill>
+            <LinkButton href="/granskning/bevis" size="sm" variant="secondary" leftIcon={<Icon name="file-check" size={14} />}>
+              Resultat-bevis {vantandeBevis ? `(${vantandeBevis})` : ""}
+            </LinkButton>
           </div>
         </div>
 

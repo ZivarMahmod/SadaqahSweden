@@ -142,3 +142,57 @@ function optInt(value: FormDataEntryValue | null): number | undefined {
   const num = Number(value);
   return Number.isFinite(num) ? num : undefined;
 }
+
+// ---------------------------------------------------------------------
+// Modul M7 — Transparens-loopen actions
+// RPCs gör all behörighet + valideringen serverside. Server actions agerar
+// tunna wrappers + revalidatePath.
+// ---------------------------------------------------------------------
+
+export async function postaUppdatering(
+  insamlingId: string,
+  formData: FormData,
+): Promise<UppdateraResult> {
+  await kraver(["insamlare", "forening", "admin"]);
+  const supabase = await createClient();
+
+  const text = String(formData.get("text") ?? "").trim();
+  if (text.length < 1) {
+    return { ok: false, message: "Skriv något att posta." };
+  }
+
+  const { error } = await supabase.rpc("posta_uppdatering", {
+    p_insamling_id: insamlingId,
+    p_text: text,
+  });
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath(`/insamling/${insamlingId}`);
+  revalidatePath(`/insamlingar`, "layout");
+  return { ok: true };
+}
+
+export async function postaResultatBevis(
+  insamlingId: string,
+  formData: FormData,
+): Promise<UppdateraResult> {
+  await kraver(["insamlare", "forening", "admin"]);
+  const supabase = await createClient();
+
+  const text = String(formData.get("text") ?? "").trim();
+  const video = String(formData.get("video_url") ?? "").trim();
+  if (text.length < 10) {
+    return { ok: false, message: "Resultatbeviset behöver minst 10 tecken text." };
+  }
+
+  const { error } = await supabase.rpc("posta_resultat_bevis", {
+    p_insamling_id: insamlingId,
+    p_text: text,
+    p_video_url: video || undefined,
+  });
+  if (error) return { ok: false, message: error.message };
+
+  revalidatePath(`/insamling/${insamlingId}`);
+  revalidatePath(`/insamlingar`, "layout");
+  return { ok: true };
+}

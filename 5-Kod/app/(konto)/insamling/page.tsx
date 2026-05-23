@@ -204,7 +204,17 @@ export default async function MinaInsamlingarPage() {
                           Fortsätt redigera
                         </LinkButton>
                       )}
-                      {!kanRedigera && (
+                      {!kanRedigera && arPublik && (
+                        <LinkButton
+                          href={`/insamling/${i.id}`}
+                          variant="primary"
+                          size="sm"
+                          leftIcon={<Icon name="sparkles" size={14} />}
+                        >
+                          Hantera & posta uppdatering
+                        </LinkButton>
+                      )}
+                      {!kanRedigera && !arPublik && (
                         <Link
                           href={`/insamling/${i.id}/redigera`}
                           className="btn btn-secondary btn-sm"

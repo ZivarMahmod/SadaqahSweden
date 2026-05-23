@@ -68,3 +68,32 @@ export async function tilldelaOchOppna(formData: FormData): Promise<void> {
   }
   redirect(`/granskning/${granskningId}`);
 }
+
+// ---------------------------------------------------------------------
+// Modul M7 — Resultat-bevis-granskning.
+// Plan: Modul-07 Block 1 "Granskning av resultatbevis" (lättviktig äkthetskoll).
+// ---------------------------------------------------------------------
+
+export async function godkannResultatBevis(bevisId: string): Promise<Resultat> {
+  await kraver(["granskare", "admin"]);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("godkann_resultat_bevis", { p_bevis_id: bevisId });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/granskning/bevis", "layout");
+  return { ok: true };
+}
+
+export async function avvisaResultatBevis(
+  bevisId: string,
+  motivering: string,
+): Promise<Resultat> {
+  await kraver(["granskare", "admin"]);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("avvisa_resultat_bevis", {
+    p_bevis_id: bevisId,
+    p_motivering: motivering,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/granskning/bevis", "layout");
+  return { ok: true };
+}

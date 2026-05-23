@@ -10,6 +10,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { dagarKvar, datum } from "@/lib/format";
 import { LiveRaknare } from "./live-raknare";
+import { TransparensTidslinje } from "@/components/transparens-tidslinje";
 
 type Params = Promise<{ publicId: string }>;
 
@@ -265,6 +266,13 @@ export default async function InsamlingPage({ params }: { params: Params }) {
               </Card>
             </aside>
           </div>
+        </Container>
+      </Section>
+
+      {/* Transparens-tidslinjen (M7 Block 5) */}
+      <Section tone="cream" spacing="default">
+        <Container width="narrow">
+          <TransparensTidslinje insamlingId={i.id} />
         </Container>
       </Section>
     </main>
