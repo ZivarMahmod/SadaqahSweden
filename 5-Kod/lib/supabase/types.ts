@@ -1357,9 +1357,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      transparens_tidslinje: {
+        Row: {
+          godkant_at: string | null
+          id: string | null
+          insamling_id: string | null
+          post_typ: string | null
+          sorterings_tid: string | null
+          sub_typ: string | null
+          systemgenererad: boolean | null
+          text: string | null
+          uppdatering_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      avvisa_resultat_bevis: {
+        Args: { p_bevis_id: string; p_motivering: string }
+        Returns: undefined
+      }
+      backfill_connected_account_for_profil: {
+        Args: { p_profile_id: string }
+        Returns: number
+      }
       fatta_granskar_beslut: {
         Args: {
           p_beslut: Database["public"]["Enums"]["granskning_beslut"]
@@ -1367,6 +1388,18 @@ export type Database = {
           p_motivering: string
         }
         Returns: undefined
+      }
+      godkann_resultat_bevis: {
+        Args: { p_bevis_id: string }
+        Returns: undefined
+      }
+      posta_resultat_bevis: {
+        Args: { p_insamling_id: string; p_text: string; p_video_url?: string }
+        Returns: string
+      }
+      posta_uppdatering: {
+        Args: { p_insamling_id: string; p_text: string }
+        Returns: string
       }
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
