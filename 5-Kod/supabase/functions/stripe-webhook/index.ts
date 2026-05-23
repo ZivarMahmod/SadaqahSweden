@@ -552,5 +552,20 @@ async function handleAccountUpdated(acct: Stripe.Account, admin: Admin): Promise
         stripe_onboarding_klar: status === "enabled",
       })
       .eq("id", ca.profile_id);
+
+    // Retroaktiv koppling: insamlingar som hann godkännas innan ägaren
+    // onboardade Stripe har connected_account_id = NULL. Sätt nu när
+    // kontot finns/är aktivt — settle-campaign kräver kopplingen.
+    try {
+      const { error: backfillErr } = await admin.rpc(
+        "backfill_connected_account_for_profil",
+        { p_profile_id: ca.profile_id },
+      );
+      if (backfillErr) {
+        console.warn("backfill_connected_account_for_profil fel (icke-fatalt)", backfillErr.message);
+      }
+    } catch (e) {
+      console.warn("backfill_connected_account kastade (icke-fatalt)", e);
+    }
   }
 }
