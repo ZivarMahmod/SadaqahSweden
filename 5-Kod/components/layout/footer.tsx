@@ -100,6 +100,30 @@ export function Footer() {
           <span>© {new Date().getFullYear()} Sadaqah Sweden ideell förening</span>
           <span>Plattformen är en bro — vi rör aldrig pengarna juridiskt.</span>
         </div>
+        <div
+          className="mt-6 text-center text-[11px]"
+          style={{
+            fontFamily: "var(--font-sans)",
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "rgba(245, 240, 228, 0.4)",
+          }}
+        >
+          Powered by{" "}
+          <a
+            href="https://corevo.se"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "var(--color-copper-warm)",
+              textDecoration: "none",
+              borderBottom: "1px solid rgba(218, 168, 117, 0.4)",
+              paddingBottom: 1,
+            }}
+          >
+            Corevo.se
+          </a>
+        </div>
       </div>
     </footer>
   );
