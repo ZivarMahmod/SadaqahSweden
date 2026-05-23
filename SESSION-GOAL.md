@@ -61,14 +61,25 @@ Tidigare sessioners pending ändringar landade:
 - [x] `npm run lint` grön.
 - [x] `.env.example` på plats; inga hemligheter i git (`.env*` + `.dev.vars*` ignored).
 
+**LIVE:** `https://sadaqahsweden.se` svarar 200 ✅ (deployad 2026-05-23 ~17:10
+via Cloudflare Workers + OpenNext-adapter). Workers-projektet heter
+`sadaqahsweden`, routes-pattern `sadaqahsweden.se/*` + `www.sadaqahsweden.se/*`
+i wrangler.jsonc. Env vars satta: NEXT_PUBLIC_SUPABASE_URL, _ANON_KEY, _SITE_URL.
+
+**Planeringsavvikelse (icke-tyst):** Next.js downgrade 16.2.6 → 15.5.16
+pga bug i `@opennextjs/cloudflare` 1.19.x — Next 16.2.x gav 500 på alla
+dynamiska routes (`TypeError: components.ComponentMod.handler is not a function`,
+opennext-cloudflare#1258, "fixed" men workaround = downgrade). Återgå när
+adaptern stöder Next 16 rent.
+
 **Operativt kvar för Zivar (utanför Claudes kontroll):**
 
-- ⚠️ **Cloudflare-deployen failar just nu** — orsak: projektet är uppsatt som
-  Cloudflare **Pages** (gamla typen). Steg 0 sätter upp `@opennextjs/cloudflare`
-  som deployar till **Cloudflare Workers**. Pages-pipeline:n förstår inte
-  `wrangler.jsonc`, kör `npx next build`, hittar inte `5-Kod/out/` (vi
-  exporterar inte statiskt längre), failar med
-  `Error: Output directory "5-Kod/out" not found`.
+- **Pages-projektet (om existerar)** + dess DNS-records för `sadaqahsweden.se`:
+  Workers-deployen använder `routes` (zone-pattern) istället för `custom_domain`
+  eftersom befintliga DNS-records blockerar custom_domain-skapande. Det
+  fungerar — proxied DNS + routes räcker. När du raderar Pages-projektet +
+  dess DNS-records kan vi byta tillbaka till `custom_domain: true` i
+  wrangler.jsonc för rentare setup. Inte brådskande.
 - **Åtgärd:** migrera Cloudflare-projektet från Pages → Workers Builds:
   1. Cloudflare dashboard → **Workers & Pages**.
   2. Radera (eller döp om) gamla Pages-projektet `sadaqahsweden`.

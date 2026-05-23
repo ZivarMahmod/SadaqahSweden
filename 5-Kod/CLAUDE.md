@@ -35,7 +35,11 @@ Du får gärna skriva egna, mer detaljerade steg-briefer utifrån planen — men
 
 ## Stacken
 
-- **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4** — frontend.
+- **Next.js 15.5.16 (App Router) + React 19 + TypeScript + Tailwind v4** — frontend.
+  *Plan-texten säger Next.js 16. Tillfälligt downgradead till 15.5.16 pga
+  bug i `@opennextjs/cloudflare` 1.19.x — Next 16.2.x ger 500 på alla
+  dynamiska routes (`TypeError: components.ComponentMod.handler is not a function`,
+  se opennext-cloudflare#1258). Uppgradera tillbaka när adaptern fixar det.*
 - **Supabase** — Postgres, Auth, Realtime, Storage, Edge Functions.
 - **Stripe Connect (Express)** — betalningar.
 - **BankID via broker** — verifiering av insamlare (Zivars parallella spår).

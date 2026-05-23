@@ -18,6 +18,23 @@
   },
   "observability": {
     "enabled": true
+  },
+  "routes": [
+    // Routes-pattern istället för custom_domain — undviker DNS-konflikt
+    // med befintliga proxied records (kvar från Pages). Befintlig orange-
+    // cloudad A/AAAA i zonen + denna route räcker för att Workers ska ta
+    // emot all trafik. Byt till custom_domain när Pages-records är
+    // borttagna i dashboarden.
+    { "pattern": "sadaqahsweden.se/*", "zone_name": "sadaqahsweden.se" },
+    { "pattern": "www.sadaqahsweden.se/*", "zone_name": "sadaqahsweden.se" }
+  ],
+  "vars": {
+    // Publika (klient-safe) miljövariabler. Bygger in i Worker-bundeln.
+    // SECRETS (SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY etc.) sätts
+    // via `npx wrangler secret put NAMN` — committas ALDRIG här.
+    "NEXT_PUBLIC_SUPABASE_URL": "https://dcfrvomfztgkbfoegwge.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_HXDTgn9-KBwJQOal5WCL8g_bojAdAm3",
+    "NEXT_PUBLIC_SITE_URL": "https://sadaqahsweden.se"
   }
   // R2 incremental cache (NEXT_INC_CACHE_R2_BUCKET) kopplas in senare när vi
   // har R2-bucket – se 2-Byggplan/06-Rollout-plan.md och OpenNext caching-doc.
