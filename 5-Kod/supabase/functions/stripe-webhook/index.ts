@@ -188,14 +188,39 @@ async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent, admin: Adm
     .eq("id", insamlingId)
     .single();
   if (cur) {
+    const nyttBelopp = (cur.insamlat_ore ?? 0) + gava;
     await admin
       .from("insamling")
       .update({
-        insamlat_ore: (cur.insamlat_ore ?? 0) + gava,
+        insamlat_ore: nyttBelopp,
         insamlat_netto_ore: (cur.insamlat_netto_ore ?? 0) + Math.max(0, gava - avgift),
         frivilligt_bidrag_total_ore: (cur.frivilligt_bidrag_total_ore ?? 0) + tip,
       })
       .eq("id", insamlingId);
+
+    // Realtidsräknare: broadcast på publik kanal (data ÄR publik) → klienten
+    // animerar siffran. Fil 03 §4 — Stripe-webhook är källan.
+    try {
+      const channel = admin.channel(`campaign:${insamlingId}`);
+      await channel.send({
+        type: "broadcast",
+        event: "belopp_updated",
+        payload: { insamlat_ore: nyttBelopp, donation_id: donation.id },
+      });
+      await admin.removeChannel(channel);
+    } catch (e) {
+      console.warn("realtime broadcast failed (icke-fatalt)", e);
+    }
+  }
+
+  // Skicka kvitto via Resend — icke-blockerande, loggas vid fel.
+  try {
+    const { error: kvittoErr } = await admin.functions.invoke("skicka-kvitto", {
+      body: { donation_id: donation.id },
+    });
+    if (kvittoErr) console.warn("kvitto-utskick fel (icke-fatalt)", kvittoErr.message);
+  } catch (e) {
+    console.warn("kvitto-utskick kastade (icke-fatalt)", e);
   }
 }
 
@@ -257,13 +282,26 @@ async function handleChargeRefunded(charge: Stripe.Charge, admin: Admin): Promis
       .eq("id", donation.insamling_id)
       .single();
     if (cur) {
+      const nyttBelopp = Math.max(0, (cur.insamlat_ore ?? 0) - tillagdRefund);
       await admin
         .from("insamling")
         .update({
-          insamlat_ore: Math.max(0, (cur.insamlat_ore ?? 0) - tillagdRefund),
+          insamlat_ore: nyttBelopp,
           insamlat_netto_ore: Math.max(0, (cur.insamlat_netto_ore ?? 0) - tillagdRefund),
         })
         .eq("id", donation.insamling_id);
+
+      try {
+        const channel = admin.channel(`campaign:${donation.insamling_id}`);
+        await channel.send({
+          type: "broadcast",
+          event: "belopp_updated",
+          payload: { insamlat_ore: nyttBelopp, donation_id: donation.id, refund: true },
+        });
+        await admin.removeChannel(channel);
+      } catch (e) {
+        console.warn("realtime broadcast (refund) failed", e);
+      }
     }
   }
 

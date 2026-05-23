@@ -6,10 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 import { Container, Section } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Pill } from "@/components/ui/pill";
-import { Progress } from "@/components/ui/progress";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { dagarKvar, datum, kortBelopp, kr, procentAvMal } from "@/lib/format";
+import { dagarKvar, datum } from "@/lib/format";
+import { LiveRaknare } from "./live-raknare";
 
 type Params = Promise<{ publicId: string }>;
 
@@ -69,18 +69,6 @@ export default async function InsamlingPage({ params }: { params: Params }) {
     notFound();
   }
 
-  const procent = procentAvMal(
-    i.insamlat_ore,
-    i.malbelopp_modell,
-    i.malbelopp_ore,
-    i.malbelopp_max_ore,
-  );
-  const malbelopp =
-    i.malbelopp_modell === "fast"
-      ? i.malbelopp_ore
-      : i.malbelopp_modell === "intervall"
-      ? i.malbelopp_max_ore
-      : null;
   const dagar = dagarKvar(i.insamling_deadline);
   const status = STATUS_INFO[i.status] ?? { label: i.status, tone: "outline" as const };
   const tarEmotDonationer = i.status === "aktiv";
@@ -134,45 +122,15 @@ export default async function InsamlingPage({ params }: { params: Params }) {
             </div>
 
             <Card variant="loose">
-              <div className="flex items-baseline justify-between">
-                <span
-                  className="tabular"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: 44,
-                    color: "var(--color-forest)",
-                    fontWeight: 500,
-                    lineHeight: 1,
-                  }}
-                >
-                  {kr(i.insamlat_ore)}
-                </span>
-              </div>
-              <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
-                {malbelopp ? (
-                  <>
-                    av <span className="tabular">{kortBelopp(malbelopp)}</span>{" "}
-                    {i.malbelopp_modell === "intervall" && i.malbelopp_min_ore && (
-                      <>(min {kortBelopp(i.malbelopp_min_ore)})</>
-                    )}
-                  </>
-                ) : (
-                  "öppen insamling — inget specifikt mål"
-                )}
-              </p>
-
-              {procent != null && (
-                <div className="mt-4">
-                  <Progress value={procent} ariaLabel={`${procent} % av målet`} />
-                  <div
-                    className="mt-2 flex justify-between text-xs"
-                    style={{ color: "var(--color-ink-3)" }}
-                  >
-                    <span>{procent} % av målet</span>
-                    <span>{dagar} dgr kvar</span>
-                  </div>
-                </div>
-              )}
+              <LiveRaknare
+                insamlingId={i.id}
+                initialInsamlatOre={i.insamlat_ore ?? 0}
+                malbeloppModell={i.malbelopp_modell}
+                malbeloppOre={i.malbelopp_ore}
+                malbeloppMinOre={i.malbelopp_min_ore}
+                malbeloppMaxOre={i.malbelopp_max_ore}
+                dagarKvar={dagar}
+              />
 
               <div
                 className="mt-6 grid grid-cols-2 gap-3 pt-5 text-xs"
@@ -200,11 +158,9 @@ export default async function InsamlingPage({ params }: { params: Params }) {
 
               <div className="mt-6">
                 {tarEmotDonationer ? (
-                  // TODO (M4 — Steg 6): koppla in Stripe PaymentIntent serverside.
-                  // Belopp sätts ALDRIG av klienten. Webhook = sanningen.
-                  <Button block size="lg" variant="copper" disabled>
-                    <Icon name="heart" size={18} /> Donera (kopplas in i Steg 6 — Stripe)
-                  </Button>
+                  <LinkButton href={`/insamlingar/${i.public_id}/donera`} size="lg" variant="copper" block>
+                    <Icon name="heart" size={18} /> Donera
+                  </LinkButton>
                 ) : (
                   <Button block size="lg" variant="secondary" disabled>
                     Insamlingen tar inte längre emot donationer
