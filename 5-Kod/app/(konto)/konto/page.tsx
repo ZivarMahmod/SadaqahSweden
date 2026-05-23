@@ -1,6 +1,7 @@
 // Modul M9 — Mitt konto (provisorisk vy inför full profil).
 // Design: handoff-to-code/account.html · Plan: 1-Planering/Modul-09-Profiler.md.
 // Säkerhet: kraver() läser roll serverside via RLS-skyddad helper. user_metadata aldrig betrodd.
+import Link from "next/link";
 import { kraver } from "@/lib/auth";
 import { loggaUt } from "@/app/(auth)/actions";
 import { Container, Section } from "@/components/ui/container";
@@ -78,12 +79,12 @@ export default async function KontoPage() {
                     <Icon name="edit" size={16} />
                   </span>
                   Skapa och redigera dina insamlingar — gå till{" "}
-                  <a
+                  <Link
                     href="/insamling"
                     style={{ color: "var(--color-forest)", textDecoration: "underline" }}
                   >
                     Mina insamlingar
-                  </a>
+                  </Link>
                   .
                 </li>
               )}
@@ -93,12 +94,12 @@ export default async function KontoPage() {
                     <Icon name="shield" size={16} />
                   </span>
                   Granska inskickade projekt i{" "}
-                  <a
+                  <Link
                     href="/granskning"
                     style={{ color: "var(--color-forest)", textDecoration: "underline" }}
                   >
                     granskningskön
-                  </a>
+                  </Link>
                   .
                 </li>
               )}
