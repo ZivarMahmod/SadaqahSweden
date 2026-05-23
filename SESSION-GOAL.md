@@ -10,7 +10,7 @@
 
 - [x] **Steg 0 — Fundament** — KLART, pushad
 - [x] **Steg 1 — Databasens grund** — KLART, pushad (8 migrations, RLS på 18 tabeller, P0-lints gröna, TS-typer + Supabase-klientwrappers)
-- [ ] Steg 2 — Auth & roller
+- [x] **Steg 2 — Auth & roller** — KLART, pushas (proxy, server-helper, login/registrera + Server Actions, auth-callback, skyddad demo-route)
 - [ ] Steg 3 — Insamlings-objektet & insamlar-flödet
 - [ ] Steg 4 — Granskar-flödet
 - [ ] Steg 5 — Stripe Connect & pengaplumbing
@@ -177,24 +177,70 @@ Inga av dessa hindrar Steg 1–4.
 
 ---
 
-## Nästa: Steg 2 — Auth & roller
+### 4. Steg 2 — Auth & roller (kommer som nästa commit)
 
-**Mål (från byggsekvensen):** Inloggning som inte går att förfalska. Roll
-serverside, RLS-skyddad. BankID-platshållare för Zivars parallella spår.
+**Verifierade:**
+
+- [x] **Proxy** (Next.js 16-konvention, tidigare middleware) i
+  `5-Kod/proxy.ts` + helper i `5-Kod/lib/supabase/middleware.ts`.
+  Refreshar session på varje request via `@supabase/ssr`. Utan detta
+  tappar Server Components inloggning vid token-expiry.
+- [x] **Server-helper** `5-Kod/lib/auth.ts`:
+  - `aktuellAnvandare()` — cached per request (React `cache()`);
+    returnerar `{ userId, epost, profil, roll }` eller null.
+  - `kraver(rollerAllowed?)` — redirectar till `/login` om ej inloggad,
+    till `/` om inloggad-men-fel-roll, till `/konto-fryst` om kontot är fryst.
+  - `aktuellRoll()` — bara rollen, för render-time UI-val utan redirect.
+- [x] **Server Actions** i `5-Kod/app/(auth)/actions.ts`:
+  `loggaIn()`, `registrera()`, `loggaUt()`. Översätter Supabase-felmeddelanden
+  till svenska (inkl. HIBP-läckta lösenord, dubbletter, ej-bekräftad e-post).
+- [x] **Sidor**: `app/(auth)/login`, `app/(auth)/registrera`,
+  `app/verifiera-epost`, `app/konto-fryst`. Server Components för meta + redirect,
+  client subcomponent för formulär (`useTransition` för progressindikator).
+- [x] **Auth-callback**: `app/auth/callback/route.ts` —
+  `exchangeCodeForSession` på email-bekräftelse-länken.
+- [x] **Skyddad demo-route**: `app/(konto)/konto/page.tsx` — anropar
+  `kraver()`, visar profil + roll, logout-formulär. Bevisar att hela
+  proxy → cookie → server-client → RLS-läsning fungerar end-to-end.
+- [x] Behörighetsmatrisen från M6 Block 4.2 respekteras av RLS via
+  `private.aktuell_roll()` i policy-uttryck (lagt redan i Steg 1).
+- [x] Auth-skalet förberett för BankID-slot: `aktuellAnvandare` returnerar
+  `profil.bankid_verifierad`-flaggan; den sätts av service_role (Edge Function
+  som BankID-brokern callbackar in mot — byggs när broker-avtal finns).
+- [x] `npm run build` grön, `npm run lint` grön. 8 routes byggda.
+
+### Operativa Auth-inställningar (Zivar i Supabase-dashboarden)
+
+Per SAKERHETSREGLER §9 — krävs innan publik lansering, ej P0 för bygget:
+
+- **Email-provider PÅ** (är default — verifiera Authentication → Providers → Email).
+- **Confirm email PÅ** så `registrera()` skickar bekräftelsemejl.
+- **HIBP läckta-lösenord-skydd PÅ** (Authentication → Providers → Email →
+  "Prevent use of leaked passwords"). Vår `registrera()`-action är redo
+  för felmeddelandet "den lösenordet har förekommit i läckta databaser".
+- **CAPTCHA Turnstile** på registrering (kopplas in senare, kräver site key).
+- **Site URL** = `https://sadaqahsweden.se` (Authentication → URL Configuration).
+- **Redirect URLs**: lägg till `https://sadaqahsweden.se/auth/callback` +
+  `https://sadaqahsweden.<konto>.workers.dev/auth/callback`.
+
+---
+
+## Nästa: Steg 3 — Insamlings-objektet & insamlar-flödet
+
+**Mål (från byggsekvensen):** En insamlare kan skapa och skicka in en
+insamling. Bygger M1 (objektet + livscykel) + M2 (wizarden).
 
 Plan:
 
-1. Aktivera Supabase Auth-providers (email + lösenord initialt; BankID via
-   broker kopplas in senare).
-2. Bygg `5-Kod/middleware.ts` med session-refresh via `@supabase/ssr`.
-3. Login/logout/registrering: `app/(auth)/login`, `app/(auth)/registrera`,
-   `app/auth/callback`. Server Actions för formhantering.
-4. Server-helper `aktuellAnvandare()` som returnerar `{ user, profil, roll }`
-   och cache:ar per request (React `cache()`).
-5. Skyddade route-grupper enligt M6 Block 4.2:
-   `app/(konto)`, `app/(granskning)`, `app/(admin)`. Layout-gate via
-   server-helper, ej klient-state.
-6. Roll-bytes-trigger + `roll_handelse`-logg (M6 Block 5.4).
-7. Test: skapa testanvändare, verifiera RLS att donator inte ser annans
-   donation, insamlare inte ser annans insamling i utkast.
+1. Wizard-route `app/(konto)/insamling/ny/[steg]/page.tsx` — multistep
+   som sparar utkast efter varje steg (Server Action).
+2. Steg-uppdelning enligt M2: identitet → mottagare → media → mål → granskning.
+3. Detaljvy `app/insamlingar/[publicId]/page.tsx` — publik (med RLS).
+4. Lista-mina-insamlingar i `app/(konto)/insamling/page.tsx`.
+5. Status-action "Skicka till granskning" — sätter status `utkast → inskickad`,
+   tillåts av `insamling_status_skydd`-triggern, skapar `granskning`-rad
+   via service_role (Edge Function eller Server Action med admin-klient).
+6. Storage-bucket för insamlings-media (cover + gallery) + storage-RLS.
+7. Test: skapa testanvändare med roll `insamlare`, skapa insamling,
+   skicka in, verifiera RLS-isolering mellan användare.
 8. Commit + push.
