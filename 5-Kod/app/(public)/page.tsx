@@ -390,7 +390,7 @@ export default async function MarketingPage() {
               {kategorier.map((k) => (
                 <Link
                   key={k.id}
-                  href={`/insamlingar?kategori=${encodeURIComponent(k.slug)}`}
+                  href={`/kategori/${encodeURIComponent(k.slug)}`}
                   className="flex min-h-[140px] flex-col gap-3 p-7 transition-all hover:-translate-y-0.5"
                   style={{
                     background: "var(--color-paper-soft)",

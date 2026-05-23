@@ -11,6 +11,7 @@ import { Icon } from "@/components/ui/icon";
 import { dagarKvar, datum } from "@/lib/format";
 import { LiveRaknare } from "./live-raknare";
 import { TransparensTidslinje } from "@/components/transparens-tidslinje";
+import { RelateradeInsamlingar } from "@/components/relaterade-insamlingar";
 
 type Params = Promise<{ publicId: string }>;
 
@@ -299,6 +300,17 @@ export default async function InsamlingPage({ params }: { params: Params }) {
       <Section tone="cream" spacing="default">
         <Container width="narrow">
           <TransparensTidslinje insamlingId={i.id} />
+        </Container>
+      </Section>
+
+      {/* Relaterade insamlingar (M11 Block 5.2) — efter donationsknappen */}
+      <Section tone="paper" spacing="default">
+        <Container>
+          <RelateradeInsamlingar
+            insamlingId={i.id}
+            hjalpLand={i.hjalp_land}
+            insamlarStad={i.insamlar_stad}
+          />
         </Container>
       </Section>
     </main>
