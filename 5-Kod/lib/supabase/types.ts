@@ -146,6 +146,13 @@ export type Database = {
             foreignKeyName: "connected_accounts_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connected_accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -295,6 +302,13 @@ export type Database = {
             foreignKeyName: "donation_donator_id_fkey"
             columns: ["donator_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donation_donator_id_fkey"
+            columns: ["donator_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -369,6 +383,13 @@ export type Database = {
             foreignKeyName: "granskning_tilldelad_granskare_id_fkey"
             columns: ["tilldelad_granskare_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "granskning_tilldelad_granskare_id_fkey"
+            columns: ["tilldelad_granskare_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -406,6 +427,13 @@ export type Database = {
           motivering?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "granskning_handelse_granskare_id_fkey"
+            columns: ["granskare_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "granskning_handelse_granskare_id_fkey"
             columns: ["granskare_id"]
@@ -572,6 +600,13 @@ export type Database = {
             foreignKeyName: "insamling_agare_id_fkey"
             columns: ["agare_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insamling_agare_id_fkey"
+            columns: ["agare_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -580,6 +615,13 @@ export type Database = {
             columns: ["connected_account_id"]
             isOneToOne: false
             referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insamling_godkand_av_fkey"
+            columns: ["godkand_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
             referencedColumns: ["id"]
           },
           {
@@ -627,6 +669,13 @@ export type Database = {
           insamling_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "insamling_andringslogg_andrad_av_fkey"
+            columns: ["andrad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "insamling_andringslogg_andrad_av_fkey"
             columns: ["andrad_av"]
@@ -822,6 +871,13 @@ export type Database = {
             foreignKeyName: "mission_agare_id_fkey"
             columns: ["agare_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mission_agare_id_fkey"
+            columns: ["agare_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -915,6 +971,13 @@ export type Database = {
           verifieringsniva?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "organisation_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: true
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "organisation_profil_id_fkey"
             columns: ["profil_id"]
@@ -1015,6 +1078,13 @@ export type Database = {
             foreignKeyName: "profil_badge_profil_id_fkey"
             columns: ["profil_id"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profil_badge_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1023,6 +1093,7 @@ export type Database = {
       profiles: {
         Row: {
           ar_organisation: boolean
+          avatar_url: string | null
           bankid_verifierad: boolean
           created_at: string
           deleted_at: string | null
@@ -1031,15 +1102,21 @@ export type Database = {
           kontofryst: boolean
           ombud_kontakt: string | null
           personnummer_krypterat: string | null
+          presentation: string | null
           public_id: string
+          region: string | null
           roll: Database["public"]["Enums"]["anvandar_roll"]
+          stad: string | null
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
           updated_at: string
+          visa_stad: boolean
+          visa_total_summa: boolean
           visningsnamn: string
         }
         Insert: {
           ar_organisation?: boolean
+          avatar_url?: string | null
           bankid_verifierad?: boolean
           created_at?: string
           deleted_at?: string | null
@@ -1048,15 +1125,21 @@ export type Database = {
           kontofryst?: boolean
           ombud_kontakt?: string | null
           personnummer_krypterat?: string | null
+          presentation?: string | null
           public_id?: string
+          region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
+          stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           updated_at?: string
+          visa_stad?: boolean
+          visa_total_summa?: boolean
           visningsnamn: string
         }
         Update: {
           ar_organisation?: boolean
+          avatar_url?: string | null
           bankid_verifierad?: boolean
           created_at?: string
           deleted_at?: string | null
@@ -1065,11 +1148,16 @@ export type Database = {
           kontofryst?: boolean
           ombud_kontakt?: string | null
           personnummer_krypterat?: string | null
+          presentation?: string | null
           public_id?: string
+          region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
+          stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           updated_at?: string
+          visa_stad?: boolean
+          visa_total_summa?: boolean
           visningsnamn?: string
         }
         Relationships: []
@@ -1126,6 +1214,13 @@ export type Database = {
             columns: ["donation_id"]
             isOneToOne: false
             referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_initierad_av_fkey"
+            columns: ["initierad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
             referencedColumns: ["id"]
           },
           {
@@ -1242,6 +1337,13 @@ export type Database = {
             foreignKeyName: "transparens_bevis_godkant_av_fkey"
             columns: ["godkant_av"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transparens_bevis_godkant_av_fkey"
+            columns: ["godkant_av"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1311,6 +1413,13 @@ export type Database = {
             foreignKeyName: "transparens_uppdatering_postad_av_fkey"
             columns: ["postad_av"]
             isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transparens_uppdatering_postad_av_fkey"
+            columns: ["postad_av"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1357,6 +1466,63 @@ export type Database = {
       }
     }
     Views: {
+      profil_publik: {
+        Row: {
+          antal_insamlingar: number | null
+          antal_levererade: number | null
+          antal_utan_resultat: number | null
+          antal_vantar_resultat: number | null
+          ar_organisation: boolean | null
+          avatar_url: string | null
+          bankid_verifierad: boolean | null
+          id: string | null
+          medlem_sedan: string | null
+          presentation: string | null
+          public_id: string | null
+          region: string | null
+          roll: Database["public"]["Enums"]["anvandar_roll"] | null
+          stad: string | null
+          total_insamlat_ore: number | null
+          visningsnamn: string | null
+        }
+        Insert: {
+          antal_insamlingar?: never
+          antal_levererade?: never
+          antal_utan_resultat?: never
+          antal_vantar_resultat?: never
+          ar_organisation?: boolean | null
+          avatar_url?: string | null
+          bankid_verifierad?: boolean | null
+          id?: string | null
+          medlem_sedan?: string | null
+          presentation?: string | null
+          public_id?: string | null
+          region?: never
+          roll?: Database["public"]["Enums"]["anvandar_roll"] | null
+          stad?: never
+          total_insamlat_ore?: never
+          visningsnamn?: string | null
+        }
+        Update: {
+          antal_insamlingar?: never
+          antal_levererade?: never
+          antal_utan_resultat?: never
+          antal_vantar_resultat?: never
+          ar_organisation?: boolean | null
+          avatar_url?: string | null
+          bankid_verifierad?: boolean | null
+          id?: string | null
+          medlem_sedan?: string | null
+          presentation?: string | null
+          public_id?: string | null
+          region?: never
+          roll?: Database["public"]["Enums"]["anvandar_roll"] | null
+          stad?: never
+          total_insamlat_ore?: never
+          visningsnamn?: string | null
+        }
+        Relationships: []
+      }
       transparens_tidslinje: {
         Row: {
           godkant_at: string | null

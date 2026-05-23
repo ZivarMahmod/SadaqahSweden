@@ -121,7 +121,7 @@ export async function TransparensTidslinje({
       ) : (
         <ol className="mt-8 flex flex-col gap-0" aria-label="Transparens-tidslinje">
           {posts.map((p, idx) => (
-            <TidslinjeRad key={p.id} post={p} forst={idx === 0} sist={idx === posts.length - 1} />
+            <TidslinjeRad key={p.id} post={p} sist={idx === posts.length - 1} />
           ))}
           {!finnsResultat && <ResultatVantar />}
         </ol>
@@ -132,11 +132,9 @@ export async function TransparensTidslinje({
 
 function TidslinjeRad({
   post,
-  forst,
   sist,
 }: {
   post: TidslinjePost;
-  forst: boolean;
   sist: boolean;
 }) {
   const meta = postMeta(post);

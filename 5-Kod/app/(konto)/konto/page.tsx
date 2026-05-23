@@ -124,7 +124,17 @@ export default async function KontoPage() {
 
         <div className="mt-10 flex flex-wrap gap-3">
           {arInsamlare && <LinkButton href="/insamling">Till mina insamlingar</LinkButton>}
-          <LinkButton href="/insamlingar" variant="secondary">
+          <LinkButton href="/konto/profil" variant="secondary" leftIcon={<Icon name="edit" size={16} />}>
+            Redigera min profil
+          </LinkButton>
+          <LinkButton
+            href={`/profil/${me.profil.public_id}`}
+            variant="secondary"
+            leftIcon={<Icon name="external" size={16} />}
+          >
+            Visa publik profil
+          </LinkButton>
+          <LinkButton href="/insamlingar" variant="ghost">
             Utforska andra insamlingar
           </LinkButton>
           <form action={loggaUt}>

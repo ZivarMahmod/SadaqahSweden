@@ -61,7 +61,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
   const { data: i, error } = await supabase
     .from("insamling")
     .select(
-      "id, public_id, titel, kort_beskrivning, lang_beskrivning, mottagare_typ, mottagare_beskrivning, hjalp_land, hjalp_plats, insamlar_stad, insamlar_region, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamling_deadline, genomforande_datum, overmalsplan, tillat_overmal, status, publicerad_at, deleted_at",
+      "id, public_id, titel, kort_beskrivning, lang_beskrivning, mottagare_typ, mottagare_beskrivning, hjalp_land, hjalp_plats, insamlar_stad, insamlar_region, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamling_deadline, genomforande_datum, overmalsplan, tillat_overmal, status, publicerad_at, deleted_at, profiles!insamling_agare_id_fkey(public_id, visningsnamn, bankid_verifierad, ar_organisation)",
     )
     .eq("public_id", publicId)
     .single();
@@ -231,6 +231,32 @@ export default async function InsamlingPage({ params }: { params: Params }) {
                   </li>
                 </ul>
               </Card>
+
+              {i.profiles && (
+                <Card variant="tight" className="mt-4">
+                  <h3 className="h-3">Insamlaren</h3>
+                  <p className="mt-3 text-sm" style={{ color: "var(--color-ink-1)" }}>
+                    {i.profiles.visningsnamn}
+                    {i.profiles.ar_organisation ? " (förening)" : ""}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {i.profiles.bankid_verifierad && (
+                      <Pill tone="success">
+                        <Icon name="shield-check" size={12} /> Verifierad
+                      </Pill>
+                    )}
+                  </div>
+                  <LinkButton
+                    href={`/profil/${i.profiles.public_id}`}
+                    variant="secondary"
+                    size="sm"
+                    className="mt-4"
+                    rightIcon={<Icon name="arrow-right" size={14} />}
+                  >
+                    Se profil & track record
+                  </LinkButton>
+                </Card>
+              )}
 
               <Card variant="tight" className="mt-4">
                 <h3 className="h-3">Dela</h3>
