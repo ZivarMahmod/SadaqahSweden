@@ -7,7 +7,7 @@
 
 ## 1. Principen
 
-Plattformen är omfattande — 16 moduler. Att släppa allt på en gång är fel av tre skäl: det blir omöjligt att underhålla buggar, det överväldigar granskningsteamet, och det gör plattformen svår att förstå för nya användare.
+Plattformen är omfattande — 17 moduler. Att släppa allt på en gång är fel av tre skäl: det blir omöjligt att underhålla buggar, det överväldigar granskningsteamet, och det gör plattformen svår att förstå för nya användare.
 
 **Tre regler styr rollouten:**
 

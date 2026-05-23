@@ -9,7 +9,7 @@
 
 ## 1. Vad detta dokument är
 
-De 16 modulerna beskriver hur plattformen **ska** fungera. Det här dokumentet beskriver vad vi gör **när verkligheten slår till** — när en bank stänger kontot, när Stripe fryser pengarna, när en fejk-insamling slunkit igenom, när Zivar blir sjuk.
+Modulerna i `1-Planering/` beskriver hur plattformen **ska** fungera. Det här dokumentet beskriver vad vi gör **när verkligheten slår till** — när en bank stänger kontot, när Stripe fryser pengarna, när en fejk-insamling slunkit igenom, när Zivar blir sjuk.
 
 Det är inte en modul. Det är en **beredskapsplan**. Du läser den inte för att bygga något — du läser den så att den dagen något går sönder finns det redan ett papper som säger vad som händer och vem som gör vad.
 

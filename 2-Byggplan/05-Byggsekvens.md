@@ -26,7 +26,7 @@ Ett steg ≈ en arbetsorder för Claude Code. Stora steg kan delas i en egen det
 - [ ] GitHub-repot skapat (privat), mappstruktur enligt fil 04.
 - [ ] Next.js-app + Tailwind igång lokalt.
 - [ ] Supabase-projekt skapat, kopplat.
-- [ ] Vercel kopplat till repot — tom app deployar grönt.
+- [ ] OpenNext Cloudflare-adaptern inkopplad; Cloudflare Pages kopplat till repot — appen deployar grönt.
 - [ ] Miljövariabler + `.env.example` på plats, inga hemligheter i git.
 
 ### Steg 1 — Databasens grund
@@ -140,6 +140,10 @@ Ett steg ≈ en arbetsorder för Claude Code. Stora steg kan delas i en egen det
 **Bygger:** M16. **Plan-referens:** M16.
 **Klar när:** drift, statistik och larm-vy fungerar — det som håller plattformen 95 % självgående.
 
+### Steg 16 — Team & intern arbetsyta
+**Bygger:** M17. **Förutsätter:** Steg 2 (auth), 4 (granskning), 15 (drift). **Plan-referens:** M17.
+**Klar när:** teamet kan logga in i en samlad arbetsyta, roller styr vad var och en ser, onboarding/offboarding fungerar — och ingen har direkt databasåtkomst.
+
 ---
 
 ## Parallellt spår — BankID
@@ -165,3 +169,4 @@ Vilka steg som faktiskt **lanseras för riktiga användare**, och i vilken ordni
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Första byggsekvensen. 16 steg i tre bygg-grupper + parallellt BankID-spår. |
+| 1.1 | 2026-05-23 | Steg 16 (Team & intern arbetsyta, M17) tillagt — 17 steg. |

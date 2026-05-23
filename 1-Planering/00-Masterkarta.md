@@ -2,7 +2,7 @@
 
 **Plattform:** Sadaqa Sweden *(arbetsnamn — bekräfta eller byt)*
 **Datum:** 2026-05-23
-**Status:** Hela plattformen planerad — 16 moduler + Beredskapsplan. Extern granskning genomförd (se `FORGE-genomgang.md`).
+**Status:** Hela plattformen planerad — 17 moduler + Beredskapsplan. Extern granskning genomförd (se `FORGE-genomgang.md`).
 
 ---
 
@@ -30,7 +30,7 @@ Det är norrstjärnan. När ett beslut är oklart: vilket val tjänar den mening
 
 ## 2. De två lagren
 
-Plattformen har **16 moduler i två lager**. Lagren är till för att du ska kunna tänka klart — inte en teknisk indelning.
+Plattformen har **17 moduler i två lager**. Lagren är till för att du ska kunna tänka klart — inte en teknisk indelning.
 
 ### 🟢 KÄRNAN — insamlingsmotorn (Modul 1–8)
 
@@ -38,7 +38,7 @@ Det som *måste* funka för att det här ska vara en insamlingsplattform över h
 
 > **Om bara Kärnan fanns:** du har en fungerande, trygg insamlingsplattform. Tråkig, men den fungerar och den är säker.
 
-### 🔵 VÄRLDEN RUNTOM — det som får folk att komma tillbaka (Modul 9–16)
+### 🔵 VÄRLDEN RUNTOM — det som får folk att komma tillbaka (Modul 9–17)
 
 Profiler, kartan över Sverige, föreningskatalogen, communityn, events, notiser, statistik. Det här är skillnaden mellan "en sajt jag besöker när jag ska donera" och "en plats jag går in på för att se vad som händer".
 
@@ -48,7 +48,7 @@ Profiler, kartan över Sverige, föreningskatalogen, communityn, events, notiser
 
 ## 3. Hela modulkartan
 
-De 16 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.md`** (operativ beredskap — bank, betalning, incident, kontinuitet, ekonomi) och **`FORGE-genomgang.md`** (logg över den externa granskningen och vad den ledde till).
+De 17 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.md`** (operativ beredskap — bank, betalning, incident, kontinuitet, ekonomi) och **`FORGE-genomgang.md`** (logg över den externa granskningen och vad den ledde till).
 
 | # | Modul | Lager | Vad den ansvarar för | Status |
 |---|---|---|---|---|
@@ -68,6 +68,7 @@ De 16 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.m
 | 14 | Events & platsinfo | 🔵 Världen | Händelser, moské-öppettider, vad som är på gång | ✅ Klar |
 | 15 | Notiser & kommunikation | 🔵 Världen | Hur plattformen når användaren — kanaler, opt-in | ✅ Klar |
 | 16 | Admin & dashboard | 🔵 Världen | Drift, statistik, larm, det som håller plattformen självgående | ✅ Klar |
+| 17 | Team & intern arbetsyta | 🔵 Världen | Teamets konton, roller, vem-gör-vad, samlad inloggning — internt verktyg | ✅ Klar |
 
 ---
 
@@ -108,6 +109,8 @@ De 16 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.m
 **Modul 15 — Notiser & kommunikation.** Hur plattformen pratar med användaren. E-post, push, in-app. Opt-in, aldrig spam. "Ahmed öppnade en ny cykel — vill du ge igen?"
 
 **Modul 16 — Admin & dashboard.** Maskinrummet. Driftövervakning, statistik, larm när något kräver en människa, verktygen som gör att plattformen sköter sig själv 95 % av tiden.
+
+**Modul 17 — Team & intern arbetsyta.** Den interna sidan. Hur Zivar och vännerna som hjälper till får konton, roller och en samlad arbetsyta att logga in på — och hur man ser vem som gör vad. Databasen rörs aldrig direkt; arbetsytan är verktyget.
 
 ---
 
@@ -167,6 +170,7 @@ Modulerna är inte öar. Här är de viktigaste kopplingarna. Pilen betyder "byg
 - **M7 föder M9.** Transparens-historik (bevis, badges) blir det som visas på profilen.
 - **M10 föder M12 och M14.** Föreningskatalogen är datakällan för var moskéer ligger på kartan och vem som arrangerar events.
 - **M15 är tvärgående.** Notiser triggas av händelser i nästan sagt alla andra moduler.
+- **M17 omsluter M16 och M3.** Teamets arbetsyta är skalet; driftvyn (M16) och granskningskön (M3) visas inuti den.
 
 Varje modulfil har ett eget **"Kopplingar"-avsnitt** som listar exakt vad just den modulen tar in och lämnar ut.
 
@@ -185,8 +189,8 @@ Resten av M7, M4 fullt ut, M9, M11, M15.
 → Bevis, badges, profiler, discovery, notiser. Nu känns det som en plattform, inte ett formulär.
 
 **Bygg-grupp C — "plattformen är en värld":**
-M10, M12, M13, M14, M16.
-→ Katalog, karta, community, events, det självgående maskinrummet.
+M10, M12, M13, M14, M16, M17.
+→ Katalog, karta, community, events, det självgående maskinrummet, teamets arbetsyta.
 
 Varför säga det här rakt: scopet är stort. Det är inte knas — det hänger ihop. Men du ska veta att kartan är komplett *och* att den inte byggs på en månad. Planen är hel; bygget är i grupper.
 
@@ -219,7 +223,7 @@ Dessa återkommer genom hela plattformen. När en modul bryter mot en av dem ska
 
 ## 8. Hur varje modulfil är uppbyggd — mallen
 
-Lär dig den här en gång. Alla 16 modulfiler följer den.
+Lär dig den här en gång. Alla 17 modulfiler följer den.
 
 ```
 1. Vad modulen är          — en mening + vad den löser
@@ -292,7 +296,7 @@ Vill du läsa hela plattformen i en logisk ordning:
 1. **00 Masterkarta** (den här filen)
 2. Bakgrund (i `4-Bakgrund/`): `Insamlingsplattform-sammanfattning.md` och `-mitt-band.md` — *varför* plattformen finns
 3. **M1 → M8** (Kärnan, i nummerordning)
-4. **M9 → M16** (Världen runtom, i nummerordning)
+4. **M9 → M17** (Världen runtom, i nummerordning)
 5. **`Beredskapsplan.md`** — vad vi gör när verkligheten slår till
 6. **Föreningsdokumenten** — den juridiska kroppen bakom plattformen
 
@@ -311,6 +315,7 @@ Vill du bara veta vad som finns: den här filen räcker.
 | **Endast muslimska föreningar i katalogen** | Det är målgruppen. Katalogen ska kännas relevant och sammanhållen, inte vara en allmän föreningskatalog. |
 | **Granska före publicering** | Bekräftat av research: GoFundMes publicera-först är ett bedrägerihål. Confirmed av LaunchGoods modell. |
 | **Hela kartan planeras, bygget grupperas i A/B/C** | Ärlighet: scopet är stort. Planen får vara hel; bygget måste vara i hanterbara grupper. |
+| **M17 tillagd — Team & intern arbetsyta** | Adminpanelen/teamlagret var ett gap: hur de som driver plattformen får konton, roller och en arbetsyta. Eget koncept, skilt från M16:s driftvy. |
 
 ---
 
@@ -319,3 +324,4 @@ Vill du bara veta vad som finns: den här filen räcker.
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Första masterkartan. 16 moduler, två lager, kopplingskarta, designprinciper, mall, research-sammanfattning, gammal→ny-mappning. |
+| 1.1 | 2026-05-23 | Modul 17 (Team & intern arbetsyta) tillagd efter att teamlagret identifierats som ett gap — 17 moduler. |

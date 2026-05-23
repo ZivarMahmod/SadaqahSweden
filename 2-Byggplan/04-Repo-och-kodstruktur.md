@@ -4,7 +4,7 @@
 **Datum:** 2026-05-23
 **Vad detta är:** GitHub-repot och den interna mappstrukturen i `5-Kod/`. Var sidor, komponenter, affärslogik, databas, Stripe och Edge Functions bor — innan första kodraden skrivs, så koden föds organiserad.
 
-> Läs `00-Byggplan-oversikt.md` först. Teknikvalet (Next.js App Router + TypeScript + Tailwind, Supabase, Stripe, Vercel) är spikat där. Den här filen bygger på det.
+> Läs `00-Byggplan-oversikt.md` först. Teknikvalet (Next.js App Router + TypeScript + Tailwind, Supabase, Stripe, Cloudflare Pages) är spikat där. Den här filen bygger på det.
 
 ---
 
@@ -25,7 +25,7 @@ Repot innehåller två huvuddelar:
 
 ### Repo-namn
 
-**`sadaqa-sweden`** *(arbetsnamn — byts om plattformen får ett annat namn senare)*.
+**`sadaqahsweden`** *(arbetsnamn — byts om plattformen får ett annat namn senare)*.
 
 Små bokstäver, bindestreck. Enkelt, läsbart, matchar projektnamnet.
 
@@ -42,7 +42,9 @@ Enkel. Inget överbyggt flöde.
 | **`main`** | Alltid deploybar. Det som ligger här är det som körs i produktion. |
 | **`feature/...`** | En branch per byggsteg eller funktion. T.ex. `feature/m1-insamlingsobjekt`, `feature/stripe-webhooks`. |
 
-**Flödet:** skapa feature-branch → bygg steget → öppna pull request → Vercel skapar en preview-deploy → granska → merge till `main` → auto-deploy till produktion.
+**Flödet:** skapa feature-branch → bygg steget → öppna pull request → Cloudflare Pages skapar en preview-deploy → granska → merge till `main` → auto-deploy till produktion.
+
+> **OBS — autonomt soloskede:** I projektets nuvarande autonoma soloskede commitar Claude Code direkt till `main` (se `/goal`-kommandot och `5-Kod/.claude/commands/goal.md`). Det skyddade `main` + PR-flödet nedan gäller senare, när byggteamet är fler än en.
 
 `main` skyddas: ingen direkt push, merge sker via pull request. Det tvingar fram att "Klar när"-listan (fil 00) verkligen är grön innan något når produktion.
 
@@ -108,84 +110,81 @@ Strukturen följer två principer:
 ├── package.json
 ├── next.config.ts
 ├── tsconfig.json
-├── tailwind.config.ts
 ├── postcss.config.mjs
 │
 ├── public/                      # statiska filer — bilder, ikoner, favicon
 │
-├── src/
+├── app/                         # Next.js App Router — sidor & routing
+│   ├── layout.tsx               # rot-layout
+│   ├── page.tsx                 # startsidan
+│   ├── globals.css
 │   │
-│   ├── app/                     # Next.js App Router — sidor & routing
-│   │   ├── layout.tsx           # rot-layout
-│   │   ├── page.tsx             # startsidan
-│   │   ├── globals.css
-│   │   │
-│   │   ├── (publikt)/           # route-grupp: publika sidor (ej inloggning)
-│   │   │   ├── insamlingar/     # M11 listning + M1 detaljsida
-│   │   │   │   ├── page.tsx             # flöde / sök / filter
-│   │   │   │   └── [slug]/page.tsx      # en insamlings publika sida
-│   │   │   ├── ge/[slug]/       # M4 donationsflödet — inloggningsfritt
-│   │   │   ├── profil/[id]/     # M9 publik profil
-│   │   │   ├── foreningar/      # M10 föreningskatalog
-│   │   │   ├── karta/           # M12 Sverige-kartan
-│   │   │   └── events/          # M14 events & platsinfo
-│   │   │
-│   │   ├── (konto)/             # route-grupp: inloggad användare
-│   │   │   ├── skapa/           # M2 insamlar-wizard
-│   │   │   ├── mina-insamlingar/# M2 driva/redigera
-│   │   │   ├── installningar/   # M6 konto, M15 notis-opt-in
-│   │   │   └── onboarding/      # M5 Stripe Connect-onboarding
-│   │   │
-│   │   ├── (granskning)/        # route-grupp: granskar-roll
-│   │   │   └── ko/              # M3 granskningskö & beslut
-│   │   │
-│   │   ├── (admin)/             # route-grupp: admin-roll
-│   │   │   └── dashboard/       # M16 drift, statistik, larm
-│   │   │
-│   │   ├── auth/                # M6 inloggning, BankID-callback
-│   │   │
-│   │   └── api/                 # API-routes (server)
-│   │       ├── stripe/          # M5 checkout-session, Connect-länkar
-│   │       └── webhooks/        # OBS: Stripe-webhooks bor i Edge Functions
+│   ├── (publikt)/               # route-grupp: publika sidor (ej inloggning)
+│   │   ├── insamlingar/         # M11 listning + M1 detaljsida
+│   │   │   ├── page.tsx                 # flöde / sök / filter
+│   │   │   └── [slug]/page.tsx          # en insamlings publika sida
+│   │   ├── ge/[slug]/           # M4 donationsflödet — inloggningsfritt
+│   │   ├── profil/[id]/         # M9 publik profil
+│   │   ├── foreningar/          # M10 föreningskatalog
+│   │   ├── karta/               # M12 Sverige-kartan
+│   │   └── events/              # M14 events & platsinfo
 │   │
-│   ├── components/              # DELADE UI-komponenter
-│   │   ├── ui/                  # byggstenar — knapp, kort, input, modal
-│   │   └── layout/              # header, footer, navigation
+│   ├── (konto)/                 # route-grupp: inloggad användare
+│   │   ├── skapa/               # M2 insamlar-wizard
+│   │   ├── mina-insamlingar/    # M2 driva/redigera
+│   │   ├── installningar/       # M6 konto, M15 notis-opt-in
+│   │   └── onboarding/          # M5 Stripe Connect-onboarding
 │   │
-│   ├── modules/                 # MODULSPECIFIK kod — mapp per modul
-│   │   ├── insamling/           # M1 — komponenter + logik för objektet
-│   │   ├── insamlare/           # M2
-│   │   ├── granskning/          # M3
-│   │   ├── donation/            # M4
-│   │   ├── betalning/           # M5 — Stripe-logik
-│   │   ├── identitet/           # M6 — auth, roller, KYC
-│   │   ├── transparens/         # M7 — bevis, uppdateringar, badges
-│   │   ├── policy/              # M8 — regelkonstanter, granskningskriterier
-│   │   ├── profil/              # M9
-│   │   ├── organisation/        # M10
-│   │   ├── discovery/           # M11 — sök, filter, kategorier
-│   │   ├── karta/               # M12
-│   │   ├── community/           # M13 — kommentarer, dua, reaktioner
-│   │   ├── events/              # M14
-│   │   ├── notiser/             # M15
-│   │   └── admin/               # M16
-│   │     (varje modulmapp: components/, logik .ts-filer, ev. egna typer)
+│   ├── (granskning)/            # route-grupp: granskar-roll
+│   │   └── ko/                  # M3 granskningskö & beslut
 │   │
-│   ├── lib/                     # DELAD infrastruktur & affärslogik
-│   │   ├── supabase/
-│   │   │   ├── client.ts        # Supabase-klient — webbläsare
-│   │   │   ├── server.ts        # Supabase-klient — server
-│   │   │   └── middleware.ts    # session-hantering
-│   │   ├── stripe/
-│   │   │   └── client.ts        # Stripe SDK-init (server)
-│   │   ├── auth/                # roll-helpers, behörighetskontroller
-│   │   └── utils/               # formatering, datum, valuta
+│   ├── (admin)/                 # route-grupp: admin-roll
+│   │   └── dashboard/           # M16 drift, statistik, larm
 │   │
-│   ├── types/                   # DELADE TypeScript-typer
-│   │   ├── database.types.ts    # AUTO-GENERERAD från Supabase-schemat
-│   │   └── domain.ts            # domäntyper byggda ovanpå databasen
+│   ├── auth/                    # M6 inloggning, BankID-callback
 │   │
-│   └── middleware.ts            # Next.js middleware — auth/session globalt
+│   └── api/                     # API-routes (server)
+│       ├── stripe/              # M5 checkout-session, Connect-länkar
+│       └── webhooks/            # OBS: Stripe-webhooks bor i Edge Functions
+│
+├── components/                  # DELADE UI-komponenter
+│   ├── ui/                      # byggstenar — knapp, kort, input, modal
+│   └── layout/                  # header, footer, navigation
+│
+├── modules/                     # MODULSPECIFIK kod — mapp per modul
+│   ├── insamling/               # M1 — komponenter + logik för objektet
+│   ├── insamlare/               # M2
+│   ├── granskning/              # M3
+│   ├── donation/                # M4
+│   ├── betalning/               # M5 — Stripe-logik
+│   ├── identitet/               # M6 — auth, roller, KYC
+│   ├── transparens/             # M7 — bevis, uppdateringar, badges
+│   ├── policy/                  # M8 — regelkonstanter, granskningskriterier
+│   ├── profil/                  # M9
+│   ├── organisation/            # M10
+│   ├── discovery/               # M11 — sök, filter, kategorier
+│   ├── karta/                   # M12
+│   ├── community/               # M13 — kommentarer, dua, reaktioner
+│   ├── events/                  # M14
+│   ├── notiser/                 # M15
+│   └── admin/                   # M16
+│     (varje modulmapp: components/, logik .ts-filer, ev. egna typer)
+│
+├── lib/                         # DELAD infrastruktur & affärslogik
+│   ├── supabase/
+│   │   ├── client.ts            # Supabase-klient — webbläsare
+│   │   ├── server.ts            # Supabase-klient — server
+│   │   └── middleware.ts        # session-hantering
+│   ├── stripe/
+│   │   └── client.ts            # Stripe SDK-init (server)
+│   ├── auth/                    # roll-helpers, behörighetskontroller
+│   └── utils/                   # formatering, datum, valuta
+│
+├── types/                       # DELADE TypeScript-typer
+│   ├── database.types.ts        # AUTO-GENERERAD från Supabase-schemat
+│   └── domain.ts                # domäntyper byggda ovanpå databasen
+│
+├── middleware.ts                # Next.js middleware — auth/session globalt
 │
 └── supabase/                    # DATABAS & EDGE FUNCTIONS
     ├── config.toml
@@ -209,7 +208,7 @@ Strukturen följer två principer:
 
 ---
 
-## 3. Hur strukturen speglar de 16 modulerna
+## 3. Hur strukturen speglar de 17 modulerna
 
 Varje modul har en plats i koden. Sidan (var användaren ser den) och modulmappen (var logiken bor).
 
@@ -305,7 +304,7 @@ Plattformen behöver hemligheter för Supabase, Stripe, e-post och BankID. **Ing
 | Miljö | Var |
 |---|---|
 | Lokal utveckling | `.env.local` på utvecklarens dator |
-| Produktion & preview | Vercels miljövariabel-inställningar |
+| Produktion & preview | Cloudflare Pages miljövariabel-inställningar |
 | Edge Functions | Supabases secrets (`supabase secrets set`) |
 
 Hemligheterna lever på tre ställen — aldrig i koden, aldrig i git.
@@ -314,15 +313,17 @@ Hemligheterna lever på tre ställen — aldrig i koden, aldrig i git.
 
 ## 6. CI & deploy
 
-### GitHub → Vercel auto-deploy
+### GitHub → Cloudflare Pages auto-deploy
 
-Vercel kopplas till GitHub-repot. Därifrån är flödet automatiskt:
+Cloudflare Pages kopplas till GitHub-repot. Därifrån är flödet automatiskt:
 
-| Händelse | Vad Vercel gör |
+| Händelse | Vad Cloudflare Pages gör |
 |---|---|
 | Push till `main` | Bygger och deployar till **produktion** |
 | Push till en `feature/...`-branch | Bygger en **preview-deploy** med egen URL |
 | Pull request | Lägger preview-URL:en i PR:en — granska innan merge |
+
+Next.js körs på Cloudflare via OpenNext-adaptern `@opennextjs/cloudflare` — adaptern måste vara inkopplad för att bygget ska fungera. Den kräver `nodejs_compat`-flaggan och compatibility date `2024-09-23` eller senare. Byggkommandot är adapterns (t.ex. `opennextjs-cloudflare build`) — verifiera exakt kommando mot aktuell dokumentation på `opennext.js.org/cloudflare`, eftersom området ändras snabbt.
 
 En commit → en deploy (fil 00). Inget manuellt deploy-steg.
 
@@ -341,7 +342,7 @@ Databasen ändras **bara via numrerade migrationer** (fil 00, regel 4). De ligge
 3. När steget merge:as till `main` körs migrationen mot produktionsdatabasen — via Supabase CLI (`supabase db push`), kört av ett **GitHub Actions-workflow** vid merge.
 4. Efter migrationen regenereras `types/database.types.ts`.
 
-Vercel deployar koden; Supabase CLI kör databasen. Båda triggas av samma merge till `main` — koden och databasen hålls i takt.
+Cloudflare Pages deployar koden; Supabase CLI kör databasen. Båda triggas av samma merge till `main` — koden och databasen hålls i takt.
 
 ### Vad CI kontrollerar (GitHub Actions)
 
@@ -362,7 +363,7 @@ Vid varje pull request kör ett enkelt workflow:
 | Beslut | Motivering |
 |---|---|
 | **Ett privat monorepo** | Kod + databas-migration i samma commit. En sanning, en historik. Enklare än flera repon. |
-| **Repo-namn `sadaqa-sweden`** | Arbetsnamn, matchar projektet. Byts om plattformen får annat namn. |
+| **Repo-namn `sadaqahsweden`** | Arbetsnamn, matchar projektet. Byts om plattformen får annat namn. |
 | **`main` + feature-branches** | Enkelt flöde som passar ett litet team. Skyddad `main`, merge via PR. |
 | **Mapp per modul i `modules/`** | "Mapp per modul" hör hemma i koden (`0-LÄS-MIG-FÖRST.md`). Modulspecifik logik samlad, inte utspridd. |
 | **`app/` bara routing** | Tunna sidfiler. Affärslogik i `modules/`/`lib/`. Lättare att testa och läsa. |
@@ -374,8 +375,8 @@ Vid varje pull request kör ett enkelt workflow:
 
 | Fråga | Behöver beslut |
 |---|---|
-| **Slutligt repo-namn** | Bekräfta `sadaqa-sweden` eller byt — gör det innan repot skapas, byten efteråt är stökiga. |
-| **Vilken Vercel-/GitHub-organisation** | Personligt konto eller en organisation för projektet? Påverkar fakturering och åtkomst. |
+| **Slutligt repo-namn** | Bekräfta `sadaqahsweden` eller byt — gör det innan repot skapas, byten efteråt är stökiga. |
+| **Vilket Cloudflare-konto / GitHub-organisation** | Personligt konto eller en organisation för projektet? Påverkar fakturering och åtkomst. |
 | **BankID-broker** | Criipto är förslaget (fil 03) — exakt val avgör `BANKID_BROKER_*`-variablerna. |
 | **Behövs en `staging`-miljö** | Preview-deploys täcker mycket. En fast staging-databas kan behövas när riktiga användare finns — kan vänta. |
 | **CI-strikthet** | Hur hårt ska CI blockera vid start? Förslag: börja mjukt (typkontroll + lint), skärp med fler tester när pengaflödet byggs. |
@@ -387,3 +388,5 @@ Vid varje pull request kör ett enkelt workflow:
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Första versionen. GitHub-monorepo, branch-strategi, fullständig mappstruktur för `5-Kod/`, modul-till-kod-mappning, konventioner, miljövariabler, CI & deploy. |
+| 1.1 | 2026-05-23 | Hosting ändrad från Vercel till Cloudflare Pages (OpenNext-adapter). |
+| 1.2 | 2026-05-23 | Rättad mot faktisk scaffold — root-app/ (ingen src/), 17 moduler, repo-namn sadaqahsweden, brasklapp om autonomt soloskede. |

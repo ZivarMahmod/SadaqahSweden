@@ -12,6 +12,23 @@ $ARGUMENTS
 
 Om inget mål står ovanför är målet: **bygg så många steg som möjligt av `../2-Byggplan/05-Byggsekvens.md`, i ordning, verifiera varje, pusha till `main`.**
 
+## Vad resultatet ska vara
+
+Hela plattformen blir **inte** klar på en körning — det är inte målet, och du ska inte mäta dig mot det. Målet är:
+
+**Så långt genom byggsekvensen du kan — och varje steg du rört är på riktigt klart.**
+
+"Klart" gäller **per steg**, inte för plattformen. Ett steg är klart när dess "Klar när"-lista är grön, verifierad och pushad. Kom du till Steg 4 med fyra solida, pushade steg — lyckad körning. Kom du till Steg 9 — bättre. Båda är framgång.
+
+Två sätt att misslyckas — undvik båda:
+
+- **Halvbyggt.** Ett steg du börjat men inte verifierat och pushat = kaos. Känner du att du inte hinner slutföra ett steg innan du stannar — påbörja det inte. Avsluta alltid på en ren steg-gräns.
+- **Skumma förbi.** Att ytligt "passera" ett steg — bygga slarvigt och gå vidare — sår fel som fortplantar sig. En hård men byggbar uppgift bygger du ordentligt, hela vägen.
+
+Du passerar **bara** det som är genuint blockerat — en saknad nyckel eller extern dependency du inte har. Det noterar du i `SESSION-GOAL.md` och går vidare. Allt annat bygger du, ordentligt, till verifierat-och-pushat.
+
+Resultatet är ett repo där allt som byggts fungerar och är verifierat, inget är halvbyggt eller trasigt, och `SESSION-GOAL.md` visar exakt hur långt du kom.
+
 ## Steg 1 — orientera
 
 Läs `CLAUDE.md`, `../2-Byggplan/00-Byggplan-oversikt.md` och `../2-Byggplan/05-Byggsekvens.md`. Skapa eller uppdatera `SESSION-GOAL.md` i repo-roten (mall längst ner).
@@ -31,7 +48,7 @@ Plattformen har **inga användare, inga besökare, ingen trafik, ingen data**. D
 - **Ett steg i taget, i ordning.** Bygg inte vidare ovanpå ett overifierat steg — fel fortplantar sig.
 - **Databasändringar bara via migrationer.** Numrerade, idempotenta.
 - **Hemligheter aldrig i git.** `.env.local` är gitignorad — håll det så. Inga nycklar i koden.
-- **Säkerheten byggs in enligt planen** (RLS m.m.). Det är specen, inte en checkpoint.
+- **Databassäkerheten är icke-förhandlingsbar.** Följ `../Supabase/SAKERHETSREGLER.md` vid varje databasändring — RLS på varje tabell, `service_role` aldrig i klienten, `SECURITY DEFINER` bara i `private`-schema, Security Advisor grön före push. Det är specen, inte en checkpoint.
 
 ## Arbetsloopen
 
@@ -41,44 +58,4 @@ För varje steg i byggsekvensen:
 2. Verifiera — `npm run build` + stegets "Klar när"-lista.
 3. Commita och pusha till `main` med ett tydligt meddelande.
 4. Uppdatera `SESSION-GOAL.md`.
-5. Gå **direkt vidare** till nästa steg. Stanna inte för att fråga.
-
-Fortsätt loopen tills du får slut på definierat arbete, slår i en äkta blockerare, eller når kontextgränsen.
-
-## Hard stops — du noterar och går vidare, du väntar aldrig tyst
-
-- **Saknad nyckel/credential** (Stripe, BankID-broker, ev. Supabase): bygg allt som *inte* kräver den, notera det blockerade i `SESSION-GOAL.md`, gå vidare till nästa byggbara sak.
-- **Ett steg går inte att verifiera** trots rimliga försök: notera felet tydligt, hoppa till ett oberoende steg om sådant finns, annars stanna med full statusrapport.
-- **Slut på arbete eller kontextgränsen nås:** uppdatera `SESSION-GOAL.md` till en komplett statusbild och stanna.
-
-## Beslut
-
-Lämnar planen en lucka: fatta det rimligaste beslutet utifrån planens principer, notera det i `SESSION-GOAL.md`, fortsätt. Du stannar inte för att fråga Zivar.
-
-## SESSION-GOAL.md — mall
-
-```
-# SESSION-GOAL
-
-**Mål:** [målet]
-**Uppdaterad:** [datum + tid]
-
-## Steg-status
-- [x] Steg 0 — Fundament — KLART, pushad
-- [ ] Steg 1 — Databas — pågår
-- [ ] Steg 2 — ...
-
-## Byggt denna session
-- [en kort rad per avklarat steg, med commit-referens]
-
-## Blockerat — väntar på Zivar
-- [t.ex. "Steg 5 Stripe — saknar STRIPE_SECRET_KEY i .env.local"]
-
-## Beslut jag fattade
-- [beslut + en rad varför]
-
-## Nästa
-- [vad nästa session / Zivar behöver veta för att fortsätta]
-```
-
-Lämna alltid `SESSION-GOAL.md` i ett tillstånd där Zivar på 30 sekunder ser vad som är byggt, vad som är blockerat och vad som är nästa.
+5. Gå **direkt vidare** till nästa steg. Stanna inte för

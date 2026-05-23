@@ -34,10 +34,10 @@ Den här filen + 05 är de viktigaste. 01–04 är djupdykningarna.
 | **Databas & backend** | Supabase — Postgres + Auth + Realtime + Storage + Edge Functions | Postgres = rätt databas (inte SQLite). RLS = säkerhet i databasen, inte i frontend. Realtime = realtidsräknaren direkt ur lådan. Storage = bilder. Edge Functions = Stripe-webhooks. Du kan Supabase sedan Corevo. |
 | **Betalning** | Stripe Connect (Express) | Pengarna går direkt till insamlaren — plattformen rör dem aldrig juridiskt (M5). Express = enklast onboarding för insamlaren. |
 | **Identitet** | BankID via broker (t.ex. Criipto) | BankID kräver eget avtal + certifikat. En broker tar den komplexiteten. Detta är ditt parallella spår — se fil 03. |
-| **Hosting** | Vercel (frontend) + Supabase (managed databas) | Vercel = Next.js native, auto-deploy direkt från GitHub. |
+| **Hosting** | Cloudflare Pages (frontend) + Supabase (managed databas) | Next.js körs på Cloudflare via OpenNext-adaptern `@opennextjs/cloudflare` — ett extra lager, men officiellt stött. Auto-deploy från GitHub. |
 | **E-post** | Resend | Transaktionsmejl — kvitton, granskningsbesked, notiser. |
 | **Bakgrundsjobb** | Supabase pg_cron + Edge Functions | Deadline-stängning, utbetalnings-triggers, notiser — schemalagt i databasen. |
-| **Kod** | GitHub-repo, auto-deploy till Vercel | En commit → en deploy. |
+| **Kod** | GitHub-repo, auto-deploy till Cloudflare Pages | En commit → en deploy. |
 
 **Varför Next.js och inte Vite (som i Corevo):** Corevo är en intern POS — ingen behöver googla den. Sadaqa Sweden lever tvärtom på publik synlighet: en insamling måste kunna hittas, delas och förhandsvisas snyggt. Det är skälet, och det enda stället där den här plattformen medvetet avviker från Corevos stack.
 
@@ -82,7 +82,7 @@ Du gav fyra konkreta krav. Här är var vart och ett bor i byggplanen:
 Bygget följer masterkartans tre bygg-grupper. Detaljerna — varje steg — står i fil **05 Byggsekvens**.
 
 **Bygg-grupp A — "plattformen fungerar och är trygg"**
-Fundament (repo, Supabase, Vercel) → databas → auth & roller → insamlings-objektet → insamlar-flöde → granskning → Stripe Connect → de tre obligatoriska bevisen.
+Fundament (repo, Supabase, Cloudflare Pages) → databas → auth & roller → insamlings-objektet → insamlar-flöde → granskning → Stripe Connect → de tre obligatoriska bevisen.
 → *Resultat:* en insamlare kan skapa, granskas, publicera, ta emot pengar. En donator kan ge. Reglerna håller.
 
 **Bygg-grupp B — "plattformen är trovärdig och levande"**

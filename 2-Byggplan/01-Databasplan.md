@@ -7,6 +7,8 @@
 
 > **Detta dokument ska Claude Code kunna agera på.** Schema-skisserna i kodblock är avsiktligt konkreta — riktiga tabellnamn, kolumnnamn, datatyper. De är planeringsunderlag, inte färdiga migrationer. Exakt SQL skrivs i migrationsfilerna (avsnitt 5). Var beslutsam om *strukturen*, noggrann om *detaljerna*.
 
+> **Databassäkerhet — icke-förhandlingsbart.** Varje tabell, policy och funktion följer `../Supabase/SAKERHETSREGLER.md`: RLS på allt i samma migration, `SECURITY DEFINER` bara i `private`-schema med pinnad `search_path`, `service_role` aldrig i klienten, inget `user_metadata` i policies, Security Advisor grön före push. Principerna i avsnitt 1 nedan ska stämma överens med den filen — gör de inte det, vinner SAKERHETSREGLER.md.
+
 ---
 
 ## 1. Databasprinciper

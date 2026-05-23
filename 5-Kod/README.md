@@ -19,7 +19,7 @@ Next.js 16 · React 19 · TypeScript · Tailwind v4 · Supabase · Stripe Connec
 
 Planeringen ligger utanför repot, i systermapparna:
 
-- `../1-Planering/` — plattformens 16 moduler, masterkarta, beredskapsplan.
+- `../1-Planering/` — plattformens 17 moduler, masterkarta, beredskapsplan.
 - `../2-Byggplan/` — teknikval, databasplan, byggsekvens, rollout-plan.
 - `CLAUDE.md` — projektbrief och byggprinciper (läs den först).
 

@@ -48,6 +48,20 @@ Detaljer och motivering: `../2-Byggplan/00-Byggplan-oversikt.md`.
 
 ---
 
+## Databassäkerhet — icke-förhandlingsbart
+
+Projektets viktigaste tekniska regel. Läs och följ **`../Supabase/SAKERHETSREGLER.md`** vid VARJE databasändring. Djupare referens: `../Supabase/SUPABASE-FALTMANUAL.md`.
+
+Kärnan, kort:
+
+- **RLS på varje tabell** — i samma migration som skapar den. Ingen tabell utan RLS.
+- **`service_role`-nyckeln finns bara på servern** — aldrig i klienten, webbläsaren eller git. Klienten får bara anon-nyckeln.
+- **`SECURITY DEFINER`-funktioner**: bara i ett `private`-schema, `SET search_path = ''`, explicit REVOKE/GRANT. Default är `SECURITY INVOKER`.
+- **Aldrig `user_metadata` i en RLS-policy** — användaren kan skriva det själv. Roll i `app_metadata` / JWT-claims.
+- **Security Advisor körs efter varje migrationsomgång** — alla P0-lints gröna, annars pushas inget.
+
+Bakgrund: ett systerprojekt samlade 80+ databashål för att rollhygienen aldrig stramades åt från start. Sadaqah Sweden gör rätt från migration 001.
+
 ## Byggprinciper — gäller varje steg
 
 1. **Ett steg i taget.** Följ byggsekvensen. Verifiera innan nästa steg.

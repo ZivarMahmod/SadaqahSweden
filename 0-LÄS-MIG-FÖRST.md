@@ -16,7 +16,7 @@ Sadaqa-Sweden/
 │
 ├── 1-Planering/            ← VAD som ska byggas
 │       Hela plattformen planerad i detalj. Börja i 00-Masterkarta.md.
-│       16 moduler + Beredskapsplan + FORGE-genomgång.
+│       17 moduler + Beredskapsplan + FORGE-genomgång.
 │
 ├── 2-Byggplan/             ← HUR det byggs
 │       Den sekvenserade exekveringsplanen för Claude Code.
@@ -30,8 +30,12 @@ Sadaqa-Sweden/
 │       Ursprungsdokumenten — själsdokumentet, sammanfattningen, todo,
 │       det första frö-arbetet. Bakgrund, inte aktuell plan.
 │
-└── 5-Kod/                  ← själva KODEN
-        Tom tills bygget startar. Detta blir GitHub-repot.
+├── 5-Kod/                  ← själva KODEN
+│       Tom tills bygget startar. Detta blir GitHub-repot.
+│
+└── Supabase/               ← databasens säkerhetsregler
+        SAKERHETSREGLER.md (följs vid varje DB-ändring) + den djupa
+        fältmanualen. Läses av Claude Code — inte en del av bygget.
 ```
 
 ---
@@ -47,6 +51,7 @@ Sadaqa-Sweden/
 | Registrera föreningen | `3-Foreningsdokument/Registreringsguide.docx` |
 | Förstå varför projektet finns | `4-Bakgrund/Insamlingsplattform-sammanfattning.md` |
 | Bygga plattformen | `2-Byggplan/00-Byggplan-oversikt.md` → `5-Kod/` |
+| Bygga databasen säkert | `Supabase/SAKERHETSREGLER.md` |
 
 > **Notation:** I dokumenten skrivs modulerna kort som **M1–M16**. *M3 betyder Modul 3* = filen `1-Planering/Modul-03-Granskar-flodet.md`. Hela listan med nummer och namn finns i `1-Planering/00-Masterkarta.md`.
 
@@ -74,7 +79,7 @@ Du frågade om mappar per modul vore snyggast. Svar: **inte för planeringen.** 
 
 | Klart | Härnäst |
 |---|---|
-| 1-Planering (16 moduler + beredskap) | Bygget i `5-Kod/` — Claude Code kör byggsekvensen steg för steg |
+| 1-Planering (17 moduler + beredskap) | Bygget i `5-Kod/` — Claude Code kör byggsekvensen steg för steg |
 | 2-Byggplan (exekveringsplan + rollout, 7 filer) | |
 | 3-Foreningsdokument (utkast) | Föreningen registreras |
 
