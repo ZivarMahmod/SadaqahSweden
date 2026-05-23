@@ -20,13 +20,11 @@
     "enabled": true
   },
   "routes": [
-    // Routes-pattern istället för custom_domain — undviker DNS-konflikt
-    // med befintliga proxied records (kvar från Pages). Befintlig orange-
-    // cloudad A/AAAA i zonen + denna route räcker för att Workers ska ta
-    // emot all trafik. Byt till custom_domain när Pages-records är
-    // borttagna i dashboarden.
-    { "pattern": "sadaqahsweden.se/*", "zone_name": "sadaqahsweden.se" },
-    { "pattern": "www.sadaqahsweden.se/*", "zone_name": "sadaqahsweden.se" }
+    // Pages-projektet är borttaget → custom_domain kan ta över. Cloudflare
+    // hanterar DNS automatiskt (skapar/uppdaterar A/AAAA i zonen och
+    // dirigerar direkt till Workern). Inga route-patterns behövs.
+    { "pattern": "sadaqahsweden.se", "custom_domain": true },
+    { "pattern": "www.sadaqahsweden.se", "custom_domain": true }
   ],
   "vars": {
     // Publika (klient-safe) miljövariabler. Bygger in i Worker-bundeln.
