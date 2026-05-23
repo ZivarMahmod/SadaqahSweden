@@ -72,7 +72,6 @@ function Logotyp() {
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Topp */}
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
         <Logotyp />
         <span className="rounded-full border border-line bg-paper px-3 py-1 text-xs font-medium text-muted">
@@ -81,9 +80,113 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Hero */}
         <section className="mx-auto w-full max-w-5xl px-6 pb-20 pt-12 sm:pt-20">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-brand">
             Insamlingsplattform för det muslimska samhället
           </p>
-          <h1 className="font-display text-4xl font-medium lead
+          <h1 className="font-display text-4xl font-medium leading-[1.05] tracking-tight text-ink sm:text-6xl">
+            Trygga insamlingar.
+            <br />
+            <span className="text-brand">Spårbara resultat.</span>
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted sm:text-xl">
+            Sadaqah Sweden är en transparent plattform där varje projekt granskas
+            före publicering, pengarna går direkt till insamlaren och resultatet
+            bevisas — från gåva till levererad hjälp.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <a
+              href="#sa-fungerar-det"
+              className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-sm font-medium text-paper transition hover:bg-brand-dark"
+            >
+              Så fungerar det
+            </a>
+            <a
+              href="#principer"
+              className="inline-flex items-center rounded-full border border-line bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:border-brand hover:text-brand"
+            >
+              Våra principer
+            </a>
+          </div>
+        </section>
+
+        <section
+          id="sa-fungerar-det"
+          className="mx-auto w-full max-w-5xl px-6 pb-20"
+        >
+          <h2 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl">
+            Så fungerar det
+          </h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+            {steg.map((s) => (
+              <div
+                key={s.n}
+                className="rounded-2xl border border-line bg-paper p-6"
+              >
+                <span className="font-display text-sm font-semibold text-sand">
+                  {s.n}
+                </span>
+                <h3 className="mt-3 font-display text-xl font-medium text-ink">
+                  {s.titel}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {s.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="principer" className="bg-sage">
+          <div className="mx-auto w-full max-w-5xl px-6 py-20">
+            <h2 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl">
+              Det vi bygger på
+            </h2>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2">
+              {principer.map((p) => (
+                <div
+                  key={p.titel}
+                  className="rounded-2xl border border-line bg-paper p-6"
+                >
+                  <h3 className="font-display text-xl font-medium text-ink">
+                    {p.titel}
+                  </h3>
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
+                    {p.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-5xl px-6 py-20">
+          <h2 className="font-display text-3xl font-medium tracking-tight text-ink sm:text-4xl">
+            Områden vi stödjer
+          </h2>
+          <p className="mt-4 max-w-2xl text-muted">
+            Från akut katastrofhjälp till långsiktiga projekt — granskat och
+            spårbart.
+          </p>
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {kategorier.map((k) => (
+              <li
+                key={k}
+                className="rounded-full border border-line bg-paper px-4 py-2 text-sm font-medium text-ink"
+              >
+                {k}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
+
+      <footer className="border-t border-line">
+        <div className="mx-auto flex w-full max-w-5xl flex-col items-start justify-between gap-4 px-6 py-8 text-sm text-muted sm:flex-row sm:items-center">
+          <Logotyp />
+          <span>© {new Date().getFullYear()} Sadaqah Sweden</span>
+        </div>
+      </footer>
+    </div>
+  );
+}

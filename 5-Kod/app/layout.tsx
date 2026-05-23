@@ -20,4 +20,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Sadaqah Sweden",
     description:
-      "En transparent insamlin
+      "En transparent insamlingsplattform för det muslimska samhället i Sverige.",
+    url: "https://sadaqahsweden.se",
+    siteName: "Sadaqah Sweden",
+    locale: "sv_SE",
+    type: "website",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="sv" className={`${geistSans.variable} ${fraunces.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
