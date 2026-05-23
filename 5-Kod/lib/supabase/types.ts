@@ -1,9 +1,3 @@
-// Auto-genererad från Supabase via MCP `generate_typescript_types`.
-// Regenerera vid varje schemaändring: kör Supabase MCP-verktyget och
-// klistra in resultatet här. Editera ALDRIG handla — överskrivs.
-//
-// Senast regenererad: 2026-05-23 (efter migration 0010 — granskar-beslut).
-
 export type Json =
   | string
   | number
@@ -13,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -93,6 +89,131 @@ export type Database = {
           },
         ]
       }
+      connected_accounts: {
+        Row: {
+          business_type: string | null
+          capabilities: Json
+          charges_enabled: boolean
+          country: string
+          created_at: string
+          details_submitted: boolean
+          id: string
+          payout_schedule: string
+          payouts_enabled: boolean
+          profile_id: string | null
+          requirements: Json
+          status: Database["public"]["Enums"]["connected_account_status"]
+          stripe_account_id: string
+          typ: Database["public"]["Enums"]["connected_account_typ"]
+          updated_at: string
+        }
+        Insert: {
+          business_type?: string | null
+          capabilities?: Json
+          charges_enabled?: boolean
+          country?: string
+          created_at?: string
+          details_submitted?: boolean
+          id?: string
+          payout_schedule?: string
+          payouts_enabled?: boolean
+          profile_id?: string | null
+          requirements?: Json
+          status?: Database["public"]["Enums"]["connected_account_status"]
+          stripe_account_id: string
+          typ: Database["public"]["Enums"]["connected_account_typ"]
+          updated_at?: string
+        }
+        Update: {
+          business_type?: string | null
+          capabilities?: Json
+          charges_enabled?: boolean
+          country?: string
+          created_at?: string
+          details_submitted?: boolean
+          id?: string
+          payout_schedule?: string
+          payouts_enabled?: boolean
+          profile_id?: string | null
+          requirements?: Json
+          status?: Database["public"]["Enums"]["connected_account_status"]
+          stripe_account_id?: string
+          typ?: Database["public"]["Enums"]["connected_account_typ"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connected_accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          avgift_ore: number
+          belopp_ore: number
+          created_at: string
+          currency: string
+          donation_id: string
+          evidence_due_by: string | null
+          id: string
+          insamling_id: string
+          is_charge_refundable: boolean
+          reason: string | null
+          status: Database["public"]["Enums"]["dispute_status"]
+          stripe_dispute_id: string
+          updated_at: string
+        }
+        Insert: {
+          avgift_ore?: number
+          belopp_ore: number
+          created_at?: string
+          currency?: string
+          donation_id: string
+          evidence_due_by?: string | null
+          id?: string
+          insamling_id: string
+          is_charge_refundable?: boolean
+          reason?: string | null
+          status: Database["public"]["Enums"]["dispute_status"]
+          stripe_dispute_id: string
+          updated_at?: string
+        }
+        Update: {
+          avgift_ore?: number
+          belopp_ore?: number
+          created_at?: string
+          currency?: string
+          donation_id?: string
+          evidence_due_by?: string | null
+          id?: string
+          insamling_id?: string
+          is_charge_refundable?: boolean
+          reason?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"]
+          stripe_dispute_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       donation: {
         Row: {
           anonym: boolean
@@ -102,14 +223,20 @@ export type Database = {
           donator_epost: string
           donator_id: string | null
           enhet_antal: number | null
+          failure_reason: string | null
           frivilligt_bidrag_ore: number
           id: string
           insamling_id: string
           public_id: string
           refunderad: boolean
           refunderad_at: string | null
+          refunderad_belopp_ore: number
+          status: Database["public"]["Enums"]["donation_status"]
+          stripe_avgift_ore: number
+          stripe_balance_transaction_id: string | null
           stripe_charge_id: string | null
           stripe_payment_intent_id: string | null
+          transfer_id: string | null
           undermal_val: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at: string
         }
@@ -121,14 +248,20 @@ export type Database = {
           donator_epost: string
           donator_id?: string | null
           enhet_antal?: number | null
+          failure_reason?: string | null
           frivilligt_bidrag_ore?: number
           id?: string
           insamling_id: string
           public_id?: string
           refunderad?: boolean
           refunderad_at?: string | null
+          refunderad_belopp_ore?: number
+          status?: Database["public"]["Enums"]["donation_status"]
+          stripe_avgift_ore?: number
+          stripe_balance_transaction_id?: string | null
           stripe_charge_id?: string | null
           stripe_payment_intent_id?: string | null
+          transfer_id?: string | null
           undermal_val?: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at?: string
         }
@@ -140,14 +273,20 @@ export type Database = {
           donator_epost?: string
           donator_id?: string | null
           enhet_antal?: number | null
+          failure_reason?: string | null
           frivilligt_bidrag_ore?: number
           id?: string
           insamling_id?: string
           public_id?: string
           refunderad?: boolean
           refunderad_at?: string | null
+          refunderad_belopp_ore?: number
+          status?: Database["public"]["Enums"]["donation_status"]
+          stripe_avgift_ore?: number
+          stripe_balance_transaction_id?: string | null
           stripe_charge_id?: string | null
           stripe_payment_intent_id?: string | null
+          transfer_id?: string | null
           undermal_val?: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at?: string
         }
@@ -164,6 +303,13 @@ export type Database = {
             columns: ["insamling_id"]
             isOneToOne: false
             referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donation_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "transfers"
             referencedColumns: ["id"]
           },
         ]
@@ -286,6 +432,7 @@ export type Database = {
           enhet_namn: string | null
           enhet_pris_ore: number | null
           forlangd_antal: number
+          frivilligt_bidrag_total_ore: number
           genomforande_datum: string
           godkand_av: string | null
           hjalp_land: string
@@ -297,6 +444,7 @@ export type Database = {
           insamlar_adress_publik: boolean
           insamlar_region: string | null
           insamlar_stad: string
+          insamlat_netto_ore: number
           insamlat_ore: number
           insamling_deadline: string
           inskickad_at: string | null
@@ -320,6 +468,7 @@ export type Database = {
           transfer_group: string | null
           undermal_default_val: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at: string
+          utbetald_ore: number
           valuta: string
         }
         Insert: {
@@ -331,6 +480,7 @@ export type Database = {
           enhet_namn?: string | null
           enhet_pris_ore?: number | null
           forlangd_antal?: number
+          frivilligt_bidrag_total_ore?: number
           genomforande_datum: string
           godkand_av?: string | null
           hjalp_land: string
@@ -342,6 +492,7 @@ export type Database = {
           insamlar_adress_publik?: boolean
           insamlar_region?: string | null
           insamlar_stad: string
+          insamlat_netto_ore?: number
           insamlat_ore?: number
           insamling_deadline: string
           inskickad_at?: string | null
@@ -365,6 +516,7 @@ export type Database = {
           transfer_group?: string | null
           undermal_default_val?: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at?: string
+          utbetald_ore?: number
           valuta?: string
         }
         Update: {
@@ -376,6 +528,7 @@ export type Database = {
           enhet_namn?: string | null
           enhet_pris_ore?: number | null
           forlangd_antal?: number
+          frivilligt_bidrag_total_ore?: number
           genomforande_datum?: string
           godkand_av?: string | null
           hjalp_land?: string
@@ -387,6 +540,7 @@ export type Database = {
           insamlar_adress_publik?: boolean
           insamlar_region?: string | null
           insamlar_stad?: string
+          insamlat_netto_ore?: number
           insamlat_ore?: number
           insamling_deadline?: string
           inskickad_at?: string | null
@@ -410,6 +564,7 @@ export type Database = {
           transfer_group?: string | null
           undermal_default_val?: Database["public"]["Enums"]["donation_undermal_val"]
           updated_at?: string
+          utbetald_ore?: number
           valuta?: string
         }
         Relationships: [
@@ -418,6 +573,13 @@ export type Database = {
             columns: ["agare_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insamling_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
             referencedColumns: ["id"]
           },
           {
@@ -762,6 +924,66 @@ export type Database = {
           },
         ]
       }
+      payouts: {
+        Row: {
+          arrival_date: string | null
+          belopp_ore: number
+          connected_account_id: string
+          created_at: string
+          currency: string
+          failure_code: string | null
+          failure_reason: string | null
+          id: string
+          insamling_id: string | null
+          status: Database["public"]["Enums"]["payout_status"]
+          stripe_payout_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          arrival_date?: string | null
+          belopp_ore: number
+          connected_account_id: string
+          created_at?: string
+          currency?: string
+          failure_code?: string | null
+          failure_reason?: string | null
+          id?: string
+          insamling_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          stripe_payout_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arrival_date?: string | null
+          belopp_ore?: number
+          connected_account_id?: string
+          created_at?: string
+          currency?: string
+          failure_code?: string | null
+          failure_reason?: string | null
+          id?: string
+          insamling_id?: string | null
+          status?: Database["public"]["Enums"]["payout_status"]
+          stripe_payout_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profil_badge: {
         Row: {
           antal: number
@@ -851,6 +1073,132 @@ export type Database = {
           visningsnamn?: string
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          anledning: Database["public"]["Enums"]["refund_anledning"]
+          belopp_ore: number
+          beslutsnotering: string | null
+          created_at: string
+          currency: string
+          donation_id: string
+          failure_reason: string | null
+          id: string
+          idempotency_key: string
+          initierad_av: string | null
+          status: Database["public"]["Enums"]["refund_status"]
+          stripe_refund_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          anledning: Database["public"]["Enums"]["refund_anledning"]
+          belopp_ore: number
+          beslutsnotering?: string | null
+          created_at?: string
+          currency?: string
+          donation_id: string
+          failure_reason?: string | null
+          id?: string
+          idempotency_key: string
+          initierad_av?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          stripe_refund_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          anledning?: Database["public"]["Enums"]["refund_anledning"]
+          belopp_ore?: number
+          beslutsnotering?: string | null
+          created_at?: string
+          currency?: string
+          donation_id?: string
+          failure_reason?: string | null
+          id?: string
+          idempotency_key?: string
+          initierad_av?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+          stripe_refund_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_initierad_av_fkey"
+            columns: ["initierad_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfers: {
+        Row: {
+          belopp_ore: number
+          connected_account_id: string
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          idempotency_key: string
+          insamling_id: string
+          status: Database["public"]["Enums"]["transfer_status"]
+          stripe_transfer_id: string | null
+          syfte: string
+          transfer_group: string
+          updated_at: string
+        }
+        Insert: {
+          belopp_ore: number
+          connected_account_id: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          idempotency_key: string
+          insamling_id: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          stripe_transfer_id?: string | null
+          syfte?: string
+          transfer_group: string
+          updated_at?: string
+        }
+        Update: {
+          belopp_ore?: number
+          connected_account_id?: string
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          idempotency_key?: string
+          insamling_id?: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          stripe_transfer_id?: string | null
+          syfte?: string
+          transfer_group?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_connected_account_id_fkey"
+            columns: ["connected_account_id"]
+            isOneToOne: false
+            referencedRelation: "connected_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transparens_bevis: {
         Row: {
@@ -968,6 +1316,45 @@ export type Database = {
           },
         ]
       }
+      webhook_events: {
+        Row: {
+          api_version: string | null
+          error_message: string | null
+          event_type: string
+          livemode: boolean
+          payload: Json
+          processed_at: string | null
+          received_at: string
+          status: Database["public"]["Enums"]["webhook_event_status"]
+          stripe_account: string | null
+          stripe_event_id: string
+        }
+        Insert: {
+          api_version?: string | null
+          error_message?: string | null
+          event_type: string
+          livemode?: boolean
+          payload: Json
+          processed_at?: string | null
+          received_at?: string
+          status?: Database["public"]["Enums"]["webhook_event_status"]
+          stripe_account?: string | null
+          stripe_event_id: string
+        }
+        Update: {
+          api_version?: string | null
+          error_message?: string | null
+          event_type?: string
+          livemode?: boolean
+          payload?: Json
+          processed_at?: string | null
+          received_at?: string
+          status?: Database["public"]["Enums"]["webhook_event_status"]
+          stripe_account?: string | null
+          stripe_event_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1003,6 +1390,27 @@ export type Database = {
         | "admin"
       collab_status: "begard" | "godkand" | "avbojd" | "aterkallad"
       collab_typ: "initiativtagare" | "stodjer" | "praktisk_partner"
+      connected_account_status:
+        | "pending"
+        | "restricted"
+        | "enabled"
+        | "disabled"
+      connected_account_typ: "insamlare" | "forening" | "platform"
+      dispute_status:
+        | "warning_needs_response"
+        | "warning_under_review"
+        | "warning_closed"
+        | "needs_response"
+        | "under_review"
+        | "won"
+        | "lost"
+      donation_status:
+        | "skapad"
+        | "processing"
+        | "succeeded"
+        | "failed"
+        | "refunded"
+        | "partially_refunded"
       donation_undermal_val: "ge_anda" | "aterbetala"
       granskning_beslut: "godkann" | "begar_andring" | "avvisa"
       insamling_status:
@@ -1026,6 +1434,15 @@ export type Database = {
         | "update"
         | "result_proof"
         | "payout_proof"
+      payout_status: "pending" | "in_transit" | "paid" | "failed" | "canceled"
+      refund_anledning:
+        | "bedrageri"
+        | "fel_donation"
+        | "admin_beslut"
+        | "donator_begaran"
+      refund_status: "pending" | "succeeded" | "failed" | "canceled"
+      transfer_status: "pending" | "paid" | "reversed" | "failed"
+      webhook_event_status: "received" | "processed" | "error" | "skipped"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1156,6 +1573,30 @@ export const Constants = {
       anvandar_roll: ["donator", "insamlare", "forening", "granskare", "admin"],
       collab_status: ["begard", "godkand", "avbojd", "aterkallad"],
       collab_typ: ["initiativtagare", "stodjer", "praktisk_partner"],
+      connected_account_status: [
+        "pending",
+        "restricted",
+        "enabled",
+        "disabled",
+      ],
+      connected_account_typ: ["insamlare", "forening", "platform"],
+      dispute_status: [
+        "warning_needs_response",
+        "warning_under_review",
+        "warning_closed",
+        "needs_response",
+        "under_review",
+        "won",
+        "lost",
+      ],
+      donation_status: [
+        "skapad",
+        "processing",
+        "succeeded",
+        "failed",
+        "refunded",
+        "partially_refunded",
+      ],
       donation_undermal_val: ["ge_anda", "aterbetala"],
       granskning_beslut: ["godkann", "begar_andring", "avvisa"],
       insamling_status: [
@@ -1181,6 +1622,16 @@ export const Constants = {
         "result_proof",
         "payout_proof",
       ],
+      payout_status: ["pending", "in_transit", "paid", "failed", "canceled"],
+      refund_anledning: [
+        "bedrageri",
+        "fel_donation",
+        "admin_beslut",
+        "donator_begaran",
+      ],
+      refund_status: ["pending", "succeeded", "failed", "canceled"],
+      transfer_status: ["pending", "paid", "reversed", "failed"],
+      webhook_event_status: ["received", "processed", "error", "skipped"],
     },
   },
 } as const
