@@ -10,8 +10,9 @@
 
 - [x] **Steg 0 — Fundament** — KLART, pushad
 - [x] **Steg 1 — Databasens grund** — KLART, pushad (8 migrations, RLS på 18 tabeller, P0-lints gröna, TS-typer + Supabase-klientwrappers)
-- [x] **Steg 2 — Auth & roller** — KLART, pushas (proxy, server-helper, login/registrera + Server Actions, auth-callback, skyddad demo-route)
-- [ ] Steg 3 — Insamlings-objektet & insamlar-flödet
+- [x] **Steg 2 — Auth & roller** — KLART, pushad (proxy, server-helper, login/registrera + Server Actions, auth-callback, skyddad demo-route)
+- [x] **Steg 3 — Insamlings-objektet & insamlar-flödet** — KLART, pushas (skapa-utkast, redigera-formulär, status-skicka-in via SECURITY DEFINER, mina-insamlingar-lista, publik detaljvy)
+- [ ] Steg 4 — Granskar-flödet
 - [ ] Steg 4 — Granskar-flödet
 - [ ] Steg 5 — Stripe Connect & pengaplumbing
 - [ ] Steg 6 — Donator-flödet & realtidsräknaren

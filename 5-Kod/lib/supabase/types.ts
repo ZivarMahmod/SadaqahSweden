@@ -973,7 +973,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      skicka_insamling_for_granskning: {
+        Args: { p_insamling_id: string }
+        Returns: string
+      }
     }
     Enums: {
       anvandar_roll:
