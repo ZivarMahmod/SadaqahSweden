@@ -46,6 +46,9 @@ const kategorier = [
   "Religiösa varor",
 ];
 
+import Link from "next/link";
+import { aktuellAnvandare } from "@/lib/auth";
+
 function Logotyp() {
   return (
     <span className="flex items-center gap-2.5 text-brand">
@@ -69,16 +72,12 @@ function Logotyp() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const me = await aktuellAnvandare();
+  const ärInsamlare = me && (me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin");
+
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
-        <Logotyp />
-        <span className="rounded-full border border-line bg-paper px-3 py-1 text-xs font-medium text-muted">
-          Lanseras 2026
-        </span>
-      </header>
-
       <main className="flex-1">
         <section className="mx-auto w-full max-w-5xl px-6 pb-20 pt-12 sm:pt-20">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.18em] text-brand">
@@ -95,18 +94,52 @@ export default function Home() {
             bevisas — från gåva till levererad hjälp.
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <a
-              href="#sa-fungerar-det"
-              className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-sm font-medium text-paper transition hover:bg-brand-dark"
-            >
-              Så fungerar det
-            </a>
-            <a
-              href="#principer"
-              className="inline-flex items-center rounded-full border border-line bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:border-brand hover:text-brand"
-            >
-              Våra principer
-            </a>
+            {me ? (
+              <>
+                {ärInsamlare ? (
+                  <Link
+                    href="/insamling"
+                    className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-sm font-medium text-paper transition hover:bg-brand-dark"
+                  >
+                    Mina insamlingar →
+                  </Link>
+                ) : (
+                  <Link
+                    href="/konto"
+                    className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-sm font-medium text-paper transition hover:bg-brand-dark"
+                  >
+                    Till mitt konto →
+                  </Link>
+                )}
+                <a
+                  href="#sa-fungerar-det"
+                  className="inline-flex items-center rounded-full border border-line bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:border-brand hover:text-brand"
+                >
+                  Så fungerar det
+                </a>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/registrera"
+                  className="inline-flex items-center rounded-full bg-brand px-6 py-3 text-sm font-medium text-paper transition hover:bg-brand-dark"
+                >
+                  Skapa konto
+                </Link>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center rounded-full border border-line bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:border-brand hover:text-brand"
+                >
+                  Logga in
+                </Link>
+                <a
+                  href="#sa-fungerar-det"
+                  className="inline-flex items-center rounded-full px-6 py-3 text-sm font-medium text-muted underline-offset-2 transition hover:text-ink hover:underline"
+                >
+                  Så fungerar det
+                </a>
+              </>
+            )}
           </div>
         </section>
 
