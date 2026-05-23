@@ -9,7 +9,7 @@
 ## Steg-status
 
 - [x] **Steg 0 — Fundament** — KLART, pushad
-- [ ] Steg 1 — Databasens grund
+- [x] **Steg 1 — Databasens grund** — KLART, pushad (8 migrations, RLS på 18 tabeller, P0-lints gröna, TS-typer + Supabase-klientwrappers)
 - [ ] Steg 2 — Auth & roller
 - [ ] Steg 3 — Insamlings-objektet & insamlar-flödet
 - [ ] Steg 4 — Granskar-flödet
@@ -61,11 +61,27 @@ Tidigare sessioners pending ändringar landade:
 - [x] `.env.example` på plats; inga hemligheter i git (`.env*` + `.dev.vars*` ignored).
 
 **Operativt kvar för Zivar (utanför Claudes kontroll):**
-- Koppla GitHub-repot till **Cloudflare Workers Builds** (inte Pages — se nästa stycke)
-  i Cloudflare-dashboarden så `main` auto-deployar.
+
+- ⚠️ **Cloudflare-deployen failar just nu** — orsak: projektet är uppsatt som
+  Cloudflare **Pages** (gamla typen). Steg 0 sätter upp `@opennextjs/cloudflare`
+  som deployar till **Cloudflare Workers**. Pages-pipeline:n förstår inte
+  `wrangler.jsonc`, kör `npx next build`, hittar inte `5-Kod/out/` (vi
+  exporterar inte statiskt längre), failar med
+  `Error: Output directory "5-Kod/out" not found`.
+- **Åtgärd:** migrera Cloudflare-projektet från Pages → Workers Builds:
+  1. Cloudflare dashboard → **Workers & Pages**.
+  2. Radera (eller döp om) gamla Pages-projektet `sadaqahsweden`.
+  3. **Create application → Workers → Import a repository** → välj
+     `ZivarMahmod/SadaqahSweden`.
+  4. Build-inställningar: **Root directory** `5-Kod`,
+     **Build command** `npm run cf-build`,
+     **Deploy command** `npx wrangler deploy`.
+  5. Spara — Workers Builds bygger + deployar.
+- **Kontroll innan UI-byte:** `cd 5-Kod && npm run deploy` lokalt (kräver
+  `wrangler login`) verifierar att adapter-deploy funkar via CLI.
 - Lägg in produktionens miljövariabler i Cloudflare-projektet:
-  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-  (sistnämnda **server-only**), `NEXT_PUBLIC_SITE_URL`.
+  `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY` (server-only), `NEXT_PUBLIC_SITE_URL`.
 
 ### Flaggad plan-drift (icke-tyst avvikelse)
 
@@ -109,24 +125,76 @@ Inga av dessa hindrar Steg 1–4.
 
 ---
 
-## Nästa: Steg 1 — Databasens grund
+### 3. Steg 1 — Databasens grund (commit kommer)
 
-**Mål (från byggsekvensen):** Kärnschemat finns, säkrat med RLS.
+**Verifierade:**
+
+- [x] 8 migrations applicerade via Supabase MCP `apply_migration`:
+  `0001_extensions_helpers_enums`, `0002_profiles_kategori`,
+  `0003_insamling_core`, `0004_donation`, `0005_granskning`,
+  `0006_transparens_badges`, `0007_organisation_collab`,
+  `0008_securityfix_indexes`.
+- [x] 18 tabeller skapade i `public`, RLS aktiverad + FORCEd på alla
+  (`profiles`, `kategori`, `mission`, `insamling`, `insamling_kategori`,
+  `insamling_media`, `mottagare_dokument`, `donation`, `granskning`,
+  `granskning_handelse`, `insamling_andringslogg`, `transparens_uppdatering`,
+  `transparens_bevis`, `badge`, `insamling_badge`, `profil_badge`,
+  `organisation`, `collab`).
+- [x] Hjälpfunktioner i `private`-schema enligt SAKERHETSREGLER §3:
+  `set_updated_at()`, `gen_public_id()`, `aktuell_roll()` (SECURITY DEFINER
+  med `search_path=''`, explicita REVOKE/GRANT), `handle_new_user()`
+  (auto-skapar profil när auth-användare registreras), `profiles_skydda_falt()`,
+  `insamling_status_skydd()` (tillståndsmaskin), `insamling_pengaskydd()`
+  (skyddar `insamlat_ore` + `connected_account_id` + `transfer_group` mot
+  klient-skrivning).
+- [x] Seeded: 13 kategorier (`vatten`, `mat`, `barn-och-foraldrar`, `sjukvard`,
+  `utbildning`, `mosjekprojekt`, `koran-och-dawah`, `katastrofhjalp`,
+  `flykting`, `fastebrytning`, `begravning`, `skuld`, `ovrigt`) + 5 badges.
+- [x] Security Advisor: **alla P0-lints gröna**. Kvar: 1 INFO (`mission`
+  deny-all — medvetet enligt Plan §2.13). P0-fixar i 0008:
+  REVOKE EXECUTE på `public.rls_auto_enable()` från anon/authenticated
+  (lints 0028/0029); index på `granskning_handelse.granskare_id` (lint 0001).
+- [x] TS-typer genererade via MCP → `5-Kod/lib/supabase/types.ts`.
+- [x] Supabase-klientwrappers (`@supabase/ssr`):
+  `5-Kod/lib/supabase/client.ts` (browser), `5-Kod/lib/supabase/server.ts`
+  (server components / route handlers / server actions, cookie-aware).
+- [x] `.env.example` + `.env.local` uppdaterade med
+  `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  (publishable key `sb_publishable_HXDTgn9-KBwJQOal5WCL8g_bojAdAm3`).
+- [x] `npm run build` grön, `npm run lint` grön.
+
+### Förbättringsmöjligheter (uppskjutna, ej P0)
+
+- **Multiple Permissive Policies** (`collab`, `donation`, `insamling`,
+  `organisation`, `transparens_uppdatering`, `kategori`, `badge` på vissa
+  roller/actions): konsolidera till en policy per `(table, role, action)`
+  med OR-uttryck för bättre planning-time. Görs när första query-mönstren
+  syns och prestanda mäts.
+- **Unused Index** INFO för många nya index: normalt på tom DB; ignoreras
+  tills riktig trafik finns och Supabase rapporterar dem efter perioden.
+- **Storage-RLS** (SAKERHETSREGLER §7) — kopplas in när första filuppladdningen
+  byggs (insamlings-cover i Steg 3).
+
+---
+
+## Nästa: Steg 2 — Auth & roller
+
+**Mål (från byggsekvensen):** Inloggning som inte går att förfalska. Roll
+serverside, RLS-skyddad. BankID-platshållare för Zivars parallella spår.
 
 Plan:
-1. Skapa migrations-mapp `5-Kod/supabase/migrations/`.
-2. Migration `0001_init_enums_and_core.sql` — alla enums + `profiles`, `kategori`,
-   `insamling`, `insamling_kategori`, `insamling_media`, `mottagare`, `donation`,
-   `granskning`, `granskning_handelse`, `insamling_andringslogg`,
-   `transparens_uppdatering`, `transparens_bevis`, `badge`, `profil_badge`,
-   `insamling_badge`, `organisation`, `collab`, `mission` (reserverad, nullbart FK
-   på `insamling.mission_id`).
-3. Varje tabell: `ENABLE ROW LEVEL SECURITY` i samma migration; deny-all baseline.
-4. Index på FK + policy-refererade kolumner.
-5. Trigger `set_updated_at()` (shared) + payloads per tabell.
-6. Append-only loggtabeller utan UPDATE/DELETE-policy.
-7. Applicera via Supabase MCP `apply_migration`.
-8. Kör Security Advisor — alla P0 gröna.
-9. Generera TS-typer via MCP `generate_typescript_types` → `5-Kod/lib/supabase/types.ts`.
-10. Skapa Supabase-klientwrappers (server + browser) i `5-Kod/lib/supabase/`.
-11. Commit + push.
+
+1. Aktivera Supabase Auth-providers (email + lösenord initialt; BankID via
+   broker kopplas in senare).
+2. Bygg `5-Kod/middleware.ts` med session-refresh via `@supabase/ssr`.
+3. Login/logout/registrering: `app/(auth)/login`, `app/(auth)/registrera`,
+   `app/auth/callback`. Server Actions för formhantering.
+4. Server-helper `aktuellAnvandare()` som returnerar `{ user, profil, roll }`
+   och cache:ar per request (React `cache()`).
+5. Skyddade route-grupper enligt M6 Block 4.2:
+   `app/(konto)`, `app/(granskning)`, `app/(admin)`. Layout-gate via
+   server-helper, ej klient-state.
+6. Roll-bytes-trigger + `roll_handelse`-logg (M6 Block 5.4).
+7. Test: skapa testanvändare, verifiera RLS att donator inte ser annans
+   donation, insamlare inte ser annans insamling i utkast.
+8. Commit + push.
