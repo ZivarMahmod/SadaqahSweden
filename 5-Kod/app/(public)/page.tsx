@@ -146,7 +146,7 @@ export default async function MarketingPage() {
             <div>
               <div className="mb-6 flex items-center gap-3">
                 <Star size={16} />
-                <span className="eyebrow">SADAQA · ZAKAT · UMMAH</span>
+                <span className="eyebrow">SADAQAH · ZAKAT · UMMAH</span>
               </div>
               <h1 className="h-display">
                 Ge öppet.

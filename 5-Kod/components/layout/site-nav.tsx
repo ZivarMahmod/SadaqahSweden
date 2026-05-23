@@ -29,7 +29,7 @@ export async function SiteNav() {
       }}
     >
       <div className="mx-auto flex h-full w-full max-w-[1280px] items-center justify-between px-6 md:px-12">
-        <Link href="/" aria-label="Sadaqa Sweden — hem">
+        <Link href="/" aria-label="Sadaqah Sweden — hem">
           <Wordmark />
         </Link>
 

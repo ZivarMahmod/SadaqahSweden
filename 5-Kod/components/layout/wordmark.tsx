@@ -1,4 +1,4 @@
-// Designsystem-chrome — Wordmark (8-uddig stjärna + Sadaqa·Sweden).
+// Designsystem-chrome — Wordmark (8-uddig stjärna + Sadaqah·Sweden).
 // Designreferens: handoff-to-code/assets/style.css § LOGO/WORDMARK
 // + handoff-to-code/assets/shared.js (STAR_SVG).
 
@@ -32,7 +32,7 @@ export function Wordmark({ light = false, size = 22 }: WordmarkProps) {
         <Star8 />
       </span>
       <span className="inline-flex items-baseline gap-[7px]">
-        <span>Sadaqa</span>
+        <span>Sadaqah</span>
         <span
           style={{
             fontFamily: "var(--font-sans)",

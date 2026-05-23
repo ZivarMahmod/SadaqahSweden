@@ -25,7 +25,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <div className="relative">
-          <Link href="/" aria-label="Sadaqa Sweden — hem">
+          <Link href="/" aria-label="Sadaqah Sweden — hem">
             <Wordmark light size={22} />
           </Link>
         </div>
@@ -89,7 +89,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <main className="flex flex-col px-6 py-10 md:px-20 md:py-16">
         {/* Mobil-wordmark synlig endast under md */}
         <div className="mb-10 md:hidden">
-          <Link href="/" aria-label="Sadaqa Sweden — hem">
+          <Link href="/" aria-label="Sadaqah Sweden — hem">
             <Wordmark size={20} />
           </Link>
         </div>
