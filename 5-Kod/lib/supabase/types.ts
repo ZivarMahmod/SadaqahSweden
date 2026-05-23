@@ -2,7 +2,7 @@
 // Regenerera vid varje schemaändring: kör Supabase MCP-verktyget och
 // klistra in resultatet här. Editera ALDRIG handla — överskrivs.
 //
-// Senast regenererad: 2026-05-23 (Steg 1 — migrations 0001-0008).
+// Senast regenererad: 2026-05-23 (efter migration 0010 — granskar-beslut).
 
 export type Json =
   | string
@@ -973,9 +973,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fatta_granskar_beslut: {
+        Args: {
+          p_beslut: Database["public"]["Enums"]["granskning_beslut"]
+          p_granskning_id: string
+          p_motivering: string
+        }
+        Returns: undefined
+      }
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
         Returns: string
+      }
+      tilldela_granskning: {
+        Args: { p_granskning_id: string }
+        Returns: undefined
+      }
+      uppdatera_granskning_anteckningar: {
+        Args: { p_anteckningar: string; p_granskning_id: string }
+        Returns: undefined
       }
     }
     Enums: {

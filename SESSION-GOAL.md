@@ -12,8 +12,7 @@
 - [x] **Steg 1 — Databasens grund** — KLART, pushad (8 migrations, RLS på 18 tabeller, P0-lints gröna, TS-typer + Supabase-klientwrappers)
 - [x] **Steg 2 — Auth & roller** — KLART, pushad (proxy, server-helper, login/registrera + Server Actions, auth-callback, skyddad demo-route)
 - [x] **Steg 3 — Insamlings-objektet & insamlar-flödet** — KLART, pushas (skapa-utkast, redigera-formulär, status-skicka-in via SECURITY DEFINER, mina-insamlingar-lista, publik detaljvy)
-- [ ] Steg 4 — Granskar-flödet
-- [ ] Steg 4 — Granskar-flödet
+- [x] **Steg 4 — Granskar-flödet** — KLART, pushas (migration 0010 utvidgar status-trigger för granskar-roll, RPC `tilldela_granskning` + `fatta_granskar_beslut` + `uppdatera_granskning_anteckningar` med SECURITY DEFINER i `private`-schema. UI: `(intern)/granskning` — kö med SLA-färgkod, `(intern)/granskning/[id]` — detaljvy + checklista + beslutspanel. Append-only-logg via `granskning_handelse`. Security Advisor P0 grön.)
 - [ ] Steg 5 — Stripe Connect & pengaplumbing
 - [ ] Steg 6 — Donator-flödet & realtidsräknaren
 - [ ] Steg 7 — Transparens-loopen
