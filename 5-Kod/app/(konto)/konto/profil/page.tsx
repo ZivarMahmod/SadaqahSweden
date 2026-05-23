@@ -1,11 +1,13 @@
 // Modul M9 — Min profil (redigera + förhandsvy).
 // Plan: 1-Planering/Modul-09 B3.4 "Förhandsvy 'så här ser andra din profil'".
 import { kraver } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { Container, Section } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { ProfilForm } from "./profil-form";
+import { NotisPrefForm } from "./notis-pref-form";
 
 export const metadata = {
   title: "Min profil — Sadaqah Sweden",
@@ -13,6 +15,16 @@ export const metadata = {
 
 export default async function MinProfilPage() {
   const me = await kraver();
+  const supabase = await createClient();
+  const { data: prefRader } = await supabase
+    .from("notis_preferens")
+    .select("grupp, in_app, epost")
+    .eq("profil_id", me.userId);
+  type Grupp = "mina_insamlingar" | "stottat" | "community" | "upptack";
+  const preferenser = (prefRader ?? [])
+    .filter((p): p is { grupp: Grupp; in_app: boolean; epost: boolean } =>
+      ["mina_insamlingar","stottat","community","upptack"].includes(p.grupp))
+    .map((p) => ({ grupp: p.grupp, in_app: p.in_app, epost: p.epost }));
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
@@ -55,6 +67,18 @@ export default async function MinProfilPage() {
             </LinkButton>
           </Card>
         </div>
+
+        <Card className="mt-8">
+          <h2 className="h-2">Notiser</h2>
+          <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
+            Plattformen pratar sällan men i rätt stund. Du styr per grupp och
+            kanal — transaktionella kvitton kan inte stängas av (det vore som
+            att stänga av kvittot i en butik).
+          </p>
+          <div className="mt-6">
+            <NotisPrefForm preferenser={preferenser} />
+          </div>
+        </Card>
       </Container>
     </Section>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { aktuellAnvandare } from "@/lib/auth";
 import { loggaUt } from "@/app/(auth)/actions";
 import { Wordmark } from "@/components/layout/wordmark";
+import { createClient } from "@/lib/supabase/server";
 
 const PUBLIC_LINKS = [
   { href: "/insamlingar", label: "Insamlingar" },
@@ -18,6 +19,16 @@ export async function SiteNav() {
   const arInsamlare =
     !!me && (me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin");
   const arGranskare = !!me && (me.roll === "granskare" || me.roll === "admin");
+
+  let olasta = 0;
+  if (me) {
+    const supabase = await createClient();
+    const { count } = await supabase
+      .from("notis")
+      .select("id", { count: "exact", head: true })
+      .is("last_at", null);
+    olasta = count ?? 0;
+  }
 
   return (
     <header
@@ -63,6 +74,32 @@ export async function SiteNav() {
                   Mina insamlingar
                 </Link>
               )}
+              <Link
+                href="/konto/notiser"
+                className="btn btn-ghost btn-sm"
+                aria-label={`Notiser${olasta > 0 ? ` (${olasta} olasta)` : ""}`}
+                title="Notiser"
+              >
+                {olasta > 0 ? (
+                  <span
+                    aria-hidden
+                    className="inline-flex items-center gap-1"
+                  >
+                    Notiser
+                    <span
+                      className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-semibold"
+                      style={{
+                        background: "var(--color-copper)",
+                        color: "var(--color-paper)",
+                      }}
+                    >
+                      {olasta > 99 ? "99+" : olasta}
+                    </span>
+                  </span>
+                ) : (
+                  "Notiser"
+                )}
+              </Link>
               <Link href="/konto" className="btn btn-secondary btn-sm">
                 {me.profil.visningsnamn}
               </Link>

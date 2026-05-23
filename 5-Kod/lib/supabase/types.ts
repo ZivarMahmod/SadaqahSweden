@@ -915,6 +915,138 @@ export type Database = {
           },
         ]
       }
+      notis: {
+        Row: {
+          badge_id: string | null
+          created_at: string
+          donation_id: string | null
+          epost_skickad_at: string | null
+          epost_status: string | null
+          grupp: Database["public"]["Enums"]["notis_grupp"]
+          id: string
+          insamling_id: string | null
+          lank: string | null
+          last_at: string | null
+          metadata: Json
+          mottagare_id: string
+          text: string | null
+          titel: string
+          typ: Database["public"]["Enums"]["notis_typ"]
+        }
+        Insert: {
+          badge_id?: string | null
+          created_at?: string
+          donation_id?: string | null
+          epost_skickad_at?: string | null
+          epost_status?: string | null
+          grupp: Database["public"]["Enums"]["notis_grupp"]
+          id?: string
+          insamling_id?: string | null
+          lank?: string | null
+          last_at?: string | null
+          metadata?: Json
+          mottagare_id: string
+          text?: string | null
+          titel: string
+          typ: Database["public"]["Enums"]["notis_typ"]
+        }
+        Update: {
+          badge_id?: string | null
+          created_at?: string
+          donation_id?: string | null
+          epost_skickad_at?: string | null
+          epost_status?: string | null
+          grupp?: Database["public"]["Enums"]["notis_grupp"]
+          id?: string
+          insamling_id?: string | null
+          lank?: string | null
+          last_at?: string | null
+          metadata?: Json
+          mottagare_id?: string
+          text?: string | null
+          titel?: string
+          typ?: Database["public"]["Enums"]["notis_typ"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notis_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badge"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notis_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notis_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notis_mottagare_id_fkey"
+            columns: ["mottagare_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notis_mottagare_id_fkey"
+            columns: ["mottagare_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notis_preferens: {
+        Row: {
+          epost: boolean
+          grupp: Database["public"]["Enums"]["notis_grupp"]
+          in_app: boolean
+          profil_id: string
+          push: boolean
+          uppdaterad_at: string
+        }
+        Insert: {
+          epost?: boolean
+          grupp: Database["public"]["Enums"]["notis_grupp"]
+          in_app?: boolean
+          profil_id: string
+          push?: boolean
+          uppdaterad_at?: string
+        }
+        Update: {
+          epost?: boolean
+          grupp?: Database["public"]["Enums"]["notis_grupp"]
+          in_app?: boolean
+          profil_id?: string
+          push?: boolean
+          uppdaterad_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notis_preferens_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notis_preferens_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organisation: {
         Row: {
           beskrivning: string
@@ -1559,6 +1691,8 @@ export type Database = {
         Args: { p_bevis_id: string }
         Returns: undefined
       }
+      markera_alla_notiser_lasta: { Args: never; Returns: number }
+      markera_notis_last: { Args: { p_notis_id: string }; Returns: undefined }
       posta_resultat_bevis: {
         Args: { p_insamling_id: string; p_text: string; p_video_url?: string }
         Returns: string
@@ -1633,6 +1767,31 @@ export type Database = {
         | "update"
         | "result_proof"
         | "payout_proof"
+      notis_grupp:
+        | "mina_insamlingar"
+        | "stottat"
+        | "community"
+        | "upptack"
+        | "transaktionellt"
+      notis_kanal: "in_app" | "epost" | "push"
+      notis_typ:
+        | "insamling_inskickad"
+        | "granskningsbeslut_godkand"
+        | "granskningsbeslut_andring"
+        | "granskningsbeslut_avvisad"
+        | "donation_mottagen"
+        | "ny_donation_till_min_insamling"
+        | "min_insamling_nadde_mal"
+        | "foljd_insamling_uppdatering"
+        | "foljd_insamling_resultat"
+        | "foljd_insamling_utbetald"
+        | "utbetalningsbesked"
+        | "refund_verkstalld"
+        | "badge_tilldelad"
+        | "paminnelse_resultat_saknas"
+        | "konto_atgard"
+        | "sakerhet"
+        | "system"
       payout_status: "pending" | "in_transit" | "paid" | "failed" | "canceled"
       refund_anledning:
         | "bedrageri"
@@ -1820,6 +1979,33 @@ export const Constants = {
         "update",
         "result_proof",
         "payout_proof",
+      ],
+      notis_grupp: [
+        "mina_insamlingar",
+        "stottat",
+        "community",
+        "upptack",
+        "transaktionellt",
+      ],
+      notis_kanal: ["in_app", "epost", "push"],
+      notis_typ: [
+        "insamling_inskickad",
+        "granskningsbeslut_godkand",
+        "granskningsbeslut_andring",
+        "granskningsbeslut_avvisad",
+        "donation_mottagen",
+        "ny_donation_till_min_insamling",
+        "min_insamling_nadde_mal",
+        "foljd_insamling_uppdatering",
+        "foljd_insamling_resultat",
+        "foljd_insamling_utbetald",
+        "utbetalningsbesked",
+        "refund_verkstalld",
+        "badge_tilldelad",
+        "paminnelse_resultat_saknas",
+        "konto_atgard",
+        "sakerhet",
+        "system",
       ],
       payout_status: ["pending", "in_transit", "paid", "failed", "canceled"],
       refund_anledning: [
