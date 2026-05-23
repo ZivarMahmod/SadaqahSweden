@@ -1,28 +1,431 @@
+/* Designsystem — Sadaqah Sweden
+ * Tokens portade från handoff-to-code/assets/style.css
+ * Tailwind v4 @theme + komponentklasser. Primitiv-komponenter i components/ui/.
+ */
+
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #faf7ef;
-  --color-paper: #ffffff;
-  --color-ink: #18231c;
-  --color-muted: #586259;
-  --color-line: #e7e1d2;
-  --color-brand: #1c5b3e;
-  --color-brand-dark: #123e2a;
-  --color-sage: #e9efe6;
-  --color-sand: #c6a45a;
+  /* Brand palette — forest greens */
+  --color-forest: #1F4636;
+  --color-forest-deep: #0F2A1F;
+  --color-forest-mid: #2D5947;
+  --color-forest-soft: rgba(31, 70, 54, 0.08);
+  --color-forest-line: rgba(31, 70, 54, 0.14);
 
-  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  /* Paper / cream surface */
+  --color-paper: #F5F0E4;
+  --color-paper-soft: #FBF7EC;
+  --color-paper-deep: #ECE5D2;
+  --color-paper-line: #E0D7BF;
+
+  /* Ink — text scale */
+  --color-ink: #0E1411;
+  --color-ink-1: #1A211C;
+  --color-ink-2: #3A453E;
+  --color-ink-3: #6B7269;
+  --color-ink-4: #9AA098;
+  --color-ink-line: rgba(14, 20, 17, 0.10);
+
+  /* Copper — accent */
+  --color-copper: #B8843E;
+  --color-copper-deep: #8E6429;
+  --color-copper-soft: rgba(184, 132, 62, 0.12);
+  --color-copper-warm: #D4A567;
+
+  /* Sage — secondary green */
+  --color-sage: #C6CFC4;
+  --color-sage-deep: #8FA28D;
+
+  /* Status */
+  --color-danger: #8B3A2E;
+  --color-danger-soft: rgba(139, 58, 46, 0.10);
+  --color-success: #2D6B4F;
+  --color-success-soft: rgba(45, 107, 79, 0.10);
+  --color-warning: #B8843E;
+
+  /* Fonts — Spectral display, Manrope UI */
+  --font-display: var(--font-spectral), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+
+  /* Shadows — soft, paper-like */
+  --shadow-1: 0 1px 2px rgba(14, 20, 17, 0.04), 0 1px 1px rgba(14, 20, 17, 0.03);
+  --shadow-2: 0 2px 8px rgba(14, 20, 17, 0.05), 0 1px 2px rgba(14, 20, 17, 0.04);
+  --shadow-3: 0 8px 24px rgba(14, 20, 17, 0.08), 0 2px 6px rgba(14, 20, 17, 0.04);
+  --shadow-4: 0 24px 48px rgba(14, 20, 17, 0.12), 0 4px 12px rgba(14, 20, 17, 0.06);
+  --shadow-copper: 0 8px 22px rgba(184, 132, 62, 0.22);
 }
+
+/* ---------- Base ---------- */
 
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-cream);
+  background: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01' on, 'cv11' on;
 }
+
+/* ---------- Typografiprimitiv ---------- */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  line-height: 1.04;
+  font-size: clamp(48px, 7vw, 96px);
+  text-wrap: balance;
+}
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  line-height: 1.02;
+  font-size: clamp(48px, 6.5vw, 88px);
+  text-wrap: balance;
+}
+.h-1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.014em;
+  line-height: 1.08;
+  font-size: clamp(40px, 4.8vw, 64px);
+  text-wrap: balance;
+}
+.h-2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.12;
+  font-size: clamp(30px, 3.2vw, 44px);
+  text-wrap: balance;
+}
+.h-3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.008em;
+  line-height: 1.22;
+  font-size: 24px;
+  text-wrap: balance;
+}
+.lead {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(18px, 1.5vw, 22px);
+  line-height: 1.5;
+  color: var(--color-ink-2);
+  text-wrap: pretty;
+}
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-copper-deep);
+}
+.figure {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(36px, 4vw, 56px);
+  letter-spacing: -0.018em;
+  line-height: 1;
+  color: var(--color-forest);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Knappar ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.005em;
+  transition: all 180ms ease;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 0;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-sm { height: 36px; padding: 0 16px; font-size: 13px; }
+.btn-lg { height: 56px; padding: 0 32px; font-size: 16px; }
+.btn-block { width: 100%; }
+
+.btn-primary {
+  background: var(--color-forest);
+  color: var(--color-paper-soft);
+}
+.btn-primary:not(:disabled):hover {
+  background: var(--color-forest-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
+}
+
+.btn-copper {
+  background: var(--color-copper);
+  color: #fff;
+}
+.btn-copper:not(:disabled):hover {
+  background: var(--color-copper-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-copper);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-forest);
+  border: 1px solid var(--color-forest-line);
+}
+.btn-secondary:not(:disabled):hover {
+  background: var(--color-forest-soft);
+  border-color: var(--color-forest);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink-2);
+}
+.btn-ghost:not(:disabled):hover {
+  color: var(--color-forest);
+  background: var(--color-forest-soft);
+}
+
+.btn-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+.btn-danger:not(:disabled):hover { background: #6f2e25; }
+
+/* ---------- Kort ---------- */
+
+.card {
+  background: var(--color-paper-soft);
+  border: 1px solid var(--color-ink-line);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  transition: all 200ms ease;
+}
+.card-tight { padding: 20px; }
+.card-loose { padding: 40px; }
+.card-bare { background: transparent; }
+.card-forest { background: var(--color-forest); color: var(--color-paper-soft); border-color: transparent; }
+.card-hover:hover { box-shadow: var(--shadow-3); transform: translateY(-2px); }
+
+/* ---------- Formulär ---------- */
+
+.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-ink-2);
+  letter-spacing: 0.005em;
+}
+.field-label-required::after { content: ' *'; color: var(--color-copper-deep); }
+.field-help { font-size: 12px; color: var(--color-ink-3); }
+.field-error { font-size: 13px; color: var(--color-danger); font-weight: 500; }
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  height: 46px;
+  padding: 0 16px;
+  background: var(--color-paper-soft);
+  border: 1px solid var(--color-ink-line);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--color-ink);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--color-forest);
+  box-shadow: 0 0 0 4px var(--color-forest-soft);
+}
+.textarea {
+  height: auto;
+  padding: 14px 16px;
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.5;
+}
+.input::placeholder,
+.textarea::placeholder { color: var(--color-ink-4); }
+.input-lg { height: 56px; font-size: 17px; padding: 0 18px; }
+
+/* ---------- Märken / pills / status ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: var(--color-forest-soft);
+  color: var(--color-forest);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pill-copper { background: var(--color-copper-soft); color: var(--color-copper-deep); }
+.pill-danger { background: var(--color-danger-soft); color: var(--color-danger); }
+.pill-success { background: var(--color-success-soft); color: var(--color-success); }
+.pill-paper { background: var(--color-paper); color: var(--color-ink-2); border-color: var(--color-ink-line); }
+.pill-outline { background: transparent; border-color: var(--color-forest-line); color: var(--color-forest); }
+.pill-dark { background: rgba(245, 240, 228, 0.10); color: var(--color-paper); border-color: rgba(245, 240, 228, 0.16); }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-copper);
+  display: inline-block;
+  flex: 0 0 8px;
+}
+.dot-success { background: var(--color-success); }
+.dot-danger { background: var(--color-danger); }
+.dot-pulse { animation: dot-pulse 1.8s ease-in-out infinite; }
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ---------- Progress ---------- */
+
+.progress {
+  height: 6px;
+  width: 100%;
+  background: var(--color-paper-deep);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--color-forest);
+  border-radius: var(--radius-pill);
+  transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.progress-bar-copper { background: var(--color-copper); }
+
+/* ---------- Bilder/placeholders med stjärnmönster ---------- */
+
+.ph {
+  background:
+    radial-gradient(800px 400px at 30% 20%, rgba(184, 132, 62, 0.10), transparent 60%),
+    radial-gradient(600px 300px at 80% 80%, rgba(31, 70, 54, 0.16), transparent 60%),
+    linear-gradient(135deg, #2D5947 0%, #1F4636 60%, #0F2A1F 100%);
+  color: rgba(245, 240, 228, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.ph::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M20 0L24 16L40 20L24 24L20 40L16 24L0 20L16 16Z'/></g></svg>");
+  background-size: 80px 80px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.ph-paper {
+  background:
+    radial-gradient(600px 300px at 20% 30%, rgba(184, 132, 62, 0.12), transparent 70%),
+    linear-gradient(180deg, #ECE5D2, #F5F0E4);
+  color: var(--color-ink-3);
+}
+.ph-paper::before { opacity: 0.25; filter: invert(1); }
+
+/* Subtil stjärnbakgrund (för hero/sektioner) */
+.bg-star-pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.045)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+  background-size: 280px 280px;
+  background-position: center;
+  pointer-events: none;
+}
+.bg-star-pattern-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+  background-size: 240px 240px;
+  pointer-events: none;
+}
+
+/* ---------- Tabell ---------- */
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+.table thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-ink-3);
+  font-weight: 600;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-ink-line);
+  background: var(--color-paper-soft);
+}
+.table tbody td {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-ink-line);
+  vertical-align: middle;
+  color: var(--color-ink-1);
+}
+.table tbody tr:hover td { background: var(--color-forest-soft); }
+
+/* ---------- Skiljelinje med stjärnmotiv ---------- */
+
+.divider-star {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--color-ink-line);
+  margin: 24px 0;
+}
+.divider-star::before,
+.divider-star::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-ink-line);
+}
+
+/* ---------- Tunna numeriska siffror ---------- */
+
+.tabular { font-variant-numeric: tabular-nums; }

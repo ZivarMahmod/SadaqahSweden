@@ -1,16 +1,27 @@
+// Designsystem-rot — globala fonts (Spectral display + Manrope UI + JetBrains mono).
+// Chrome (SiteNav/Footer) ligger i route-grupp-layouts: (public), (auth), (konto), (intern).
+// Designreferens: handoff-to-code/marketing.html · handoff-to-code/assets/style.css.
 import type { Metadata } from "next";
-import { Geist, Fraunces } from "next/font/google";
+import { Spectral, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SiteNav } from "./site-nav";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const spectral = Spectral({
+  variable: "--font-spectral",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -33,11 +44,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="sv" className={`${geistSans.variable} ${fraunces.variable}`}>
-      <body>
-        <SiteNav />
-        {children}
-      </body>
+    <html
+      lang="sv"
+      className={`${spectral.variable} ${manrope.variable} ${jetbrains.variable}`}
+    >
+      <body>{children}</body>
     </html>
   );
 }
