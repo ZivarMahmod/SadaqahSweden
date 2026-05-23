@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/layout/wordmark";
 
-const COLS: { heading: string; links: { label: string; href: string }[] }[] = [
+const COLS: { heading: string; links: { label: string; href: string }[]; note?: string }[] = [
   {
     heading: "Plattformen",
     links: [
@@ -25,15 +25,13 @@ const COLS: { heading: string; links: { label: string; href: string }[] }[] = [
     heading: "Förening",
     links: [
       // TODO (M10): anmäl förening, för moskéer, samarbeten.
-      { label: "Kontakt", href: "mailto:hej@sadaqahsweden.se" },
     ],
+    note: "Kommer snart",
   },
   {
     heading: "Kontakt",
-    links: [
-      { label: "hej@sadaqahsweden.se", href: "mailto:hej@sadaqahsweden.se" },
-      { label: "support@sadaqahsweden.se", href: "mailto:support@sadaqahsweden.se" },
-    ],
+    links: [],
+    note: "Kommer snart",
   },
 ];
 
@@ -89,6 +87,14 @@ export function Footer() {
                     </Link>
                   </li>
                 ))}
+                {c.note && c.links.length === 0 && (
+                  <li
+                    className="text-sm italic"
+                    style={{ color: "rgba(245, 240, 228, 0.4)" }}
+                  >
+                    {c.note}
+                  </li>
+                )}
               </ul>
             </div>
           ))}
