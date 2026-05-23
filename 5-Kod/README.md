@@ -13,7 +13,7 @@ npm run dev
 
 ## Stack
 
-Next.js 16 · React 19 · TypeScript · Tailwind v4 · Supabase · Stripe Connect · Cloudflare Pages.
+Next.js 16 · React 19 · TypeScript · Tailwind v4 · Supabase · Stripe Connect · Cloudflare Workers (OpenNext).
 
 ## Projektets dokumentation
 
@@ -25,4 +25,4 @@ Planeringen ligger utanför repot, i systermapparna:
 
 ## Status
 
-Scaffold med publik landningssida. Nästa steg: databasen — se `../2-Byggplan/05-Byggsekvens.md`.
+Steg 0 inkopplat: Next.js-scaffold + OpenNext Cloudflare-adapter (`wrangler.jsonc`, `open-next.config.ts`, `.dev.vars`). `npm run cf-build` producerar `.open-next/worker.js` grönt. Nästa steg: databasen — se `../2-Byggplan/05-Byggsekvens.md`.

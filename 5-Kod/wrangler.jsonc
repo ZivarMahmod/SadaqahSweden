@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Sadaqah Sweden – Cloudflare Workers via OpenNext-adaptern.
+  // main + assets pekar på byggad output från `opennextjs-cloudflare build`.
+  // Ändra inte main/assets om du inte ändrar adapter-outputen.
+  "name": "sadaqahsweden",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-12-30",
+  "compatibility_flags": [
+    // Node.js APIs i Worker-runtimet — krävs av adaptern.
+    "nodejs_compat",
+    // Fetch endast mot publika URLs (säkerhetsskydd).
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+  // R2 incremental cache (NEXT_INC_CACHE_R2_BUCKET) kopplas in senare när vi
+  // har R2-bucket – se 2-Byggplan/06-Rollout-plan.md och OpenNext caching-doc.
+}

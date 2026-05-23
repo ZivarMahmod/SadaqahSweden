@@ -13,7 +13,7 @@ Läs den här filen först, varje session.
 | Domän | `sadaqahsweden.se` — köpt |
 | GitHub-repo | `sadaqahsweden` — skapat, redo |
 | Supabase-projekt | `sadaqahsweden` — skapat (free tier), väntar på användning |
-| Hosting | **Cloudflare Pages** — Zivar sätter upp den |
+| Hosting | **Cloudflare Workers + Static Assets** (via OpenNext-adaptern) — Zivar kopplar repot i Cloudflare-dashboarden. *Plan-texten säger Pages, men adaptern `@opennextjs/cloudflare` deployar Workers; Pages-vägen för Next.js är på utfasning. Se SESSION-GOAL.md.* |
 | Stripe, Resend, BankID-broker | **Inte uppsatt än** — behövs först längre fram |
 
 Miljövariabler ligger i `.env.local` (skapas från `.env.example`). Landningssidan kräver inga env-värden för att köra.
@@ -39,12 +39,12 @@ Du får gärna skriva egna, mer detaljerade steg-briefer utifrån planen — men
 - **Supabase** — Postgres, Auth, Realtime, Storage, Edge Functions.
 - **Stripe Connect (Express)** — betalningar.
 - **BankID via broker** — verifiering av insamlare (Zivars parallella spår).
-- **Cloudflare Pages** — hosting, auto-deploy från GitHub.
+- **Cloudflare Workers + Static Assets** — hosting via OpenNext-adaptern, auto-deploy från GitHub (Workers Builds).
 - **Resend** — e-post.
 
 Detaljer och motivering: `../2-Byggplan/00-Byggplan-oversikt.md`.
 
-**Next.js på Cloudflare:** appen deployas till Cloudflare Pages via OpenNext-adaptern `@opennextjs/cloudflare`. Paketet `next-on-pages` är utfasat — använd det INTE. Adaptern kräver `nodejs_compat`-flaggan och compatibility date `2024-09-23` eller senare. Att koppla in adaptern är en del av Steg 0. Verifiera alltid den aktuella metoden på `opennext.js.org/cloudflare` och `developers.cloudflare.com` — det här området ändras snabbt.
+**Next.js på Cloudflare:** appen deployas till **Cloudflare Workers + Static Assets** via OpenNext-adaptern `@opennextjs/cloudflare`. Paketet `next-on-pages` är utfasat — använd det INTE. Adaptern kräver `nodejs_compat`-flaggan och en någorlunda färsk `compatibility_date` (just nu `2025-12-30` i `wrangler.jsonc`). Adapter, `wrangler.jsonc`, `open-next.config.ts` och `.dev.vars` är inkopplade. Bygg lokalt med `npm run cf-build`; preview i Workers-runtime: `npm run preview`; deploy: `npm run deploy`. Verifiera alltid den aktuella metoden på `opennext.js.org/cloudflare` och `developers.cloudflare.com` — det här området ändras snabbt.
 
 ---
 
