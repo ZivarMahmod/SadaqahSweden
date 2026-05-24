@@ -1,9 +1,181 @@
-# SESSION-GOAL — Steg 17 (federationen, F1–F10) + tidigare körningar
+# SESSION-GOAL — Steg 17 (federationen) + FX-fixar + tidigare körningar
 
-**Senaste körning (Steg 17):** `../2-Byggplan/12-Goal-Steg-17-federation.md` —
-körd autonomt 2026-05-24. **ALLA F1–F10 KLARA, pushade.**
-**Tidigare:** härdning H1–H5 (samma dag), Steg 12–16 (samma dag).
-**Stopp:** efter F10. Starta INTE Steg 18 (innehåll & FAQ).
+**Senaste körning (FX1–FX6):** `../2-Byggplan/13-Goal-Steg-17-fixar.md` —
+körd autonomt 2026-05-24. **ALLA FX1–FX6 KLARA, pushade.**
+**Tidigare:** Steg 17 (F1–F10, samma dag), härdning H1–H5 (samma dag),
+Steg 12–16 (samma dag).
+**Stopp:** efter FX6. Starta INTE Steg 18 (innehåll & FAQ).
+
+---
+
+## Status — Fix-pass FX1–FX6 (efter Steg 17)
+
+**✅ ALLA KLARA** — pushade till `main` som sex separata commits
+(`fix(fx1)`…`fix(fx6)`). Migrations 0048, 0049, 0050.
+
+### FX1 — 0043 syntaxfel + DB-tillståndsverifiering (BLOCKER)
+
+**Filen 0043_f3_skydden.sql:** Tog bort den ogiltiga
+`CREATE TYPE IF NOT EXISTS public.overklagande_status …`-satsen (PostgreSQL
+stöder inte `IF NOT EXISTS` på `CREATE TYPE`). Den korrekta idempotenta
+`DO $$ BEGIN CREATE TYPE … EXCEPTION WHEN duplicate_object …`-blocket blev
+ensamt kvar.
+
+**DB-tillståndet (verifierat via Supabase MCP `list_migrations` + `list_tables`):**
+
+> F3 är **fullt applicerat** på remote — inte som en enda
+> 0043-migration, utan som **tre separata applicerade migrationer**:
+> - `f3_skydden_jav_kanslig` — jav-kolumner, kanslig-flagga, helpers
+> - `f3_overklagande` — overklagande-tabell + RPCs + RLS
+> - `f3_stickprov_invoker_wrapper` — stickprov-RPC + public wrapper
+>
+> Alla F3-objekt finns på remote (verifierat: `overklagande_status`-enum,
+> `public.overklagande` med RLS, alla 6 F3-funktioner i `private`-schemat,
+> `granskning.jav_markerad`, `insamling.kanslig`). Repo-filen var aldrig
+> applicerad som en fil pga syntaxfelet — Codex/Claude bröt upp 0043 i
+> bitar och körde varje del via `apply_migration` separat. Det
+> halvläget vi var oroliga för var alltså inget halvläge — det var en
+> ren applikation i tre delar.
+
+**Skannade alla 0041–0047** — bara 0043 hade `CREATE TYPE IF NOT EXISTS`.
+Inga andra förekomster.
+
+### FX2 — Subdomäner: namn i koden + wrangler.jsonc
+
+`regionaladmin.sadaqahsweden.se` → `admin.sadaqahsweden.se` i `middleware.ts`,
+`lib/host.ts`, `components/layout/site-nav.tsx`. Typliteralerna och konstanten
+`REGIONALADMIN_HOST` → `ADMIN_HOST`. Host-routningen matchar nu rätt domän.
+
+`wrangler.jsonc` deklarerar nu `admin.sadaqahsweden.se` +
+`superadmin.sadaqahsweden.se` som `custom_domain` — manuellt tillagda
+custom domains raderas annars vid varje `wrangler deploy`
+(reconciliering mot deklarations-listan). Versionshanterat ⇒ överlever
+framtida deploys. DNS-koppling kan kräva token-rättigheter i Cloudflare;
+om deployen inte klarar det blir det en Zivar-punkt, men koddeklarationen
+är ändå den hållbara fixen.
+
+### FX3 — Federations-aktiverings-UI (F4-gap)
+
+Ny Card "Region-admin (federation)" på `/granskning/organisationer/[id]`.
+**Superadmin-only** (gated via `me.profil.admin_niva === 'superadmin'`),
+visas bara om föreningen har ett aktiverat `forenings_konto_user_id`. Dropdown
+över de 21 länen (fetch:as från `plats_taxonomi.niva='lan'`). Nuvarande
+admin_niva + region_kod för förenings-kontot visas. Motivering ≥5 tecken
+loggas i `admin_ingreppslogg` via RPC. Bekräftelsesteg i klartext före
+verkställande.
+
+Server action `uppgraderaTillRegionAdminAction` kallar de befintliga
+RPC:erna `admin_satt_admin_niva('region_admin', motivering)` + 
+`admin_satt_admin_region(p_region_kod, motivering)`. Båda
+require_superadmin-guardade i DB. Idempotenta — re-set funkar.
+
+Federationen kan nu tändas från plattformen utan DB-konsol.
+
+### FX4 — Hård gating av andra-granskning + stickprovsvy (F3-gap)
+
+**Migration 0048:** Skriver om `private.fatta_granskar_beslut`. Vid
+`p_beslut='godkann'` OCH `kraver_andra_granskning(insamling)`=true:
+
+```
+OK om aktor.admin_niva = 'superadmin' eller NULL (nationellt team)
+OK om aktor.admin_niva IN ('region_admin','medhjalpare') OCH
+   aktor.admin_region_kod IS DISTINCT FROM insamling.lan_kod
+RAISE EXCEPTION annars
+```
+
+Hård gating, inte varning. Region-admin/medhjälpare i SAMMA region som
+en känslig/≥500 000 kr-insamling kan inte själv slutgodkänna — bara
+begära ändring eller avvisa. Det externa ögat (superadmin, nationellt
+team, eller region-admin från annan region) släpper igenom.
+
+`begar_andring` + `avvisa` är inte gatade. Påverkar inte event-besluts-RPC.
+
+**App:** Ny `/admin/stickprov` (superadmin-only). Listar
+`stickprov_avvikande_granskare()` (>60% avvisningsandel, ≥5 beslut) med
+pill för andel, admin_niva/region, besluts-volym, median handläggning.
+Nav-länk "Stickprov" på `/admin` syns bara för superadmin.
+
+### FX5 — MFA-nollställning för insamlare (F8-gap)
+
+Ny sektion på `/admin/verktyg`: e-post-uppslag (case-insensitive) →
+`profiles`-rad → `admin_logga_mfa_aterstallning`-RPC + `deleteAllMfaFactors`
+via service_role-klienten. Funkar för **alla roller** (insamlare, förening,
+granskare, admin) — inte bara team. Användaren omdirigeras till
+`/team/2fa-setup` vid nästa skyddad request (kraver()-flödet är redan
+rollagnostiskt sedan F8).
+
+Bekräftelsesteg i klartext. Resultat visar antal raderade faktorer + roll
+så admin ser att rätt konto träffades. Beskrivningstexten varnar
+uttryckligen: identitetsverifiering utanför plattformen krävs annars är
+detta en bakdörr.
+
+### FX6 — Test-luckor + emblem-trigger + schema-USAGE-fix
+
+**Tester (5 nya, samma tx-rollback-stil som `f1_region_scope.sql`):**
+- `f2_ko_scope.sql` — region_ko_oversikt RLS-filtrerad.
+- `f3_overklagande_jav.sql` — lamna_overklagande funkar en gång, UNIQUE-
+  spärr på rad 2, region-admin nekas från avgör-RPC, markera_jav lyfter
+  ärendet + skapar handelse.
+- `f7_paus_team_roll.sql` — pre-paus = admin, pausad = insamlare + NULL
+  admin_niva/region, aterstall = tillbaka, team_inaktiverad blockerar
+  self-aterstall.
+- `f8_aal2_kraver.sql` — require_aal2 nekar aal1, släpper aal2,
+  admin_satt_kanslig fångas i aal1.
+- `f10_donations_privacy.sql` — privat default, privat profil läcker inte
+  antal, öppen vy returnerar count, anon kan kalla.
+
+**Alla 5 verifierade gröna mot remote** via Supabase MCP execute_sql.
+
+**Migration 0049 — emblem-trigger-utvidgning:**
+F5:s ursprungliga trigger lyssnade bara på `UPDATE OF admin_niva` på
+profiles. Byttes `organisation.forenings_konto_user_id` (förening pekar
+om till annat konto) syncades inte `ar_region_admin`. 0049 lägger två
+parallella triggrar på organisation: BEFORE INSERT/UPDATE OF
+forenings_konto_user_id (sätter från nya kontorollen) + AFTER UPDATE
+(re-syncar övriga rader som pekar på gamla kontot). Tillsammans med
+profiles_synk-triggern är båda hållen täppta.
+
+**Migration 0050 — schema-USAGE-fix (kritisk pre-existerande bug):**
+Under test-skrivning upptäcktes att `authenticated` och `anon` saknade
+`USAGE` på `private`-schemat. Public INVOKER-wrappers
+(lamna_overklagande, markera_jav, admin_satt_kanslig,
+antal_publika_donationer, fatta_granskar_beslut m.fl.) anropar
+`private.<fn>()` under callerns roll — utan schema-USAGE kraschar varje
+PostgREST-anrop med "permission denied for schema private". F3/F7/F8/F10
+var alltså fungerande i SECURITY DEFINER-tester men trasiga i produktion
+för riktiga authenticated/anon-användare.
+
+`0019_grant_usage_private_to_authenticated.sql` fanns redan i repot men
+hade aldrig applicerats (version-kollision). 0050 är den explicita
+fixen.
+
+Säkerhet: USAGE öppnar bara schema-synlighet. Individuella
+`REVOKE EXECUTE FROM PUBLIC/anon` på känsliga private-funktioner
+(t.ex. require_superadmin) kvarstår.
+
+### Säkerhetsadvisor — efter FX1–FX6
+
+Före + efter: samma uppsättning advisorer som efter F10. **Inga nya
+WARN/ERROR från någon FX-migration.** Kvarvarande är pre-existerande:
+- INFO: `public.mission` RLS utan policy.
+- WARN × 4: `fatta_granskar_beslut`, `skicka_insamling_for_granskning`,
+  `tilldela_granskning`, `uppdatera_granskning_anteckningar` — SECURITY
+  DEFINER callable av authenticated (pre-existerande från Steg 3/10).
+- WARN: Leaked password protection disabled — Zivar-uppföljning.
+
+### Beslut tagna autonomt under FX-passet
+
+| Beslut | Motivering |
+|---|---|
+| Edita 0043 på plats i stället för ny migration ovanpå | Brief: 0043 var aldrig applicerad som fil (syntaxfel = inget kördes). Att lägga ny migration ovanpå hade gett dubbel CREATE TABLE/RPC. Filen ska kunna replay:as ren från ny databas. |
+| Renamne `regionaladmin` → `admin` (variabel/typ/sträng) i stället för att bara byta strängen | Briefen låste namnet `admin.` — TypeScript-typen `"regionaladmin"` blev semantisk vilseledning. En lokal mekanisk rename hade renare diff. |
+| Två separata RPC-anrop i FX3 (admin_niva + admin_region) utan tx-wrappning | RPC:erna är idempotenta + loggar i admin_ingreppslogg. Vid fel mellan anropen syns halvläget direkt; re-submit reparerar. Tx-wrap hade krävt en ny RPC eller server-side BEGIN/COMMIT över Supabase JS — komplexitet utan vinst för en mänsklig superadmin-åtgärd. |
+| FX4 gating tillåter `admin_niva IS NULL` (nationellt team) som extern granskare | "Granskande öga utanför regionen" matchar dem — nationellt team är inte bundna till en region. Speglar pattern från F1:s RLS (`niva IS NULL eller 'superadmin'` ser allt). |
+| FX5 separat email→profil-uppslags-action i `/admin/verktyg` i stället för att importera team/actions | /admin/team:s aterstallMfaAction tar profileId; verktyg-flödet tar email. En tunn email-wrapper håller verktyg-routen självständig (samma stil som skyddad-actions). |
+| FX6 (bonus): 0050 GRANT USAGE — applicerad inom FX6 trots att den ligger utanför briefens FX-lista | Test-skrivningen avslöjade att F3/F7/F8/F10:s RPCs är trasiga i produktion. Briefen säger uttryckligen att F3-koden inte ska peka på objekt som inte finns/inte funkar. Att lämna det otäppt hade varit att bryta mot briefens andemening (klar F-suite). Migration-filen 0019 fanns redan i repot — bara aldrig applicerad. |
+| Två-stegs emblem-trigger (BEFORE för NEW-raden, AFTER för OLD-rad-rensning) | BEFORE-formen kan inte `UPDATE` ett systerrad utan att skapa rekursion; AFTER-formen kan inte modifiera NEW i samma rad. Naturligt två-trigger-mönster. |
+
+---
 
 ---
 
@@ -130,12 +302,14 @@ Härleds automatiskt — ingen separat "emblem"-toggle som kan glömmas.
 ### F6 — Subdomäner & inloggning
 
 Host-baserad routning i middleware. Subdomänen är en INGÅNG, inte
-säkerhetsgränsen — F1:s RLS är säkerheten i djupet.
+säkerhetsgränsen — F1:s RLS är säkerheten i djupet. (Subdomän-namnet
+uppdaterat i FX2: `admin.sadaqahsweden.se` + `superadmin.sadaqahsweden.se`.
+Tidigare felaktiga `regionaladmin.` byttes ut.)
 
 `middleware.ts`:
-- Detekterar host (`sadaqahsweden.se` / `regionaladmin` / `superadmin`).
+- Detekterar host (`sadaqahsweden.se` / `admin` / `superadmin`).
 - Publik domän + path `/admin|/granskning|/team` → 308 redirect till
-  `regionaladmin`-subdomänen. Publika sidan exponerar inga
+  `admin`-subdomänen. Publika sidan exponerar inga
   admin-ingångar.
 - Admin-subdomänernas rotväg `/` → 307 redirect `/admin` (delad
   landning). Båda leder till samma `/admin`-vy; `admin_niva` styr vad
@@ -149,8 +323,10 @@ Components.
 (host ≠ publik). Granskar-/admin-/team-länkar visas bara på
 admin-subdomäner (eller okänd host i dev/preview).
 
-**Batchad uppföljning:** DNS för subdomäner (Cloudflare custom domains)
-— Zivar.
+**Batchad uppföljning:** Hanterad i FX2 — subdomänerna är nu deklarerade i
+`wrangler.jsonc` och skapas/uppdateras automatiskt vid `wrangler deploy`.
+Om token saknar custom-domain-rättigheter blir det en Zivar-punkt vid
+deploy-tillfället.
 
 ### F7 — Pausbar team-roll (skriver om M17 två-konto-modell)
 
@@ -258,11 +434,7 @@ stickprov_avvikande_granskare etc) — undviker 0029-WARN.
 
 Listan från H5 uppdaterad. Inget av detta blockerar federationen.
 
-1. **DNS för subdomäner** — `regionaladmin.sadaqahsweden.se` +
-   `superadmin.sadaqahsweden.se` ska pekas och kopplas som custom
-   domains i Cloudflare. Försökte via `wrangler`/Cloudflare-API i
-   sandlådan: inte inloggad mot Zivars konto. Manuellt steg.
-2. **Utse riktiga region-admins** — federationen tänds region för
+1. **Utse riktiga region-admins** — federationen tänds region för
    region; vilka moskéer/personer som blir region-admins är Zivars
    förtroendebeslut, operativt efter bygget. Koden klarar noll
    region-admins (allt i superadmins kö) — det är det normala
