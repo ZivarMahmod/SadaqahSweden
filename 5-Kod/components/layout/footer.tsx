@@ -1,37 +1,46 @@
 // Designsystem-chrome — global footer.
 // Designreferens: handoff-to-code/assets/style.css § FOOTER + shared.js footer().
+// M19 S6: alla länkar leder någonstans — kommer_snart-stubs renderar lugn platshållare.
 import Link from "next/link";
 import { Wordmark } from "@/components/layout/wordmark";
 
-const COLS: { heading: string; links: { label: string; href: string }[]; note?: string }[] = [
+const COLS: { heading: string; links: { label: string; href: string }[] }[] = [
   {
     heading: "Plattformen",
     links: [
       { label: "Insamlingar", href: "/insamlingar" },
       { label: "Föreningar", href: "/foreningar" },
       { label: "Karta", href: "/karta" },
-      // TODO (M13): { label: "Community", href: "/community" }
+      { label: "Statistik", href: "/statistik" },
+      { label: "FAQ", href: "/faq" },
     ],
   },
   {
-    heading: "Stötta",
+    heading: "Om plattformen",
     links: [
-      // TODO (M11): infosidor om regleringar.
-      { label: "Logga in", href: "/login" },
-      { label: "Skapa konto", href: "/registrera" },
+      { label: "Hur det fungerar", href: "/hur-det-fungerar" },
+      { label: "Granskningen", href: "/granskningen" },
+      { label: "Transparens", href: "/transparens" },
+      { label: "Sadaqa & Zakat", href: "/sadaqa-och-zakat" },
     ],
   },
   {
     heading: "Förening",
     links: [
-      // TODO (M10): anmäl förening, för moskéer, samarbeten.
+      { label: "För moskéer", href: "/for-moskeer" },
+      { label: "Samarbeten", href: "/samarbeten" },
+      { label: "Föreningsstöd", href: "/foreningsstod" },
+      { label: "Anmäl er förening", href: "/anmal-er-forening" },
     ],
-    note: "Kommer snart",
   },
   {
-    heading: "Kontakt",
-    links: [],
-    note: "Kommer snart",
+    heading: "Hjälp & juridik",
+    links: [
+      { label: "Kan jag samla in?", href: "/kan-jag-samla-in" },
+      { label: "Integritet", href: "/integritet" },
+      { label: "Villkor", href: "/villkor" },
+      { label: "Logga in", href: "/login" },
+    ],
   },
 ];
 
@@ -87,14 +96,6 @@ export function Footer() {
                     </Link>
                   </li>
                 ))}
-                {c.note && c.links.length === 0 && (
-                  <li
-                    className="text-sm italic"
-                    style={{ color: "rgba(245, 240, 228, 0.4)" }}
-                  >
-                    {c.note}
-                  </li>
-                )}
               </ul>
             </div>
           ))}
