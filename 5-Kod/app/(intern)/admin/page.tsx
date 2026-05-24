@@ -15,7 +15,8 @@ export const metadata = { title: "Admin — Sadaqah Sweden" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminDriftoversikt() {
-  await kraver(["granskare", "admin"]);
+  const me = await kraver(["granskare", "admin"]);
+  const arSuperadmin = me.profil.admin_niva === "superadmin";
   const supabase = await createClient();
 
   const [
@@ -108,6 +109,9 @@ export default async function AdminDriftoversikt() {
             <LinkButton href="/admin/verktyg" variant="ghost" size="sm">Verktyg</LinkButton>
             <LinkButton href="/admin/statistik" variant="ghost" size="sm">Statistik</LinkButton>
             <LinkButton href="/admin/overklaganden" variant="ghost" size="sm">Överklaganden</LinkButton>
+            {arSuperadmin && (
+              <LinkButton href="/admin/stickprov" variant="ghost" size="sm">Stickprov</LinkButton>
+            )}
             <LinkButton href="/granskning" variant="ghost" size="sm">Granskningskö</LinkButton>
           </nav>
         </div>
