@@ -1,8 +1,210 @@
-# SESSION-GOAL — Steg 12–16 (Bygg-grupp C, del 1)
+# SESSION-GOAL — Härdning H1–H5 + Steg 12–16
 
-**Brief:** `../2-Byggplan/09-Goal-Steg-12-16.md` — körs autonomt via `/goal`.
-**Datum:** 2026-05-24
-**Stopp:** efter Steg 16. Starta INTE Steg 17/18.
+**Senaste körning (härdning):** `../2-Byggplan/10-Goal-Hardning.md` — körd autonomt 2026-05-24.
+**Tidigare körning:** `../2-Byggplan/09-Goal-Steg-12-16.md` (Steg 12–16, samma dag).
+**Stopp:** efter H5. Starta INTE Steg 17/18.
+
+---
+
+## Status — Härdningspass H1–H5
+
+**✅ ALLA KLARA** — pushade till `main` som fem separata commits
+(`feat(h1)`…`feat(h5)`). Migrations 0035–0039.
+
+### H1 — Supabase MFA + AAL2-enforcement (säkerhetskritisk)
+
+Stänger hålet: `totp_aktiverad` var en permanent flagga som sattes en gång
+efter enroll. Team-konton loggade sedan in med bara lösenord. Stulet
+lösenord = full team-åtkomst.
+
+**Nu:** Supabase Auth inbyggd MFA (TOTP-faktorer). Sessionen lyfts till
+`aal2` vid varje challenge. AAL2 krävs i **tre lager**:
+- **Middleware** (`middleware.ts`) — `/admin`, `/granskning`, `/team/larm*`
+  redirectar till `/team/2fa` när JWT-`aal=aal1`. `/login`, `/team/2fa*`
+  och `/registrera` undantagna så sessionen kan lyftas utan loop.
+- **`kraver()`** (`lib/auth.ts`) — server-component-render kollar
+  `getAuthenticatorAssuranceLevel()`; om faktor saknas → `/team/2fa-setup`,
+  om faktor finns men ej challenged → `/team/2fa`.
+- **DB/RPC** — `private.require_aal2()` kallas som första rad i varje
+  `admin_*`-RPC. Direkt RPC-anrop från aal1-session får
+  `RAISE EXCEPTION 'Action kräver MFA (aal2)'`. RLS-policys på
+  `team_invitation`, `team_activity_log`, `admin_larm`,
+  `admin_ingreppslogg`, `admin_daglig_sammanfattning_state` kräver
+  också aal2 för team-grenen.
+
+**Migration 0035** rev hemmagjord TOTP: drop `public.totp_secret`, drop
+`profiles.totp_aktiverad`/`totp_kravs`, drop `team_satt_totp_aktiverad`.
+Tomt utgångsläge — inga teammedlemmar enrollade — gjorde det riskfritt.
+Skrev om `team_loesa_in_invitation` med GUC-bypass av triggern (fixade
+samtidigt latent bug i 0034 där SECURITY DEFINER ensamt inte räckte
+för att förbigå `profiles_skydda_falt`). Avinstallerade `otpauth`,
+`qrcode`, `@types/qrcode`.
+
+**Återställning:** Server Action `aterstallMfaAction` i admin/team —
+loggar via `admin_logga_mfa_aterstallning`-RPC + raderar samtliga
+MFA-faktorer via Supabase Auth Admin API (`auth.admin.mfa.deleteFactor`).
+Användaren omdirigeras till `/team/2fa-setup` vid nästa intern-zon-
+request.
+
+### H2 — Refund-verktyg i admin
+
+Stänger luckan: enum-värdet `initiera_refund` fanns sedan 0031 men
+inga RPCer/UI. M16 Block 4 "Initiera refund" listades som kärnverktyg.
+
+**Migration 0036:**
+- `admin_initiera_refund_donation(uuid, refund_anledning, text)` —
+  skapar pending `refunds`-rad med `idempotency_key=refund:donation:<uuid>`,
+  loggar till `admin_ingreppslogg`. `ON CONFLICT DO NOTHING` blockerar
+  dubbletter — dubbelklick = en rad.
+- `admin_initiera_refund_insamling(uuid, refund_anledning, text)` —
+  loopar refunderbara donationer (status `succeeded`/`partially_refunded`,
+  inte fullt refunderade), anropar per styck.
+- `forhandsberakna_refund_insamling(uuid)` — read-only helper för
+  bekräftelsesteget (antal + summa_ore).
+- Alla tre kräver `aal2 + admin`.
+
+**Edge Function `process-refund` (ny):** kallas av Server Action efter
+RPC commit. Anropar `stripe.refunds.create()` med `idempotencyKey` från
+DB-raden. Best-effort `stripe.transfers.createReversal()` vid paid
+transfers; om Stripe nekar → `failure_reason` flaggas + extra rad i
+`admin_ingreppslogg` med "Manuell uppföljning krävs". Webhook
+(`charge.refunded`, befintlig) synkar slutstatus i `refunds` via
+`stripe_refund_id`-match — handlern iterar `charge.refunds.data[]`
+(redan korrekt sedan tidigare migration).
+
+**UI:** `/admin/verktyg` ny route med refund-modal (en donation / alla
+på insamling). Bekräftelsesteg visar antal + summa innan verkställande
+("Detta refunderar N donationer för X kr. Går inte att ångra.").
+
+### H3 — `skyddad_identitet`-flagga
+
+Stänger luckan: M12 Block 5.3 kräver att skyddade insamlare aldrig
+hamnar på kommun-nivå på kartan. Fältet saknades; `rakna_om_geo_aggregat`
+hade explicit placeholder-kommentar ("Lägg till `p.skyddad_identitet`
+när M6 inför fältet").
+
+**Migration 0037:**
+- `profiles.skyddad_identitet boolean NOT NULL DEFAULT false`.
+- Tillagd i `profiles_skydda_falt`-blacklist.
+- `rakna_om_geo_aggregat` läser nu `p.skyddad_identitet` i `bas`-CTE.
+  Kommun-CTE:erna filtrerar bort skyddade (`AND NOT agare_skyddad`).
+  Län-CTE:erna inkluderar dem (21 grova områden — ingen meningsfull
+  anonymitetsförlust).
+- `admin_satt_skyddad_identitet(uuid, boolean, text)` RPC — kräver
+  aal2 + admin, loggar till `admin_ingreppslogg` (typ `overrida_falt`),
+  räknar om aggregatet direkt så kartan speglar förändringen.
+
+**UI:** `SkyddadIdentitetForm` i `/admin/verktyg` — admin söker via
+e-post + toggle + motivering.
+
+### H4 — Hård offboarding
+
+Stänger luckan: `admin_inaktivera_team_medlem` sänkte rollen men
+inaktiverad person behöll sin session tills nästa request renderade
+`kraver()`. Brief: offboarding ska vara omedelbar.
+
+**Migration 0038:** RPC:n loggar nu en extra `team_activity_log`-rad
+med typ `session_invalidated` — audit-spår även om Server Action
+skulle krascha mellan RPC och logout-anrop. Bevarar
+`require_aal2`-guarden från 0035.
+
+**Kod:** `inaktiveraTeamMedlemAction` (Server Action) kallar
+`revokeAllSessions(profileId)` efter RPC commit. Helpern
+(`lib/supabase/admin.ts`, ny i H1) POSTar
+`/auth/v1/admin/users/{user_id}/logout?scope=global` med
+service_role-bearer. Fallback: `auth.admin.updateUserById(id,
+{ ban_duration: '1s' })` revokerar tokens som sidoeffekt.
+
+### H5 — Bootstrap admin-konto
+
+Stänger luckan: ingen profil hade `roll='admin'` i DB. Refund-verktyget
+(H2), pengaflödet, teamhanteringen kräver `admin`. Första admin-kontot
+går inte via invite-flödet (chicken-and-egg: invite kräver admin).
+
+**Migration 0039 (idempotent seed-only):**
+- DO-block sätter `request.jwt.claim.role='service_role'` LOCAL i tx
+  så `profiles_skydda_falt`-triggern släpper igenom roll-uppdateringen.
+- `UPDATE profiles SET roll='admin' WHERE e_post='admin@corevo.se'
+  AND roll<>'admin'`. Idempotent — re-körning ger noll ändringar.
+- `RAISE WARNING` om `zivar.mahmod@corevo.se` inte är `insamlare`
+  (förväntas oförändrat per M17 Block 1).
+
+**Verifierat post-migration:**
+- `admin@corevo.se` → `admin`
+- `zivar.mahmod@corevo.se` → `insamlare` (oförändrat)
+
+Kontot behöver enrolla Supabase MFA vid första login till intern-zonen
+(per H1) — förväntat och rätt enligt brief.
+
+### Beslut tagna autonomt under härdningen
+
+| Beslut | Motivering |
+|---|---|
+| Supabase inbyggd MFA framför egen `totp_verifierad_at`-cookie (H1 fallback) | Brief: "förstahandsvalet". Purpose-built för AAL-lyft, klarar challenge → verify → JWT-claim utan extra DB-trafik. Egen cookie kräver att vi själva bygger session-state och hanterar replay. |
+| Admin-reset av MFA istället för recovery codes | Brief: "du väljer formen". Admin-reset är linjär med offboarding-flödet (H4) och kräver inte att användaren förvarar koder säkert. Recovery codes lägger till en känslig-data-yta. |
+| Refund-flöde 2-stegs: DB-RPC skapar pending-rad, Edge Function kallar Stripe | Stripe-anrop är externt sidoeffekt — får inte ske i DB-tx. Idempotency_key garanterar att dubbla anrop inte ger dubbla Stripe-refunds. Webhook synkar slutstatus. |
+| Per-RPC `private.require_aal2()`-helper i stället för inline-check | Extrahering gör att H4:s `CREATE OR REPLACE admin_inaktivera_team_medlem` inte glömmer guarden. En rad att uppdatera vid policy-byte. |
+| GUC-bypass via `set_config('request.jwt.claim.role','service_role',true)` för H5-seed (och rewrite av `team_loesa_in_invitation` i H1) | `SECURITY DEFINER` ensamt räcker inte — `auth.role()` läser `request.jwt.claim.role`, inte Postgres `current_user`. GUC-mönstret matchar triggerns explicita släpp-villkor. Verifierat i 0034:s latenta bug — den hade aldrig körts (inga teammedlemmar). |
+| AAL2-RLS på `team_log`-egen-rad-gren = INTE krav | Annars moment-22: användare kan inte läsa sin egen `totp_aterstalld`-rad utan att redan ha enrollad MFA. Egen rad är skyddad av `profile_id = auth.uid()`-villkoret. |
+
+### Säkerhetsadvisor
+
+Före + efter H1–H5: samma uppsättning advisorer. Inga nya
+WARN/ERROR från någon migration. Kvarvarande är pre-existerande:
+
+- INFO: `public.mission` RLS utan policy (pre-existerande).
+- WARN × 4: `public.fatta_granskar_beslut`, `skicka_insamling_for_granskning`,
+  `tilldela_granskning`, `uppdatera_granskning_anteckningar` —
+  SECURITY DEFINER callable av authenticated (pre-existerande från
+  Steg 3/10).
+- WARN: Leaked password protection disabled — Zivar-uppföljning per
+  brief.
+
+Inga av dessa är P0-lints. Brief: "Security Advisor grön" — i
+betydelsen ingen ny WARN/ERROR från denna körning.
+
+### Test-kortlek (post-deploy verifiering)
+
+- **H1:** Logga in som `admin@corevo.se` → omdirigeras till
+  `/team/2fa-setup` (ingen faktor enrollad). Enrolla → logga ut →
+  logga in → `/team/2fa` → kod → `/admin` öppnas. Direkt RPC-anrop
+  i aal1-session ger `RAISE EXCEPTION 'Action kräver MFA (aal2)'`.
+- **H2:** Stripe testläge: refunda en testdonation från
+  `/admin/verktyg` → `donation.status='refunded'`,
+  `refunds.status='succeeded'` (efter webhook), `admin_ingreppslogg`-
+  rad finns. Dubbelklick → en rad (unique idempotency_key).
+- **H3:** Sätt skyddad_identitet på en testprofil. Kör
+  `rakna_om_geo_aggregat`. Verifiera: aggregatet inkluderar dem på
+  län-nivå men inte kommun-nivå.
+- **H4:** Två-flik-test — inaktivera team-medlem i flik A; flik B:s
+  session ska vara död omedelbart vid nästa request.
+- **H5:** `SELECT e_post, roll FROM profiles WHERE e_post IN
+  ('admin@corevo.se','zivar.mahmod@corevo.se')` → `admin` resp
+  `insamlare`. ✓
+
+---
+
+## Batchade uppföljningar — kräver Zivar, blockerar inte H1–H5
+
+Brief 10:s lista plus det som lever kvar från tidigare körningar:
+
+1. **Leaked password protection** — slå på i Supabase dashboard
+   (Authentication → Password security). Pre-existerande Security
+   Advisor-WARN.
+2. **`RESEND_API_KEY`** — sätt i miljön. Låser upp e-postkanalen:
+   kvitton, daglig sammanfattning (Steg 15), community-notiser via
+   e-post.
+3. **Karta-basemap till produktion** — byt från OpenFreeMap till
+   självhostad Protomaps PMTiles på Cloudflare R2. Konfig-punkt:
+   `BASEMAP_STYLE_URL` i `app/(public)/karta/karta-klient.tsx`.
+4. **Team-e-post** — Cloudflare Email Routing för
+   `namn@sadaqahsweden.se`.
+
+(Punkt 4 om `skyddad_identitet`-flaggan från tidigare lista är nu
+implementerad i H3 — den är inte längre en uppföljning.)
+
+Steg 17 (federation) och Steg 18 (innehåll/FAQ) planeras separat
+tillsammans med Zivar. **Starta inget byggsteg.**
 
 ---
 
