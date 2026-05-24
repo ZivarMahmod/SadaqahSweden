@@ -25,6 +25,7 @@ export default async function AdminDriftoversikt() {
     { data: stripe30d },
     { data: senasteWebhook },
     { data: aktivaLarm },
+    { data: regionKo },
   ] = await Promise.all([
     supabase
       .from("insamling")
@@ -58,6 +59,9 @@ export default async function AdminDriftoversikt() {
       .eq("status", "aktiv")
       .order("triggered_at", { ascending: false })
       .limit(20),
+    // F2: per-region kö-aggregat. RLS gör att region-admin bara ser egen region,
+    // superadmin/nationellt team ser alla.
+    supabase.rpc("region_ko_oversikt"),
   ]);
 
   const lc = (lifecycle ?? []).reduce<Record<string, number>>((acc, r) => {
@@ -195,6 +199,51 @@ export default async function AdminDriftoversikt() {
             </dl>
           </Card>
         </div>
+
+        {/* F2: Distribuerad granskningskö — per-region översikt */}
+        {regionKo && regionKo.length > 0 && (
+          <Card variant="tight" className="mt-8">
+            <h3 className="h-3">Kön per region</h3>
+            <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
+              Region-admins ser bara egen region. Superadmin och nationellt team
+              ser alla regioner; insamlingar utan region hamnar i superadmins kö.
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="table text-sm">
+                <thead>
+                  <tr>
+                    <th>Region</th>
+                    <th className="text-right">Öppna</th>
+                    <th className="text-right">SLA-brott</th>
+                    <th className="text-right">Eskalerade</th>
+                    <th className="text-right">Snitt-väntetid</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {regionKo.map((r) => (
+                    <tr key={r.region_kod ?? "null"}>
+                      <td>
+                        {r.region_kod ?? "(ingen region — superadmins kö)"}
+                        {r.region_namn && r.region_kod ? ` · ${r.region_namn}` : ""}
+                      </td>
+                      <td className="text-right tabular">{antal(r.oppna_antal)}</td>
+                      <td
+                        className="text-right tabular"
+                        style={{ color: r.sla_brott_antal > 0 ? "var(--color-danger)" : undefined }}
+                      >
+                        {antal(r.sla_brott_antal)}
+                      </td>
+                      <td className="text-right tabular">{antal(r.eskalerade_antal)}</td>
+                      <td className="text-right tabular">
+                        {r.snittvantetid_timmar ? `${r.snittvantetid_timmar} h` : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
 
         <p className="mt-8 text-xs" style={{ color: "var(--color-ink-3)" }}>
           Tröskel för publik kommun-statistik är {5}. K-anonymitet enhetlig med M12.

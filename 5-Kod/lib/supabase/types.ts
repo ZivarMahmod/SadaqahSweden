@@ -1941,8 +1941,8 @@ export type Database = {
           public_id: string
           region: string | null
           roll: Database["public"]["Enums"]["anvandar_roll"]
-          stad: string | null
           skyddad_identitet: boolean
+          stad: string | null
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
           team_inaktiverad_at: string | null
@@ -1968,8 +1968,8 @@ export type Database = {
           public_id?: string
           region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
-          stad?: string | null
           skyddad_identitet?: boolean
+          stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
@@ -1995,8 +1995,8 @@ export type Database = {
           public_id?: string
           region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
-          stad?: string | null
           skyddad_identitet?: boolean
+          stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
@@ -2673,32 +2673,48 @@ export type Database = {
         Args: { p_motivering: string; p_profile_id: string }
         Returns: undefined
       }
-      admin_satt_skyddad_identitet: {
-        Args: { p_profile_id: string; p_skydd: boolean; p_motivering: string }
-        Returns: undefined
-      }
       admin_initiera_refund_donation: {
         Args: {
-          p_donation_id: string
           p_anledning: Database["public"]["Enums"]["refund_anledning"]
+          p_donation_id: string
           p_motivering: string
         }
         Returns: string
       }
       admin_initiera_refund_insamling: {
         Args: {
-          p_insamling_id: string
           p_anledning: Database["public"]["Enums"]["refund_anledning"]
+          p_insamling_id: string
           p_motivering: string
         }
         Returns: number
       }
-      forhandsberakna_refund_insamling: {
-        Args: { p_insamling_id: string }
-        Returns: { antal: number; summa_ore: number }[]
+      admin_logga_mfa_aterstallning: {
+        Args: { p_motivering: string; p_profile_id: string }
+        Returns: undefined
       }
       admin_pausa_insamling: {
         Args: { p_insamling_id: string; p_motivering: string }
+        Returns: undefined
+      }
+      admin_satt_admin_niva: {
+        Args: {
+          p_admin_niva: string
+          p_motivering: string
+          p_profile_id: string
+        }
+        Returns: undefined
+      }
+      admin_satt_admin_region: {
+        Args: {
+          p_motivering: string
+          p_profile_id: string
+          p_region_kod: string
+        }
+        Returns: undefined
+      }
+      admin_satt_skyddad_identitet: {
+        Args: { p_motivering: string; p_profile_id: string; p_skydd: boolean }
         Returns: undefined
       }
       admin_stang_insamling: {
@@ -2750,6 +2766,13 @@ export type Database = {
         }
         Returns: undefined
       }
+      forhandsberakna_refund_insamling: {
+        Args: { p_insamling_id: string }
+        Returns: {
+          antal: number
+          summa_ore: number
+        }[]
+      }
       godkann_resultat_bevis: {
         Args: { p_bevis_id: string }
         Returns: undefined
@@ -2792,6 +2815,18 @@ export type Database = {
         Args: { p_kommentar_id: string; p_skal: string }
         Returns: undefined
       }
+      region_ko_oversikt: {
+        Args: never
+        Returns: {
+          aldsta_inskickad_at: string
+          eskalerade_antal: number
+          oppna_antal: number
+          region_kod: string
+          region_namn: string
+          sla_brott_antal: number
+          snittvantetid_timmar: number
+        }[]
+      }
       sakerstall_transfer_group: {
         Args: { p_insamling_id: string }
         Returns: string
@@ -2820,10 +2855,6 @@ export type Database = {
       team_loesa_in_invitation: {
         Args: { p_token: string }
         Returns: Database["public"]["Enums"]["anvandar_roll"]
-      }
-      admin_logga_mfa_aterstallning: {
-        Args: { p_profile_id: string; p_motivering: string }
-        Returns: undefined
       }
       tilldela_granskning: {
         Args: { p_granskning_id: string }

@@ -49,7 +49,7 @@ export default async function GranskningKoPage() {
     supabase
       .from("granskning")
       .select(
-        "id, runda, tilldelad_granskare_id, sla_deadline, inskickad_at, eskalerad, avgjord_at, insamling:insamling_id(public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_max_ore, insamlar_stad, hjalp_land, agare_id, profiles!insamling_agare_id_fkey(visningsnamn))",
+        "id, runda, tilldelad_granskare_id, sla_deadline, inskickad_at, eskalerad, avgjord_at, region_kod, region:region_kod(namn), insamling:insamling_id(public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_max_ore, insamlar_stad, hjalp_land, agare_id, profiles!insamling_agare_id_fkey(visningsnamn))",
       )
       .is("avgjord_at", null)
       .order("inskickad_at", { ascending: true })
@@ -173,6 +173,10 @@ export default async function GranskningKoPage() {
                                 <Icon name="flag" size={12} /> Eskalerad
                               </Pill>
                             )}
+                            <Pill tone="paper">
+                              <Icon name="map-pin" size={12} />{" "}
+                              {g.region?.namn ?? (g.region_kod ? `Region ${g.region_kod}` : "Superadmins kö")}
+                            </Pill>
                             <Pill tone={sla.tone === "success" ? "success" : sla.tone === "copper" ? "copper" : "danger"}>
                               <Icon name="clock" size={12} /> {sla.text}
                             </Pill>
