@@ -48,6 +48,12 @@ export default async function ProfilPage({ params }: { params: Params }) {
 
   const profilId = p.id;
 
+  // F10: visa antal donationer publikt om profilen valt öppen vy.
+  const { data: antalDon } = await supabase.rpc("antal_publika_donationer", {
+    p_profile_id: profilId,
+  });
+  const antalDonationer = (antalDon as number | null) ?? 0;
+
   // Insamlingar — publika status. RLS gör filtreringen.
   const { data: insamlingar } = await supabase
     .from("insamling")
@@ -110,6 +116,11 @@ export default async function ProfilPage({ params }: { params: Params }) {
                   </Pill>
                 )}
                 {arNy && <Pill tone="paper">Ny på plattformen</Pill>}
+                {antalDonationer > 0 && (
+                  <Pill tone="copper">
+                    <Icon name="heart" size={12} /> {antalDonationer} donation{antalDonationer === 1 ? "" : "er"}
+                  </Pill>
+                )}
               </div>
               <h1 className="h-1 mt-3">{p.visningsnamn ?? "Profil"}</h1>
               {p.presentation && (

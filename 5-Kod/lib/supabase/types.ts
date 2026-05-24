@@ -2026,6 +2026,7 @@ export type Database = {
           team_roll_pausad_at: string | null
           team_roll_pausad_skal: string | null
           updated_at: string
+          visa_donations_publikt: boolean
           visa_stad: boolean
           visa_total_summa: boolean
           visningsnamn: string
@@ -2055,6 +2056,7 @@ export type Database = {
           team_roll_pausad_at?: string | null
           team_roll_pausad_skal?: string | null
           updated_at?: string
+          visa_donations_publikt?: boolean
           visa_stad?: boolean
           visa_total_summa?: boolean
           visningsnamn: string
@@ -2084,6 +2086,7 @@ export type Database = {
           team_roll_pausad_at?: string | null
           team_roll_pausad_skal?: string | null
           updated_at?: string
+          visa_donations_publikt?: boolean
           visa_stad?: boolean
           visa_total_summa?: boolean
           visningsnamn?: string
@@ -2824,6 +2827,10 @@ export type Database = {
           p_stad: string
         }
         Returns: string
+      }
+      antal_publika_donationer: {
+        Args: { p_profile_id: string }
+        Returns: number
       }
       aterstall_team_roll: { Args: never; Returns: undefined }
       avvisa_resultat_bevis: {

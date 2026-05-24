@@ -191,6 +191,9 @@ export default async function KontoPage() {
           <LinkButton href="/konto/foreningar" variant="secondary" leftIcon={<Icon name="building" size={16} />}>
             Mina föreningar
           </LinkButton>
+          <LinkButton href="/konto/donationer" variant="secondary" leftIcon={<Icon name="heart" size={16} />}>
+            Mina donationer
+          </LinkButton>
           <LinkButton
             href={`/profil/${me.profil.public_id}`}
             variant="secondary"
