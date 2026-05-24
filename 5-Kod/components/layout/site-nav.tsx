@@ -72,6 +72,13 @@ export async function SiteNav() {
               >
                 Event-kö
               </Link>
+              <Link
+                href="/admin"
+                className="text-sm font-semibold transition-colors"
+                style={{ color: "var(--color-copper-deep)" }}
+              >
+                Admin
+              </Link>
             </>
           )}
         </nav>

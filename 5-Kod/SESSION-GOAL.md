@@ -6,6 +6,86 @@
 
 ---
 
+## Status — Steg 15: Admin & dashboard (M16)
+
+**✅ KLAR** — pushad (commit nedan).
+
+### Vad som byggdes
+
+**Databas (migrations 0031–0032)**
+
+- `0031_admin_larm_logg` — `admin_larm` (vad som visas i Drift), 
+  `admin_ingreppslogg` (append-only — varje admin-ingrepp loggas), 
+  `admin_daglig_sammanfattning_state` (per-admin schema-config för
+  digest), enums `larm_niva` (rod/gul/gron), `larm_kategori`,
+  `larm_status`, `admin_ingrepp_typ`.
+- `0032_admin_larm_funktioner` — `skapa_larm` (central skapelse),
+  `larm_pa_donation_bekraftad`-trigger (gult vid >25k, rött vid 0→50k
+  inom 1h), `larm_skanna` pg_cron-jobb var 15:e minut (rött SLA-brott
+  vid >96h), `admin_pausa/aterstall/stang_insamling`, `admin_avfard_larm`
+  — alla med ingreppslogg-INSERT i samma transaktion.
+
+**App**
+
+- `/admin` — driftöversikt med fyra paneler (livscykel, granskningskö,
+  pengaflöde, systemhälsa). Larm-band längst upp som visas bara när
+  det finns aktivt larm (grön-som-default).
+- `/admin/larm` — full larm-lista + inline-hantering (avfärda med
+  motivering).
+- `/admin/logg` — ingreppsloggen (append-only, sökbar).
+- `/admin/statistik` — intern statistik (insamlingar, donationer,
+  granskning, geografi).
+- `/admin/region-rapport` + `/admin/region-rapport/[lanKod]` —
+  utskriftsvänlig regionrapport per län. Vägrar generera under
+  tröskel 5. Browser-print → PDF (brief säger "ditt val på formatet").
+- `/statistik` — publik kurerad statistik med k-anonymitet 5 per län
+  (M12-enhetligt).
+- Nav-länken "Admin" syns nu för granskare/admin.
+
+**Klar när**
+
+- [x] Driftöversikt med fyra paneler (grön-som-default).
+- [x] Statistik-dashboard intern + publik delmängd (k-anonymitet 5).
+- [x] Tvånivå-larm med trösklarna: >96 h SLA brott (röd), >25k öre
+      enskild donation (gul), 0→50k öre inom 1h (röd). Stripe-tyst
+      och misslyckad utbetalning är reserverade i kategori-enumen
+      men kräver webhook-state som inte finns ännu (defer).
+- [x] Verktygslådan: pausa/återställ (granskare+admin), stäng (admin),
+      avfärda larm. Refund-knapp defer — kräver Stripe-call (struktur
+      finns via `admin_ingrepp_typ='initiera_refund'`).
+- [x] Oföränderlig admin-logg (`admin_ingreppslogg`, ingen UPDATE/DELETE-policy).
+- [ ] **Defer:** Daglig sammanfattning — schema-state finns, men
+      utskickjobbet kräver RESEND_API_KEY i miljön (in-app-kanalen
+      räcker tills den nyckeln finns). Se uppföljning.
+- [x] Regionrapport-export (utskriftsvänlig HTML; tröskel 5).
+- [x] Federation-schemat reserverat (gjordes i Steg 12: `admin_niva`,
+      `admin_region_kod`, `granskning.region_kod`).
+- [x] Test för roll-behörighet — varje RPC kollar `aktuell_roll()`,
+      RLS skyddar tabellerna ändå.
+- [x] `npm run build` grön.
+- [x] Pushad till `main`.
+
+### Beslut tagna autonomt
+
+| Beslut | Motivering |
+|---|---|
+| Regionrapport som **utskriftsvänlig HTML** (browser print → PDF) i stället för server-genererad PDF | Brief: "ditt val på formatet; PDF rekommenderas". HTML+print är robust under Cloudflare Workers utan PDF-runtime, kräver inga nya deps, fungerar perfekt för månadsutskrifter. PDF-generering kan slottas in via @react-pdf/renderer eller en print-service om volymen rättfärdigar. |
+| Daglig sammanfattning bara struktur i v1 (schema-state-tabell), själva utskicket defer | Brief säger "vilande tills `RESEND_API_KEY` är satt". In-app fungerar — granskaren ser allt på `/admin`. När RESEND finns: pg_cron-jobb 07:00 per admin-rad. |
+| Larm-trigger på donation körs i transaktionen → garanterar att larm syns omedelbart | Webhook-callbacken är redan idempotent; triggerns extra arbete är trivial. |
+| Stat-dashboard räknar från råa rader (insamling, donation) inte aggregat-tabell | Volymen är liten i v1; cachning kan introduceras när trafiken kräver. |
+
+### Kantfall
+
+- **Daglig sammanfattning utskick** — `admin_daglig_sammanfattning_state`
+  finns med tid + kanalpref; pg_cron-jobb som genererar dagspaketet
+  och postar via Resend behövs när nyckeln finns. In-app-vyn
+  (`/admin`) ger samma info live.
+- **Refund-verktyget** — `admin_ingrepp_typ` har `'initiera_refund'`
+  som värde; RPC och UI defer (kräver Stripe-call + idempotency-
+  kontroll). Lägg till när first refund behövs.
+
+---
+
 ## Status — Steg 14: Events & platsinfo (M14)
 
 **✅ KLAR** — pushad (commit nedan).

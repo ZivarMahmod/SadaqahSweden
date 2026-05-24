@@ -14,6 +14,220 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_daglig_sammanfattning_state: {
+        Row: {
+          admin_id: string
+          created_at: string
+          kanal_epost: boolean
+          kanal_inapp: boolean
+          senaste_skickad: string | null
+          tid_utskick: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          kanal_epost?: boolean
+          kanal_inapp?: boolean
+          senaste_skickad?: string | null
+          tid_utskick?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          kanal_epost?: boolean
+          kanal_inapp?: boolean
+          senaste_skickad?: string | null
+          tid_utskick?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_daglig_sammanfattning_state_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: true
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_daglig_sammanfattning_state_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_ingreppslogg: {
+        Row: {
+          admin_id: string | null
+          created_at: string
+          detaljer: Json
+          id: string
+          ingrepp_typ: Database["public"]["Enums"]["admin_ingrepp_typ"]
+          mal_donation_id: string | null
+          mal_event_id: string | null
+          mal_insamling_id: string | null
+          mal_kommentar_id: string | null
+          motivering: string
+          reversibel: boolean
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string
+          detaljer?: Json
+          id?: string
+          ingrepp_typ: Database["public"]["Enums"]["admin_ingrepp_typ"]
+          mal_donation_id?: string | null
+          mal_event_id?: string | null
+          mal_insamling_id?: string | null
+          mal_kommentar_id?: string | null
+          motivering: string
+          reversibel?: boolean
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string
+          detaljer?: Json
+          id?: string
+          ingrepp_typ?: Database["public"]["Enums"]["admin_ingrepp_typ"]
+          mal_donation_id?: string | null
+          mal_event_id?: string | null
+          mal_insamling_id?: string | null
+          mal_kommentar_id?: string | null
+          motivering?: string
+          reversibel?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_ingreppslogg_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_ingreppslogg_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_ingreppslogg_mal_donation_id_fkey"
+            columns: ["mal_donation_id"]
+            isOneToOne: false
+            referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_ingreppslogg_mal_event_id_fkey"
+            columns: ["mal_event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_ingreppslogg_mal_insamling_id_fkey"
+            columns: ["mal_insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_ingreppslogg_mal_kommentar_id_fkey"
+            columns: ["mal_kommentar_id"]
+            isOneToOne: false
+            referencedRelation: "kommentar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_larm: {
+        Row: {
+          detaljer: string | null
+          donation_id: string | null
+          granskning_id: string | null
+          hanterad_at: string | null
+          hanterad_av: string | null
+          id: string
+          insamling_id: string | null
+          kategori: Database["public"]["Enums"]["larm_kategori"]
+          metadata: Json
+          niva: Database["public"]["Enums"]["larm_niva"]
+          rubrik: string
+          status: Database["public"]["Enums"]["larm_status"]
+          triggered_at: string
+        }
+        Insert: {
+          detaljer?: string | null
+          donation_id?: string | null
+          granskning_id?: string | null
+          hanterad_at?: string | null
+          hanterad_av?: string | null
+          id?: string
+          insamling_id?: string | null
+          kategori: Database["public"]["Enums"]["larm_kategori"]
+          metadata?: Json
+          niva: Database["public"]["Enums"]["larm_niva"]
+          rubrik: string
+          status?: Database["public"]["Enums"]["larm_status"]
+          triggered_at?: string
+        }
+        Update: {
+          detaljer?: string | null
+          donation_id?: string | null
+          granskning_id?: string | null
+          hanterad_at?: string | null
+          hanterad_av?: string | null
+          id?: string
+          insamling_id?: string | null
+          kategori?: Database["public"]["Enums"]["larm_kategori"]
+          metadata?: Json
+          niva?: Database["public"]["Enums"]["larm_niva"]
+          rubrik?: string
+          status?: Database["public"]["Enums"]["larm_status"]
+          triggered_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_larm_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_larm_granskning_id_fkey"
+            columns: ["granskning_id"]
+            isOneToOne: false
+            referencedRelation: "granskning"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_larm_hanterad_av_fkey"
+            columns: ["hanterad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_larm_hanterad_av_fkey"
+            columns: ["hanterad_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_larm_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badge: {
         Row: {
           beskrivning: string
@@ -2300,6 +2514,22 @@ export type Database = {
       }
     }
     Functions: {
+      admin_aterstall_insamling: {
+        Args: { p_insamling_id: string; p_motivering: string }
+        Returns: undefined
+      }
+      admin_avfard_larm: {
+        Args: { p_larm_id: string; p_motivering: string }
+        Returns: undefined
+      }
+      admin_pausa_insamling: {
+        Args: { p_insamling_id: string; p_motivering: string }
+        Returns: undefined
+      }
+      admin_stang_insamling: {
+        Args: { p_insamling_id: string; p_motivering: string }
+        Returns: undefined
+      }
       anmal_organisation: {
         Args: {
           p_beskrivning: string
@@ -2422,6 +2652,19 @@ export type Database = {
       }
     }
     Enums: {
+      admin_ingrepp_typ:
+        | "pausa_insamling"
+        | "aterstall_insamling"
+        | "stang_insamling"
+        | "installt_event"
+        | "initiera_refund"
+        | "dolj_kommentar"
+        | "aterstall_kommentar"
+        | "overrida_falt"
+        | "frysning_konto"
+        | "aterstall_konto"
+        | "avfard_larm"
+        | "annat"
       anvandar_roll:
         | "donator"
         | "insamlare"
@@ -2491,6 +2734,19 @@ export type Database = {
         | "avslutad_utan_resultat"
         | "pausad"
         | "nedstangd"
+      larm_kategori:
+        | "sla_brott"
+        | "stripe_misslyckande"
+        | "stripe_tyst"
+        | "ovanligt_pengaflode"
+        | "enskild_donation_hog"
+        | "snabb_uppgang"
+        | "repeat_card"
+        | "community_rapport"
+        | "manuell"
+        | "annat"
+      larm_niva: "rod" | "gul" | "gron"
+      larm_status: "aktiv" | "avfardad" | "behandlad"
       malbelopp_modell: "fast" | "intervall" | "oppet"
       media_roll:
         | "cover"
@@ -2661,6 +2917,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_ingrepp_typ: [
+        "pausa_insamling",
+        "aterstall_insamling",
+        "stang_insamling",
+        "installt_event",
+        "initiera_refund",
+        "dolj_kommentar",
+        "aterstall_kommentar",
+        "overrida_falt",
+        "frysning_konto",
+        "aterstall_konto",
+        "avfard_larm",
+        "annat",
+      ],
       anvandar_roll: ["donator", "insamlare", "forening", "granskare", "admin"],
       collab_status: ["begard", "godkand", "avbojd", "aterkallad"],
       collab_typ: ["initiativtagare", "stodjer", "praktisk_partner"],
@@ -2731,6 +3001,20 @@ export const Constants = {
         "pausad",
         "nedstangd",
       ],
+      larm_kategori: [
+        "sla_brott",
+        "stripe_misslyckande",
+        "stripe_tyst",
+        "ovanligt_pengaflode",
+        "enskild_donation_hog",
+        "snabb_uppgang",
+        "repeat_card",
+        "community_rapport",
+        "manuell",
+        "annat",
+      ],
+      larm_niva: ["rod", "gul", "gron"],
+      larm_status: ["aktiv", "avfardad", "behandlad"],
       malbelopp_modell: ["fast", "intervall", "oppet"],
       media_roll: [
         "cover",
