@@ -2807,6 +2807,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_satt_region_admin: {
+        Args: {
+          p_motivering: string
+          p_profile_id: string
+          p_region_kod: string
+        }
+        Returns: undefined
+      }
       admin_satt_skyddad_identitet: {
         Args: { p_motivering: string; p_profile_id: string; p_skydd: boolean }
         Returns: undefined

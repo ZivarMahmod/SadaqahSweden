@@ -3,11 +3,16 @@
 // men gör email→profile_id-uppslaget först så admin slipper hitta UUID:t
 // via DB-konsol. Funkar för alla roller (även insamlare/förening), inte
 // bara team.
+//
+// GX3a: använder kraver(["admin"]) i stället för inline-roll-check.
+// kraver() enforcar aal2 — en aal1-session redirectas till /team/2fa
+// innan denna server action kan exekvera. DB-RPC:n require_aal2() är
+// kvar som sista linjen; nu finns även TS-lagrets skydd explicit.
 "use server";
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { aktuellAnvandare } from "@/lib/auth";
+import { kraver } from "@/lib/auth";
 import { deleteAllMfaFactors } from "@/lib/supabase/admin";
 
 export type MfaResetResultat =
@@ -24,8 +29,8 @@ export async function aterstallMfaForEpostAction(
   epost: string,
   motivering: string,
 ): Promise<MfaResetResultat> {
-  const me = await aktuellAnvandare();
-  if (!me || me.roll !== "admin") return { ok: false, fel: "Bara admin." };
+  // kraver redirectar (throws) vid icke-admin eller aal1 — ingen retur till klient.
+  await kraver(["admin"]);
   if (motivering.trim().length < 5) {
     return { ok: false, fel: "Motivering krävs (minst 5 tecken)." };
   }

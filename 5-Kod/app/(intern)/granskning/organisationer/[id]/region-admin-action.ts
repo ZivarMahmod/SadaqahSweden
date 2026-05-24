@@ -1,6 +1,8 @@
 // FX3 — Superadmin-väg för federation: uppgradera en förening till region-admin.
-// Anropar de befintliga RPC:erna från F1 (admin_satt_admin_niva +
-// admin_satt_admin_region). Båda är superadmin-only och guardade i DB.
+//
+// GX3b: använder den nya atomära admin_satt_region_admin-RPC:n (0052) som
+// sätter admin_niva + admin_region_kod i samma transaktion. Tidigare två
+// sekventiella anrop kunde lämna profilen i halvläge vid partiellt fel.
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -48,26 +50,16 @@ export async function uppgraderaTillRegionAdminAction(
     };
   }
 
-  // Två separata RPC-anrop. Båda är idempotenta + loggar i admin_ingreppslogg.
-  // Vid fel i andra anropet rullas första inte tillbaka — region_kod kan då
-  // vara osatt medan admin_niva redan är region_admin. Det är ett synligt
-  // halvläge som superadmin enkelt kan reparera genom att re-sätta (idempotent).
-  const setNiva = await supabase.rpc("admin_satt_admin_niva", {
-    p_profile_id: org.forenings_konto_user_id,
-    p_admin_niva: "region_admin",
-    p_motivering: motivering,
-  });
-  if (setNiva.error) return { ok: false, message: setNiva.error.message };
-
-  const setRegion = await supabase.rpc("admin_satt_admin_region", {
+  // Atomär RPC: admin_niva + admin_region_kod sätts + audit-rad i samma tx.
+  // Vid fel rullas allt tillbaka — inget halvläge.
+  const { error } = await supabase.rpc("admin_satt_region_admin", {
     p_profile_id: org.forenings_konto_user_id,
     p_region_kod: regionKod,
     p_motivering: motivering,
   });
-  if (setRegion.error) return { ok: false, message: setRegion.error.message };
+  if (error) return { ok: false, message: error.message };
 
   revalidatePath(`/granskning/organisationer/${orgId}`);
   revalidatePath("/foreningar");
-  revalidatePath(`/foreningar`);
   return { ok: true };
 }
