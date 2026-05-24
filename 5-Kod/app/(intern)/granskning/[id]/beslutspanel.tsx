@@ -5,7 +5,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { fattaBeslut, sparaAnteckningar, tilldelaTillMig } from "../actions";
+import { fattaBeslut, markeraJav, sparaAnteckningar, tilldelaTillMig } from "../actions";
 import { Card } from "@/components/ui/card";
 import { Field, Textarea } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,26 @@ export function BeslutsPanel({
       const res = await tilldelaTillMig(granskningId);
       if (res.ok) {
         router.refresh();
+      } else {
+        setFel(res.message);
+      }
+    });
+  }
+
+  function markJav() {
+    const skal = window.prompt(
+      "Skäl för jäv? (Lyfter ärendet ur din tilldelning — annan granskare plockar.)",
+    );
+    if (!skal || skal.trim().length < 5) {
+      setFel("Skäl krävs (minst 5 tecken).");
+      return;
+    }
+    setFel(null);
+    setOk(null);
+    startTransition(async () => {
+      const res = await markeraJav(granskningId, skal.trim());
+      if (res.ok) {
+        router.push("/granskning");
       } else {
         setFel(res.message);
       }
@@ -219,6 +239,25 @@ export function BeslutsPanel({
             Plocka upp ärendet ovan för att kunna fatta beslut.
           </p>
         )}
+
+        {/* F3: Jäv-knapp — granskare kan lyfta ärende ur egen tilldelning */}
+        <div className="mt-2" style={{ borderTop: "1px solid var(--color-ink-line)", paddingTop: 12 }}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={markJav}
+            disabled={pending}
+            leftIcon={<Icon name="flag" size={14} />}
+          >
+            Markera jäv & lämna ifrån mig
+          </Button>
+          <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
+            Använd om du har en närstående eller intressekoppling. Ärendet lyfts
+            ur din tilldelning så annan granskare i regionen kan ta över; om
+            alla är jäviga går det till superadmin.
+          </p>
+        </div>
       </form>
 
       <div

@@ -14,6 +14,7 @@ import { Icon } from "@/components/ui/icon";
 import { TransparensTidslinje } from "@/components/transparens-tidslinje";
 import { UppdateringForm, ResultatBevisForm } from "./transparens-form";
 import { KommentarerToggle } from "./kommentarer-toggle";
+import { OverklagandeForm } from "./overklagande-form";
 import { kortBelopp, kr, datum, procentAvMal, dagarKvar } from "@/lib/format";
 import { Progress } from "@/components/ui/progress";
 
@@ -57,9 +58,20 @@ export default async function InsamlingDashboard({ params }: { params: Params })
     redirect("/insamling");
   }
 
-  // Är utkast/avvisad/inskickad → redirecta till redigera (huvudflöde där).
+  // Är utkast/andring_begard → redirecta till redigera (huvudflöde där).
   if (["utkast", "andring_begard"].includes(i.status)) {
     redirect(`/insamling/${i.id}/redigera`);
+  }
+
+  // F3: avvisade insamlingar kan överklagas en gång.
+  let befintligOverklagan: { id: string; status: string; beslut_motivering: string | null } | null = null;
+  if (i.status === "avvisad") {
+    const { data: o } = await supabase
+      .from("overklagande")
+      .select("id, status, beslut_motivering")
+      .eq("insamling_id", i.id)
+      .maybeSingle();
+    befintligOverklagan = o ?? null;
   }
 
   const procent = procentAvMal(
@@ -149,6 +161,25 @@ export default async function InsamlingDashboard({ params }: { params: Params })
                 <p className="mt-2" style={{ color: "var(--color-ink-2)" }}>
                   Tack — du levererade. Historiken följer dig och insamlingens
                   publika sida visar nu hela resan.
+                </p>
+              </Card>
+            )}
+
+            {i.status === "avvisad" && !befintligOverklagan && (
+              <OverklagandeForm insamlingId={i.id} />
+            )}
+
+            {i.status === "avvisad" && befintligOverklagan && (
+              <Card>
+                <div className="flex items-center gap-2">
+                  <Icon name="flag" size={18} />
+                  <h2 className="h-3">Överklagande inlämnat</h2>
+                </div>
+                <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
+                  Status: <strong>{befintligOverklagan.status}</strong>.{" "}
+                  {befintligOverklagan.status === "inkommit"
+                    ? "Superadmin granskar och hör av sig."
+                    : befintligOverklagan.beslut_motivering || "Avgjort."}
                 </p>
               </Card>
             )}

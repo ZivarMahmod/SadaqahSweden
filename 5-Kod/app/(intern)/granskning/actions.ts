@@ -57,6 +57,23 @@ export async function sparaAnteckningar(
   return { ok: true };
 }
 
+// F3 — Jäv: lyfter ärendet ur tilldelning så någon annan i regionen plockar
+// (eller superadmin om alla i regionen är jäviga).
+export async function markeraJav(
+  granskningId: string,
+  skal: string,
+): Promise<Resultat> {
+  await kraver(["granskare", "admin"]);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("markera_jav", {
+    p_granskning_id: granskningId,
+    p_skal: skal,
+  });
+  if (error) return { ok: false, message: error.message };
+  revalidatePath("/granskning", "layout");
+  return { ok: true };
+}
+
 // Server Action: bunden form-action för pickup.
 export async function tilldelaOchOppna(formData: FormData): Promise<void> {
   const granskningId = String(formData.get("granskning_id") ?? "");

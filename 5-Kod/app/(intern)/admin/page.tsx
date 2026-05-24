@@ -97,6 +97,7 @@ export default async function AdminDriftoversikt() {
             <LinkButton href="/admin/logg" variant="ghost" size="sm">Ingreppslogg</LinkButton>
             <LinkButton href="/admin/verktyg" variant="ghost" size="sm">Verktyg</LinkButton>
             <LinkButton href="/admin/statistik" variant="ghost" size="sm">Statistik</LinkButton>
+            <LinkButton href="/admin/overklaganden" variant="ghost" size="sm">Överklaganden</LinkButton>
             <LinkButton href="/granskning" variant="ghost" size="sm">Granskningskö</LinkButton>
           </nav>
         </div>

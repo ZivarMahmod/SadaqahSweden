@@ -771,6 +771,10 @@ export type Database = {
           insamling_id: string | null
           inskickad_at: string
           interna_anteckningar: string | null
+          jav_markerad: boolean
+          jav_markerad_at: string | null
+          jav_markerad_av: string | null
+          jav_skal: string | null
           region_kod: string | null
           runda: number
           sla_deadline: string | null
@@ -787,6 +791,10 @@ export type Database = {
           insamling_id?: string | null
           inskickad_at?: string
           interna_anteckningar?: string | null
+          jav_markerad?: boolean
+          jav_markerad_at?: string | null
+          jav_markerad_av?: string | null
+          jav_skal?: string | null
           region_kod?: string | null
           runda?: number
           sla_deadline?: string | null
@@ -803,6 +811,10 @@ export type Database = {
           insamling_id?: string | null
           inskickad_at?: string
           interna_anteckningar?: string | null
+          jav_markerad?: boolean
+          jav_markerad_at?: string | null
+          jav_markerad_av?: string | null
+          jav_skal?: string | null
           region_kod?: string | null
           runda?: number
           sla_deadline?: string | null
@@ -930,6 +942,8 @@ export type Database = {
           insamlat_ore: number
           insamling_deadline: string
           inskickad_at: string | null
+          kanslig: boolean
+          kanslig_motivering: string | null
           kommentarer_avstangda: boolean
           kort_beskrivning: string
           lang_beskrivning: string
@@ -981,6 +995,8 @@ export type Database = {
           insamlat_ore?: number
           insamling_deadline: string
           inskickad_at?: string | null
+          kanslig?: boolean
+          kanslig_motivering?: string | null
           kommentarer_avstangda?: boolean
           kort_beskrivning: string
           lang_beskrivning: string
@@ -1032,6 +1048,8 @@ export type Database = {
           insamlat_ore?: number
           insamling_deadline?: string
           inskickad_at?: string | null
+          kanslig?: boolean
+          kanslig_motivering?: string | null
           kommentarer_avstangda?: boolean
           kort_beskrivning?: string
           lang_beskrivning?: string
@@ -1775,6 +1793,50 @@ export type Database = {
             columns: ["profil_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      overklagande: {
+        Row: {
+          beslut_motivering: string | null
+          created_at: string
+          hanterad_at: string | null
+          hanterad_av: string | null
+          id: string
+          insamlare_id: string
+          insamling_id: string
+          skal: string
+          status: Database["public"]["Enums"]["overklagande_status"]
+        }
+        Insert: {
+          beslut_motivering?: string | null
+          created_at?: string
+          hanterad_at?: string | null
+          hanterad_av?: string | null
+          id?: string
+          insamlare_id: string
+          insamling_id: string
+          skal: string
+          status?: Database["public"]["Enums"]["overklagande_status"]
+        }
+        Update: {
+          beslut_motivering?: string | null
+          created_at?: string
+          hanterad_at?: string | null
+          hanterad_av?: string | null
+          id?: string
+          insamlare_id?: string
+          insamling_id?: string
+          skal?: string
+          status?: Database["public"]["Enums"]["overklagande_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "overklagande_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
             referencedColumns: ["id"]
           },
         ]
@@ -2713,6 +2775,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_satt_kanslig: {
+        Args: {
+          p_insamling_id: string
+          p_kanslig: boolean
+          p_motivering: string
+        }
+        Returns: undefined
+      }
       admin_satt_skyddad_identitet: {
         Args: { p_motivering: string; p_profile_id: string; p_skydd: boolean }
         Returns: undefined
@@ -2790,7 +2860,15 @@ export type Database = {
         Returns: undefined
       }
       k_anonymity_troskel: { Args: never; Returns: number }
+      lamna_overklagande: {
+        Args: { p_insamling_id: string; p_skal: string }
+        Returns: string
+      }
       markera_alla_notiser_lasta: { Args: never; Returns: number }
+      markera_jav: {
+        Args: { p_granskning_id: string; p_skal: string }
+        Returns: undefined
+      }
       markera_notis_last: { Args: { p_notis_id: string }; Returns: undefined }
       posta_kommentar: {
         Args: {
@@ -2847,6 +2925,27 @@ export type Database = {
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
         Returns: string
+      }
+      stickprov_avvikande_granskare: {
+        Args: never
+        Returns: {
+          admin_niva: string
+          admin_region_kod: string
+          avvisade: number
+          avvisningsandel: number
+          beslut_totalt: number
+          granskare_id: string
+          granskare_namn: string
+          median_handlaggningstid_h: number
+        }[]
+      }
+      superadmin_avgor_overklagande: {
+        Args: {
+          p_motivering: string
+          p_overklagande_id: string
+          p_riv_upp: boolean
+        }
+        Returns: undefined
       }
       svara_collab: {
         Args: { p_collab_id: string; p_godkand: boolean }
@@ -2994,6 +3093,7 @@ export type Database = {
         | "sakerhet"
         | "system"
       ordlista_severity: "hard_block" | "soft_flag"
+      overklagande_status: "inkommit" | "avgjord_uppriven" | "avgjord_bekraftad"
       payout_status: "pending" | "in_transit" | "paid" | "failed" | "canceled"
       reaktion_typ: "dua" | "stod"
       refund_anledning:
@@ -3277,6 +3377,11 @@ export const Constants = {
         "system",
       ],
       ordlista_severity: ["hard_block", "soft_flag"],
+      overklagande_status: [
+        "inkommit",
+        "avgjord_uppriven",
+        "avgjord_bekraftad",
+      ],
       payout_status: ["pending", "in_transit", "paid", "failed", "canceled"],
       reaktion_typ: ["dua", "stod"],
       refund_anledning: [
