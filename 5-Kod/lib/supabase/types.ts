@@ -703,6 +703,54 @@ export type Database = {
           },
         ]
       }
+      faq_post: {
+        Row: {
+          fraga: string
+          id: string
+          kategori: string
+          last: boolean
+          ordning: number
+          senast_andrad_at: string
+          senast_andrad_av: string | null
+          skapad_at: string
+          status: Database["public"]["Enums"]["innehall_status"]
+          svar: string
+          verifierad_av_lard_id: string | null
+          verifierad_datum: string | null
+          verifieringsstatus: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Insert: {
+          fraga: string
+          id?: string
+          kategori: string
+          last?: boolean
+          ordning?: number
+          senast_andrad_at?: string
+          senast_andrad_av?: string | null
+          skapad_at?: string
+          status?: Database["public"]["Enums"]["innehall_status"]
+          svar?: string
+          verifierad_av_lard_id?: string | null
+          verifierad_datum?: string | null
+          verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Update: {
+          fraga?: string
+          id?: string
+          kategori?: string
+          last?: boolean
+          ordning?: number
+          senast_andrad_at?: string
+          senast_andrad_av?: string | null
+          skapad_at?: string
+          status?: Database["public"]["Enums"]["innehall_status"]
+          svar?: string
+          verifierad_av_lard_id?: string | null
+          verifierad_datum?: string | null
+          verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Relationships: []
+      }
       geo_aggregat: {
         Row: {
           aktiva_antal: number
@@ -913,6 +961,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      innehallssida: {
+        Row: {
+          brodtext: string
+          id: string
+          ikrafttradande_datum: string | null
+          last: boolean
+          senast_andrad_at: string
+          senast_andrad_av: string | null
+          sidtyp: Database["public"]["Enums"]["innehall_sidtyp"]
+          skapad_at: string
+          slug: string
+          status: Database["public"]["Enums"]["innehall_status"]
+          titel: string
+          verifierad_av_lard_id: string | null
+          verifierad_datum: string | null
+          verifieringsstatus: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Insert: {
+          brodtext?: string
+          id?: string
+          ikrafttradande_datum?: string | null
+          last?: boolean
+          senast_andrad_at?: string
+          senast_andrad_av?: string | null
+          sidtyp?: Database["public"]["Enums"]["innehall_sidtyp"]
+          skapad_at?: string
+          slug: string
+          status?: Database["public"]["Enums"]["innehall_status"]
+          titel: string
+          verifierad_av_lard_id?: string | null
+          verifierad_datum?: string | null
+          verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Update: {
+          brodtext?: string
+          id?: string
+          ikrafttradande_datum?: string | null
+          last?: boolean
+          senast_andrad_at?: string
+          senast_andrad_av?: string | null
+          sidtyp?: Database["public"]["Enums"]["innehall_sidtyp"]
+          skapad_at?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["innehall_status"]
+          titel?: string
+          verifierad_av_lard_id?: string | null
+          verifierad_datum?: string | null
+          verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Relationships: []
       }
       insamling: {
         Row: {
@@ -2900,6 +2999,60 @@ export type Database = {
         Args: { p_kommentar_id: string; p_skal: string }
         Returns: undefined
       }
+      innehall_avpublicera_faq: { Args: { p_id: string }; Returns: undefined }
+      innehall_avpublicera_sida: {
+        Args: {
+          p_id: string
+          p_till_status?: Database["public"]["Enums"]["innehall_status"]
+        }
+        Returns: undefined
+      }
+      innehall_publicera_faq: { Args: { p_id: string }; Returns: undefined }
+      innehall_publicera_sida: { Args: { p_id: string }; Returns: undefined }
+      innehall_skapa_faq: {
+        Args: {
+          p_fraga: string
+          p_kategori: string
+          p_ordning?: number
+          p_svar: string
+          p_verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Returns: string
+      }
+      innehall_skapa_sida: {
+        Args: {
+          p_sidtyp: Database["public"]["Enums"]["innehall_sidtyp"]
+          p_slug: string
+          p_titel: string
+          p_verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Returns: string
+      }
+      innehall_uppdatera_faq: {
+        Args: {
+          p_fraga: string
+          p_id: string
+          p_kategori: string
+          p_ordning: number
+          p_svar: string
+          p_verifierad_av_lard_id?: string
+          p_verifierad_datum?: string
+          p_verifieringsstatus: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Returns: undefined
+      }
+      innehall_uppdatera_sida: {
+        Args: {
+          p_brodtext: string
+          p_id: string
+          p_ikrafttradande_datum?: string
+          p_titel: string
+          p_verifierad_av_lard_id?: string
+          p_verifierad_datum?: string
+          p_verifieringsstatus: Database["public"]["Enums"]["innehall_verifieringsstatus"]
+        }
+        Returns: undefined
+      }
       k_anonymity_troskel: { Args: never; Returns: number }
       lamna_overklagande: {
         Args: { p_insamling_id: string; p_skal: string }
@@ -3075,6 +3228,12 @@ export type Database = {
         | "annat"
       event_upprepning: "vecka" | "manad"
       granskning_beslut: "godkann" | "begar_andring" | "avvisa"
+      innehall_sidtyp: "informativ" | "juridisk"
+      innehall_status: "utkast" | "publicerad" | "kommer_snart"
+      innehall_verifieringsstatus:
+        | "ej_tillampligt"
+        | "behover_lard"
+        | "verifierad"
       insamling_status:
         | "utkast"
         | "inskickad"
@@ -3354,6 +3513,13 @@ export const Constants = {
       ],
       event_upprepning: ["vecka", "manad"],
       granskning_beslut: ["godkann", "begar_andring", "avvisa"],
+      innehall_sidtyp: ["informativ", "juridisk"],
+      innehall_status: ["utkast", "publicerad", "kommer_snart"],
+      innehall_verifieringsstatus: [
+        "ej_tillampligt",
+        "behover_lard",
+        "verifierad",
+      ],
       insamling_status: [
         "utkast",
         "inskickad",
