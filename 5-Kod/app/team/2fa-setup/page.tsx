@@ -18,8 +18,9 @@ export default async function Setup2fa() {
   const me = await aktuellAnvandare();
   if (!me) redirect("/login?retur=/team/2fa-setup");
 
-  // Bara team-konton ska komma hit. Donatorer/insamlare skickas hem.
-  if (me.roll !== "granskare" && me.roll !== "admin") redirect("/konto");
+  // F8: alla inloggade konton kräver 2FA — team OCH insamlare/förening.
+  // Donatorer som ändå skulle hamna här (de har inget konto) skickas hem.
+  // void me; (rollen är kontroll-irrelevant — alla med inlogg får enrolla)
 
   const supabase = await createClient();
 

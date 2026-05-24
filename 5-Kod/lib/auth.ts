@@ -77,16 +77,17 @@ export async function kraver(
     redirect("/konto-fryst");
   }
 
-  const arTeam = me.roll === "granskare" || me.roll === "admin";
-  if (arTeam) {
-    const supabase = await createClient();
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
-      redirect("/team/2fa");
-    }
-    if (aal?.nextLevel === "aal1" && aal.currentLevel === "aal1") {
-      redirect("/team/2fa-setup");
-    }
+  // F8: alla inloggade konton (team OCH insamlare/förening) kräver 2FA
+  // för att nå kraver()-skyddade routes. Gäst-donatorer berörs inte —
+  // donations-flödet (/insamlingar/[id]/donera) är publikt och anropar
+  // inte kraver().
+  const supabase = await createClient();
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+    redirect("/team/2fa");
+  }
+  if (aal?.nextLevel === "aal1" && aal.currentLevel === "aal1") {
+    redirect("/team/2fa-setup");
   }
 
   return me;

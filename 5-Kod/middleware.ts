@@ -11,10 +11,20 @@ import { updateSession } from "@/lib/supabase/middleware";
 // `proxy` istället för `middleware`, ta bort `runtime`-raden.
 export const runtime = "experimental-edge";
 
-// Intern-zonen: team-routes som kräver aal2. Login, registrera och själva
+// Intern-zonen: routes som kräver aal2. Login, registrera och själva
 // MFA-routes är medvetet undantagna så att man kan nå dem på aal1 för att
-// lyfta sessionen. Härdning H1.
-const INTERN_PREFIX = ["/admin", "/granskning", "/team/larm"];
+// lyfta sessionen. Härdning H1 + F8 (alla inloggade konton).
+//
+// F8: även insamlare- och förenings-kontohandlingar gateas av aal2.
+// /insamlingar/* är publikt (donations-flödet ska fungera utan MFA).
+const INTERN_PREFIX = [
+  "/admin",
+  "/granskning",
+  "/team/larm",
+  "/konto",
+  "/insamling",       // /insamling (utkast/dashboard) — inloggad insamlare
+  "/stripe/onboarding",
+];
 const MFA_LIFT_EXEMPT = [
   "/team/2fa",
   "/team/2fa-setup",
