@@ -11,6 +11,7 @@ import { Pill } from "@/components/ui/pill";
 import { kortBelopp } from "@/lib/format";
 import { RefundKnapp } from "./refund-modal";
 import { SkyddadIdentitetForm } from "./skyddad-identitet";
+import { MfaResetForm } from "./mfa-reset";
 
 export const metadata = { title: "Verktyg — Admin — Sadaqah Sweden" };
 export const dynamic = "force-dynamic";
@@ -78,6 +79,18 @@ export default async function VerktygSida() {
         </p>
         <Card variant="tight" className="mt-4">
           <SkyddadIdentitetForm />
+        </Card>
+
+        <h2 className="h-3 mt-12">MFA-nollställning (alla konton)</h2>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
+          F8/FX5 — slå upp ett konto via e-post och radera samtliga MFA-faktorer.
+          Funkar för alla roller (insamlare, förening, granskare, admin) — inte
+          bara team. Användaren omdirigeras till 2FA-setup vid nästa skyddad
+          request. Verifiera identitet utanför plattformen (support-samtal,
+          BankID) innan du nollställer — annars är detta en bakdörr.
+        </p>
+        <Card variant="tight" className="mt-4">
+          <MfaResetForm />
         </Card>
       </Container>
     </Section>
