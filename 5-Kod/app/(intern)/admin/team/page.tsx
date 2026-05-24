@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Container, Section } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Pill } from "@/components/ui/pill";
-import { TeamInviteForm, TeamInaktiveraKnapp } from "./hantering";
+import { TeamInviteForm, TeamInaktiveraKnapp, TeamAterstallMfaKnapp } from "./hantering";
 
 export const metadata = { title: "Team — Admin — Sadaqah Sweden" };
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export default async function TeamSida() {
   const [{ data: medlemmar }, { data: invitationer }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, public_id, visningsnamn, e_post, roll, totp_aktiverad, totp_kravs, team_inaktiverad_at, created_at")
+      .select("id, public_id, visningsnamn, e_post, roll, team_inaktiverad_at, created_at")
       .in("roll", ["granskare", "admin"])
       .is("deleted_at", null)
       .order("roll")
@@ -85,15 +85,13 @@ export default async function TeamSida() {
                     <Pill tone={p.roll === "admin" ? "copper" : "outline"}>{p.roll}</Pill>
                     <span className="font-semibold">{p.visningsnamn}</span>
                     <span className="text-xs" style={{ color: "var(--color-ink-3)" }}>{p.e_post}</span>
-                    {p.totp_aktiverad ? (
-                      <Pill tone="success">TOTP aktivt</Pill>
-                    ) : (
-                      <Pill tone="danger">TOTP saknas</Pill>
-                    )}
                     {p.team_inaktiverad_at && <Pill tone="paper">Inaktiverad</Pill>}
                   </div>
                   {p.id !== me.userId && !p.team_inaktiverad_at && (
-                    <TeamInaktiveraKnapp profileId={p.id} namn={p.visningsnamn} />
+                    <div className="flex gap-2">
+                      <TeamAterstallMfaKnapp profileId={p.id} namn={p.visningsnamn} />
+                      <TeamInaktiveraKnapp profileId={p.id} namn={p.visningsnamn} />
+                    </div>
                   )}
                 </div>
               </Card>

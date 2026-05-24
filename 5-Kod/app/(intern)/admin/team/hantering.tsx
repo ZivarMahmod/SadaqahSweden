@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import {
   bjudInTeamMedlemAction,
   inaktiveraTeamMedlemAction,
+  aterstallMfaAction,
 } from "./actions";
 
 export function TeamInviteForm() {
@@ -92,6 +93,32 @@ export function TeamInaktiveraKnapp({ profileId, namn }: { profileId: string; na
       style={{ color: "var(--color-danger)" }}
     >
       {pending ? "…" : "Inaktivera"}
+    </button>
+  );
+}
+
+export function TeamAterstallMfaKnapp({ profileId, namn }: { profileId: string; namn: string }) {
+  const [pending, start] = useTransition();
+  function aterstall() {
+    const motiv = prompt(
+      `Återställ MFA för ${namn}? Hen får enrolla på nytt vid nästa login.\nMotivering (minst 5 tecken)?`,
+    );
+    if (!motiv || motiv.trim().length < 5) return;
+    start(async () => {
+      const res = await aterstallMfaAction(profileId, motiv.trim());
+      if (!res.ok) {
+        alert(`Misslyckades: ${res.fel}`);
+      }
+    });
+  }
+  return (
+    <button
+      type="button"
+      onClick={aterstall}
+      disabled={pending}
+      className="btn btn-ghost btn-sm"
+    >
+      {pending ? "…" : "Återställ MFA"}
     </button>
   );
 }

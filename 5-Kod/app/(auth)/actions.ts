@@ -27,6 +27,14 @@ export async function loggaIn(formData: FormData): Promise<AuthResult> {
   }
 
   revalidatePath("/", "layout");
+
+  // H1: efter password-success, kontrollera om kontot kräver MFA-challenge
+  // för att lyfta sessionen till aal2 (team-konton). Om så: skicka till
+  // challenge-sidan istället för konto-sidan.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+    redirect("/team/2fa");
+  }
   redirect("/konto");
 }
 

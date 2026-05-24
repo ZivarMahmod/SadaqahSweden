@@ -6,12 +6,7 @@ import { aktuellAnvandare } from "@/lib/auth";
 
 type Result = { ok: true } | { ok: false; fel: string };
 
-/**
- * Verifierar en TOTP-kod mot en pågående enroll via Supabase MFA.
- * mfa.challenge skapar ett challenge-id, mfa.verify löser in det med koden.
- * Vid success blir faktorn `verified` och sessionen lyfts till aal2.
- */
-export async function verifieraOchAktiveraTotp(
+export async function verifieraMfaChallenge(
   factorId: string,
   kod: string,
 ): Promise<Result> {
@@ -35,15 +30,13 @@ export async function verifieraOchAktiveraTotp(
     return { ok: false, fel: oversaettMfaFel(vErr.message) };
   }
 
-  revalidatePath("/team/2fa-setup");
-  revalidatePath("/admin");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
 function oversaettMfaFel(msg: string): string {
-  if (msg.toLowerCase().includes("invalid totp code"))
-    return "Felaktig kod — kolla att tiden i appen är synkad.";
-  if (msg.toLowerCase().includes("expired"))
-    return "Koden har gått ut — vänta 30 s och försök igen.";
+  const m = msg.toLowerCase();
+  if (m.includes("invalid totp code")) return "Felaktig kod — kolla att tiden i appen är synkad.";
+  if (m.includes("expired")) return "Koden har gått ut — vänta 30 s och försök igen.";
   return msg;
 }

@@ -1945,8 +1945,6 @@ export type Database = {
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
           team_inaktiverad_at: string | null
-          totp_aktiverad: boolean
-          totp_kravs: boolean
           updated_at: string
           visa_stad: boolean
           visa_total_summa: boolean
@@ -1973,8 +1971,6 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
-          totp_aktiverad?: boolean
-          totp_kravs?: boolean
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -2001,8 +1997,6 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
-          totp_aktiverad?: boolean
-          totp_kravs?: boolean
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -2343,71 +2337,6 @@ export type Database = {
           {
             foreignKeyName: "team_invitation_redeemed_av_fkey"
             columns: ["redeemed_av"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      totp_secret: {
-        Row: {
-          aktiverad_at: string | null
-          ateranvant_otp_skydd: string | null
-          created_at: string
-          profile_id: string
-          recovery_codes: string[]
-          secret_base32: string
-          senaste_verifiering_at: string | null
-          skapad_av: string | null
-          updated_at: string
-        }
-        Insert: {
-          aktiverad_at?: string | null
-          ateranvant_otp_skydd?: string | null
-          created_at?: string
-          profile_id: string
-          recovery_codes?: string[]
-          secret_base32: string
-          senaste_verifiering_at?: string | null
-          skapad_av?: string | null
-          updated_at?: string
-        }
-        Update: {
-          aktiverad_at?: string | null
-          ateranvant_otp_skydd?: string | null
-          created_at?: string
-          profile_id?: string
-          recovery_codes?: string[]
-          secret_base32?: string
-          senaste_verifiering_at?: string | null
-          skapad_av?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "totp_secret_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profil_publik"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "totp_secret_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "totp_secret_skapad_av_fkey"
-            columns: ["skapad_av"]
-            isOneToOne: false
-            referencedRelation: "profil_publik"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "totp_secret_skapad_av_fkey"
-            columns: ["skapad_av"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2865,7 +2794,10 @@ export type Database = {
         Args: { p_token: string }
         Returns: Database["public"]["Enums"]["anvandar_roll"]
       }
-      team_satt_totp_aktiverad: { Args: never; Returns: undefined }
+      admin_logga_mfa_aterstallning: {
+        Args: { p_profile_id: string; p_motivering: string }
+        Returns: undefined
+      }
       tilldela_granskning: {
         Args: { p_granskning_id: string }
         Returns: undefined

@@ -16,15 +16,6 @@ export type AktuellAnvandare = {
   roll: Roll;
 };
 
-/**
- * Returnerar inloggad användare + profil + roll. Null om ej inloggad.
- *
- * Cached per request via React `cache()` så flera anrop i samma request
- * inte skapar duplicate-queries (Server Components renderas i parallell).
- *
- * Använd ALLTID denna istället för att läsa session i klienten — roll
- * får aldrig sättas av klient-state.
- */
 export const aktuellAnvandare = cache(
   async (): Promise<AktuellAnvandare | null> => {
     const supabase = await createClient();
@@ -43,9 +34,6 @@ export const aktuellAnvandare = cache(
       .single();
 
     if (profilError || !profil) {
-      // Profil ska auto-skapas via handle_new_user-trigger. Om den saknas
-      // är något fel — logga men returnera null så caller redirectar till
-      // login (säkrast).
       console.error("aktuellAnvandare: profil saknas för user", user.id, profilError);
       return null;
     }
@@ -61,11 +49,12 @@ export const aktuellAnvandare = cache(
 
 /**
  * Skyddar en serverside-route. Redirectar till /login om ej inloggad,
- * till / om inloggad men fel roll.
+ * till / om inloggad men fel roll. För team-roller (granskare/admin) krävs
+ * dessutom MFA: om ingen faktor finns enrollad → /team/2fa-setup; om faktor
+ * finns men inte challenged i nuvarande session → /team/2fa.
  *
- * Användning i en Server Component eller Route Handler:
- *   const me = await kraver(["granskare", "admin"]);
- *   // me är garanterat inloggad med rätt roll här
+ * Detta dubbleras i `middleware.ts` (path-baserat) och i DB:s
+ * `private.require_aal2()` (RPC-baserat). Härdning H1.
  */
 export async function kraver(
   tillatnaRoller?: ReadonlyArray<Roll>,
@@ -77,7 +66,6 @@ export async function kraver(
   }
 
   if (tillatnaRoller && tillatnaRoller.length > 0 && !tillatnaRoller.includes(me.roll)) {
-    // Loggning av nekade behörighetsförsök hör hemma i M16 (admin/dashboard).
     redirect("/");
   }
 
@@ -85,25 +73,21 @@ export async function kraver(
     redirect("/konto-fryst");
   }
 
-  // M17: team-konton (granskare/admin med totp_kravs=true) får inte nå
-  // skyddade routes innan TOTP är aktiverat. Undantag: 2FA-setup-sidan själv
-  // och accept-invite-flödet.
-  if (
-    me.profil.totp_kravs &&
-    !me.profil.totp_aktiverad &&
-    tillatnaRoller &&
-    tillatnaRoller.length > 0
-  ) {
-    redirect("/team/2fa-setup");
+  const arTeam = me.roll === "granskare" || me.roll === "admin";
+  if (arTeam) {
+    const supabase = await createClient();
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === "aal2" && aal.currentLevel === "aal1") {
+      redirect("/team/2fa");
+    }
+    if (aal?.nextLevel === "aal1" && aal.currentLevel === "aal1") {
+      redirect("/team/2fa-setup");
+    }
   }
 
   return me;
 }
 
-/**
- * Helper för Server Components som vill rendera olika UI för olika roller
- * UTAN att redirecta. Returnerar bara rollen (eller null).
- */
 export async function aktuellRoll(): Promise<Roll | null> {
   const me = await aktuellAnvandare();
   return me?.roll ?? null;

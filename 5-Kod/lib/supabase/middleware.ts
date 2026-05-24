@@ -1,13 +1,17 @@
 // Sadaqah Sweden — Auth-middleware-helper för @supabase/ssr.
 // Anropas från `5-Kod/middleware.ts` på varje request. Refreshar sessionen,
-// håller cookies synkade mellan request + response. Utan detta tappar
-// server-komponenter inloggning vid expiry.
+// håller cookies synkade mellan request + response, och returnerar JWT-aal
+// så middleware kan grinda intern-zonen.
 
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "./types";
 
-export async function updateSession(request: NextRequest) {
+type Aal = "aal1" | "aal2" | null;
+
+export async function updateSession(
+  request: NextRequest,
+): Promise<{ response: NextResponse; aal: Aal }> {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
@@ -31,10 +35,17 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // VIKTIGT: getUser() måste anropas — utan detta refreshar inte sessionen
-  // och RLS-anrop från Server Components blir anonyma.
-  // Se @supabase/ssr docs: alltid getUser() innan response returneras.
+  // getUser() refreshar sessionen och fyller cookies (Supabase ssr-doc).
   await supabase.auth.getUser();
 
-  return supabaseResponse;
+  // Hämta nuvarande AAL för middleware-gating. null om ej inloggad.
+  let aal: Aal = null;
+  try {
+    const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    aal = (data?.currentLevel as Aal) ?? null;
+  } catch {
+    aal = null;
+  }
+
+  return { response: supabaseResponse, aal };
 }
