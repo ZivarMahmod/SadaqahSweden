@@ -25,6 +25,13 @@ const MFA_LIFT_EXEMPT = [
   "/auth/callback",
 ];
 
+// F6 — admin-subdomäner. Båda delar samma landningssida vid inloggning;
+// admin_niva styr vad användaren ser efteråt. Subdomänen är en INGÅNG,
+// inte säkerhetsgränsen — F1's RLS är säkerheten i djupet.
+const PUBLIK_HOST = "sadaqahsweden.se";
+const REGIONALADMIN_HOST = "regionaladmin.sadaqahsweden.se";
+const SUPERADMIN_HOST = "superadmin.sadaqahsweden.se";
+
 function arInternZon(path: string): boolean {
   return INTERN_PREFIX.some((p) => path === p || path.startsWith(`${p}/`));
 }
@@ -33,17 +40,45 @@ function arMfaLiftExempt(path: string): boolean {
   return MFA_LIFT_EXEMPT.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
+function detekteraHost(request: NextRequest): "publik" | "regionaladmin" | "superadmin" | "okand" {
+  const host = (request.headers.get("host") ?? "").toLowerCase();
+  if (host === REGIONALADMIN_HOST) return "regionaladmin";
+  if (host === SUPERADMIN_HOST) return "superadmin";
+  if (host === PUBLIK_HOST || host === `www.${PUBLIK_HOST}`) return "publik";
+  return "okand";
+}
+
 export async function middleware(request: NextRequest) {
   // Steg 1: refresh session + skicka cookies vidare.
   const { response, aal } = await updateSession(request);
 
-  // Steg 2: intern-zon-grind. Om path matchar och session är aal1 trots att
-  // användaren har en faktor enrollad → redirect till /team/2fa för challenge.
-  // Om ingen faktor enrollad → /team/2fa-setup (görs via kraver() inom routen
-  // när den faktiskt rendas; här blockerar vi bara aal2-zonen).
+  const host = detekteraHost(request);
   const path = request.nextUrl.pathname;
+
+  // Steg 2 (F6): host-baserad routning.
+  if (host === "publik") {
+    // Publika domänen exponerar INTE admin-/granskar-ingångar. Direktanrop
+    // hit -> redirect till regionaladmin-subdomänen (delad landning).
+    if (path.startsWith("/admin") || path.startsWith("/granskning") || path.startsWith("/team")) {
+      const url = new URL(request.nextUrl.toString());
+      url.host = REGIONALADMIN_HOST;
+      url.protocol = "https:";
+      return NextResponse.redirect(url, 308);
+    }
+  } else if (host === "regionaladmin" || host === "superadmin") {
+    // Admin-subdomänernas rotväg leder till samma admin-landning.
+    if (path === "/" || path === "") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
+      return NextResponse.redirect(url, 307);
+    }
+    // Publika ytor (insamlingar, donera, karta) på admin-subdomäner är fortsatt
+    // åtkomliga — host är en ingång, inte en säkerhetsgräns. F1's RLS gör att
+    // en region-admin som råkar nå superadmin-subdomänen ändå bara ser sin region.
+  }
+
+  // Steg 3: intern-zon-grind (AAL2). Gäller alla hosts.
   if (arInternZon(path) && !arMfaLiftExempt(path)) {
-    // aal === null → ej inloggad; låt kraver() i routen redirecta till /login.
     if (aal && aal !== "aal2") {
       const next = `${path}${request.nextUrl.search ?? ""}`;
       const url = request.nextUrl.clone();

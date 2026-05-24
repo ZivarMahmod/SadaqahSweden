@@ -6,6 +6,7 @@ import { aktuellAnvandare } from "@/lib/auth";
 import { loggaUt } from "@/app/(auth)/actions";
 import { Wordmark } from "@/components/layout/wordmark";
 import { createClient } from "@/lib/supabase/server";
+import { aktuellHostTyp } from "@/lib/host";
 
 const PUBLIC_LINKS = [
   { href: "/insamlingar", label: "Insamlingar" },
@@ -17,9 +18,15 @@ const PUBLIC_LINKS = [
 
 export async function SiteNav() {
   const me = await aktuellAnvandare();
+  const hostTyp = await aktuellHostTyp();
+  // F6: publika domänen exponerar INGA admin-/granskar-ingångar i navet,
+  // även om en team-medlem är inloggad. Admin-länkar visas bara på
+  // regionaladmin/superadmin-subdomänen (eller okänd host i dev/preview).
+  const visaInternaLankar = hostTyp !== "publik";
   const arInsamlare =
     !!me && (me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin");
-  const arGranskare = !!me && (me.roll === "granskare" || me.roll === "admin");
+  const arGranskare =
+    !!me && (me.roll === "granskare" || me.roll === "admin") && visaInternaLankar;
 
   let olasta = 0;
   if (me) {
