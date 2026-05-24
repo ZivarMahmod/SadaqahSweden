@@ -11,6 +11,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { KartData, LanAggregat, KommunAggregat } from "@/lib/karta";
 import type { HjalpPlats } from "@/lib/karta-hjalp";
+import type { EventPin } from "@/lib/karta-events";
 import { kortBelopp, antal, kr } from "@/lib/format";
 
 // Konfigurerbar basemap-källa så Steg 12 enkelt kan bytas till Protomaps
@@ -28,10 +29,13 @@ type ValdOmrade =
 export function KartaKlient({
   data,
   hjalp,
+  events,
 }: {
   data: KartData;
   hjalp: HjalpPlats[];
+  events: EventPin[];
 }) {
+  const [visaEvents, setVisaEvents] = useState(false);
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<unknown>(null);
   const [klar, setKlar] = useState(false);
@@ -163,6 +167,48 @@ export function KartaKlient({
             })),
         };
         map.addSource("hjalp", { type: "geojson", data: hjalpFC, generateId: true });
+
+        // EVENT-pin-lager (M14 ⇄ M12) — av-/påslagbart eget lager.
+        const eventFC = {
+          type: "FeatureCollection" as const,
+          features: events.map((e) => ({
+            type: "Feature" as const,
+            geometry: { type: "Point" as const, coordinates: [e.lng, e.lat] },
+            properties: {
+              id: e.id,
+              public_id: e.public_id,
+              slug: e.slug,
+              titel: e.titel,
+              typ: e.typ,
+              start_at: e.start_at,
+            },
+          })),
+        };
+        map.addSource("events", { type: "geojson", data: eventFC, generateId: true });
+        map.addLayer({
+          id: "events-circle",
+          type: "circle",
+          source: "events",
+          paint: {
+            "circle-radius": 7,
+            "circle-color": "#2D6B4F",
+            "circle-opacity": 0.85,
+            "circle-stroke-color": "#0F2A1F",
+            "circle-stroke-width": 1.5,
+          },
+          layout: { visibility: "none" },
+        });
+        map.on("click", "events-circle", (e) => {
+          const f = e.features?.[0];
+          if (!f) return;
+          const pid = f.properties?.public_id as string;
+          const slug = f.properties?.slug as string;
+          if (pid && typeof window !== "undefined") {
+            window.location.href = `/event/${pid}-${slug ?? ""}`;
+          }
+        });
+        map.on("mouseenter", "events-circle", () => (map.getCanvas().style.cursor = "pointer"));
+        map.on("mouseleave", "events-circle", () => (map.getCanvas().style.cursor = ""));
         map.addLayer({
           id: "hjalp-circle",
           type: "circle",
@@ -330,12 +376,13 @@ export function KartaKlient({
     visa("lan-fill", vy === "lan");
     visa("lan-line", vy === "lan");
     visa("hjalp-circle", vy === "hjalp");
+    visa("events-circle", visaEvents);
     if (vy === "hjalp" && map.flyTo) {
       map.flyTo({ center: [20, 30], zoom: 1.6, duration: 700 });
     } else if (vy === "lan" && map.flyTo) {
       map.flyTo({ center: [15.5, 62.5], zoom: 3.7, duration: 700 });
     }
-  }, [vy, klar]);
+  }, [vy, klar, visaEvents]);
 
   return (
     <div className="relative">
@@ -351,27 +398,41 @@ export function KartaKlient({
       </div>
 
       {/* Vy-växlare — insamlar-vy (län/kommun) ⇄ hjälp-vy (världen). */}
-      <div className="absolute left-4 top-4 flex gap-1 rounded-full bg-white p-1 shadow-md">
-        {(
-          [
-            ["lan", "Län"],
-            ["kommun", "Kommun"],
-            ["hjalp", "Hjälp-vy"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setVy(id)}
-            className="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
-            style={{
-              background: vy === id ? "var(--color-forest)" : "transparent",
-              color: vy === id ? "var(--color-paper-soft)" : "var(--color-ink-2)",
-            }}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="absolute left-4 top-4 flex flex-col gap-2">
+        <div className="flex gap-1 rounded-full bg-white p-1 shadow-md">
+          {(
+            [
+              ["lan", "Län"],
+              ["kommun", "Kommun"],
+              ["hjalp", "Hjälp-vy"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setVy(id)}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors"
+              style={{
+                background: vy === id ? "var(--color-forest)" : "transparent",
+                color: vy === id ? "var(--color-paper-soft)" : "var(--color-ink-2)",
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setVisaEvents((v) => !v)}
+          className="rounded-full px-3 py-1.5 text-xs font-semibold shadow-md transition-colors"
+          style={{
+            background: visaEvents ? "var(--color-success)" : "white",
+            color: visaEvents ? "var(--color-paper-soft)" : "var(--color-ink-2)",
+          }}
+          aria-pressed={visaEvents}
+        >
+          {visaEvents ? "Events ✓" : "Visa events"}
+        </button>
       </div>
 
       {/* Drill-down-panel */}

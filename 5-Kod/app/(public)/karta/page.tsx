@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { hamtaKartData } from "@/lib/karta";
 import { hamtaHjalpData } from "@/lib/karta-hjalp";
+import { hamtaEventsForKarta } from "@/lib/karta-events";
 import { KartaKlient } from "./karta-klient";
 import { Topplista } from "./topplista";
 import { kortBelopp, antal } from "@/lib/format";
@@ -24,7 +25,11 @@ export const metadata = {
 };
 
 export default async function KartaSida() {
-  const [data, hjalp] = await Promise.all([hamtaKartData(), hamtaHjalpData()]);
+  const [data, hjalp, events] = await Promise.all([
+    hamtaKartData(),
+    hamtaHjalpData(),
+    hamtaEventsForKarta(),
+  ]);
 
   return (
     <main className="mx-auto w-full max-w-[1280px] px-6 py-12 md:px-12 md:py-20">
@@ -61,7 +66,7 @@ export default async function KartaSida() {
               </div>
             }
           >
-            <KartaKlient data={data} hjalp={hjalp} />
+            <KartaKlient data={data} hjalp={hjalp} events={events} />
           </Suspense>
           <p className="mt-4 text-xs" style={{ color: "var(--color-ink-3)" }}>
             Aggregat uppdateras var 6:e timme. Senast beräknad:{" "}

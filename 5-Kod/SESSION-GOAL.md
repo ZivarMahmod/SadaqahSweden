@@ -51,7 +51,14 @@
 - [x] Två roller: Admin, Granskare. (Stöd ligger redan på `anvandar_roll`-
       enumen från Steg 2; Support är parkerad per brief.)
 - [x] Team-konton med inbjudan (token-länk, 7 dagars expiry).
-- [x] Obligatorisk 2FA TOTP (kraver()-funktionen blockerar åtkomst).
+- [x] Obligatorisk 2FA TOTP-**enroll** (kraver()-funktionen blockerar
+      åtkomst till skyddade routes tills enroll är klar).
+- [ ] **Inte i denna runda:** per-session TOTP-**verifiering** vid login.
+      `totp_aktiverad` är en permanent flagga som sätts efter enroll —
+      stulet lösenord = full team-åtkomst utan att TOTP-appen någonsin
+      används. Sant "obligatorisk 2FA" kräver Supabase Auth MFA-faktorer
+      eller en per-session `totp_verifierad_at`-cookie som challenge:as
+      vid login. Lägg in före riktiga team-onboardas. Se uppföljning.
 - [x] Onboarding/offboarding (invite → redeem → 2FA-setup; offboarding
       via `admin_inaktivera_team_medlem`).
 - [x] Append-only aktivitetslogg (`team_activity_log` har ingen
@@ -216,10 +223,12 @@
 - [x] Event-objekt skapas, granskas (48 h SLA, lättare checklista) och publiceras.
 - [x] Moské-sida som vy av M10-entitet med öppettider (under förening-sidan).
 - [x] Eventlista med filter (stad, typ).
-- [ ] **Delvis:** Events som pin-lager på M12-kartan — `event.plats_lat`/`lng`
-      finns och datan kan laddas; UI-lagret defer. Se uppföljning nedan.
+- [x] Events som pin-lager på M12-kartan — toggle "Visa events" på
+      `/karta` renderar publicerade fysiska events från `event.plats_lat/lng`.
 - [x] Återkommande event som ett objekt (`upprepning` + `upprepning_veckodag`).
 - [x] Auto-städning av passerade event (`event_auto_cleanup` pg_cron).
+- [x] Events som av-/påslagbart pin-lager på M12-kartan (`/karta` har nu
+      en "Visa events"-toggle ovanför vy-växlaren; klick på pin → event-sida).
 - [x] Fast-track efter 3 rena event (orgs only, privatpersoner aldrig).
 - [x] RLS på nya tabeller.
 - [x] `npm run build` grön.
