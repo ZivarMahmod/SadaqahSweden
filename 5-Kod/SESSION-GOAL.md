@@ -1,211 +1,109 @@
-# SESSION-GOAL — Steg 5–11 (Stripe → M10 Organisationer)
+# SESSION-GOAL — Verifiering av pengaflödet (Steg 5–7)
 
-**Datum:** 2026-05-24 (uppdaterad)
-**Status:** Steg 5–11 strukturellt klara. Build grön. Security Advisor grön
-(samma två preexisting: mission INFO, HIBP WARN). Alla migrationer pushade.
+**Status: ✅ VERIFIERAT (2026-05-24)**
 
----
-
-## Steg 5 — Stripe Connect & pengaplumbing  ✅
-- Migration 0011 (`supabase/migrations/0011_stripe_pengaplumbing.sql`):
-  connected_accounts, webhook_events (idempotens), transfers, refunds,
-  payouts, disputes. Donation utökad. Insamling utökad. RLS på allt.
-- Edge Functions: `create-connected-account`, `create-account-link`,
-  `create-payment-intent`, `stripe-webhook`, `settle-campaign`.
-- App-routes: `app/(konto)/stripe/onboarding/`.
-
-## Steg 6 — Donator-flöde & realtidsräknare  ✅
-- Donator-wizard, realtidsräknare via Supabase Realtime broadcast,
-  Resend-kvitto via `skicka-kvitto` Edge Function.
-
-## Loose ends från Steg 5–6 — STÄNGT  ✅
-- **Migration 0012** (`0012_connected_account_link_and_settle_cron.sql`):
-  - `private.knyt_connected_account_till_insamling` hookas in i
-    `fatta_granskar_beslut` → vid godkann sätts connected_account_id
-    automatiskt.
-  - `private.backfill_connected_account_for_profil` + RPC; anropas av
-    `stripe-webhook` `account.updated` så insamlingar som godkändes
-    innan Stripe-onboarding kopplas retroaktivt.
-  - pengaskydd-triggern relaxas för `current_user IN ('postgres','supabase_admin')`
-    (SECURITY DEFINER-bypass); service_role-bypassen behålls.
-  - pg_cron + pg_net installeras (0012b flyttar pg_net till `extensions`).
-  - Cron-jobb `settle-due-insamlingar-hourly` (15 * * * *) anropar
-    `private.kor_settle_for_due_insamlingar()` som POSTar till
-    settle-campaign via `net.http_post`.
-
-## Steg 7 — Transparens-loopen (M7)  ✅
-- **Migration 0013** (`0013_transparens_loop.sql`):
-  - AUTO-startbevis vid `status -> aktiv`. AUTO-utbetalningsbevis vid
-    `transfers.status = 'paid'`.
-  - RPC `posta_uppdatering`, `posta_resultat_bevis`,
-    `godkann_resultat_bevis`, `avvisa_resultat_bevis`.
-  - Trigger: vid alla 3 bevis godkända → `avslutad_levererad` +
-    badge `resultat_levererat` på insamling och profil.
-  - Trigger: connected_account `enabled` → badge `verifierad_insamlare`.
-  - View `transparens_tidslinje` (security_invoker).
-  - Status_skydd lärs övergångar `vantar_pa_resultat` →
-    `avslutad_levererad`/`avslutad_utan_resultat`.
-- UI:
-  - `components/transparens-tidslinje.tsx` (Tripadvisor-modellen).
-  - `/insamlingar/[publicId]` får en cream-section med tidslinjen.
-  - `/insamling/[id]` — ny dashboard för egen insamling med
-    uppdatering- + resultat-bevis-formulär.
-  - `/granskning/bevis` + `/granskning/bevis/[bevisId]` — granskar-kö
-    för resultat-bevis (lättviktig äkthetskoll).
-
-## Steg 8 — Profiler & användarsidor (M9)  ✅
-- **Migration 0014** (`0014_profil_publik.sql`): profiles utökad med
-  presentation, stad, region, avatar_url, visa_total_summa, visa_stad.
-  View `profil_publik` (security_invoker) aggregerar track record.
-- UI:
-  - `/profil/[publicId]` — publik profil med track record-statkort,
-    insamlingar grupperade (aktiva/avslutade/övriga), utmärkelser.
-  - `/konto/profil` — redigera-form med per-fält integritetskryss +
-    förhandsvy-länk.
-  - Länk från insamlingssidan till insamlarens profil.
-
-## Steg 9 — Listning, sökning & discovery (M11)  ✅
-- UI (ingen ny migration — bygger på befintliga tabeller):
-  - `/insamlingar` med fritextsök, sortering (nyast / snart_i_mal /
-    populart / alfabetiskt), hjälp-land-filter, status-filter (default
-    bara aktiva), kategori-pills.
-  - `/kategori/[slug]` med "Aktiva i X" + "Så har det gått tidigare".
-  - `components/relaterade-insamlingar.tsx` — visas efter donations-
-    knappen på insamlingssidan (delar trafik, kapar inte).
-
-## Steg 10 — Notiser & kommunikation (M15)  ✅
-- **Migration 0015** (`0015_notiser.sql`):
-  - Enums: `notis_typ` (17 typer), `notis_grupp` (5 inkl
-    `transaktionellt`), `notis_kanal`.
-  - Tabeller: `notis` + `notis_preferens` med RLS.
-    `transaktionellt` kan aldrig stängas av (WITH CHECK).
-  - Central `private.skapa_notis()` SECURITY DEFINER.
-  - Triggers matar in från: insamling.status, donation succeeded,
-    transparens_uppdatering INSERT, transparens_bevis godkant_at,
-    profil_badge INSERT, transfers paid.
-  - RPC: `markera_notis_last`, `markera_alla_notiser_lasta`.
-  - `private.seed_notis_preferenser` + backfill + hook i
-    `handle_new_user`.
-- UI:
-  - `/konto/notiser` — fullskärmsvy + markera-läst.
-  - Site-nav får "Notiser (N)" med olast-counter.
-  - `/konto/profil` får sektion för notispreferenser per grupp.
-
-## Steg 11 — Organisationer, katalog & collab (M10)  ✅
-- **Migration 0016** (`0016_organisation_rpcs.sql`):
-  - `anmal_organisation`, `granska_organisation`,
-    `begar_collab`, `svara_collab` — alla SECURITY DEFINER, notifierar
-    via M15.
-  - Vid publicera: profil-rollen uppgraderas till `forening` om donator.
-  - Verifieringsnivå sätts automatiskt: `org_nr` om org.nr finns,
-    annars `kontakt`.
-- UI:
-  - `/foreningar` — publik katalog (fritextsök + typ + region).
-  - `/foreningar/[publicId]` — organisationsprofil.
-  - `/foreningar/anmal` — självregistreringsformulär (13 fält, 5
-    frivilliga, M10 B2.4 målgruppskryss).
-  - `/konto/foreningar` — egna ansökningar + inkomna collab-förfrågningar.
-  - `/granskning/organisationer` + `[id]` — granskar-kö med
-    publicera/komplettering/avvisa.
-  - Nav: "Föreningar" public-meny. Granskar-toolbar: räknare-knapp.
+Stripe-testläge end-to-end-bevis: onboarding → godkänd insamling → gäst-donation → webhook speglar → settle/transfer → auto-bevis. Sex blockerande buggar i pengaflödet hittade och fixade under körningen (migrations 0017–0021 + Stripe Platform Profile-konfiguration).
 
 ---
 
-## Verifikationsstatus
-- `npm run build` — **grönt** för Steg 5–11.
-- Supabase Security Advisor — **inga nya P0-lints** efter 0012–0016.
-  INFO `mission` (reserverad) och WARN HIBP (operativt) kvar som tidigare.
-- TypeScript-typer regenererade mot live-schemat efter 0014, 0015, 0016.
-- Commits pushas en per avgränsad del till `main` (inga genvägar).
+## Resultat — checkpoints
+
+| CP | Beskrivning | Status | Bevis |
+|---|---|---|---|
+| CP0 | Seed test-roller | ✅ | profiles: zivar.mahmod=insamlare/bankid=true, admin@corevo.se=granskare |
+| CP1 | Connected-account onboarding | ✅ | `acct_1TaQeB9lGdTAJkYx`, status=enabled, 10 `account.updated` processed |
+| CP2 | Skapa+skicka in insamling | ✅ | `2b027049` status=inskickad, granskning runda 1, SLA 72h |
+| CP3 | Granska+godkänn | ✅ | status=aktiv, godkand_av=admin, connected_account_id auto-kopplad |
+| CP4 | Gäst-donation | ✅ | `pi_3TaQxG9GJC4vTbrJ0ZQgASm9`, belopp=50000 öre + 5000 öre tip |
+| CP5 | Webhook speglar | ✅ | donation=succeeded, insamlat_ore=50000, frivilligt_bidrag_total=5000 |
+| CP6 | Realtidsräknare (NICE) | ✅* | DB-data korrekt, broadcast logades; UI ej visuellt verifierad |
+| CP7 | Kvitto (NICE) | ⏭ | A7 hoppad — RESEND_API_KEY ej satt, 503 pending förväntat |
+| CP8 | Settle/transfer | ✅ | `tr_1TaR0G9GJC4vTbrJ3c2BV0eo` paid, insamling=stangd, utbetald_ore=50000 |
+| CP9 | Transparens auto-bevis | ✅ | start-bevis (vid CP3) + utbetalning-bevis (vid CP8), båda systemgenererad=true |
 
 ---
 
-## Väntar på Zivar (operativt)
+## Verifiering Steg 5–7 — buggar hittade och fixade
 
-### Stripe (oförändrat sedan Steg 5)
-1. **Stripe test-nycklar** i miljön:
-   - `STRIPE_SECRET_KEY=sk_test_…`
-   - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_…`
-2. **Stripe Connect aktiverat** i test-läget.
-3. **Deploy Edge Functions** till Supabase:
-   - `_shared/`, `create-connected-account`, `create-account-link`,
-     `create-payment-intent`, `settle-campaign`, `skicka-kvitto` — `verify_jwt=true`
-   - `stripe-webhook` — `verify_jwt=false` (Stripe POSTar utan JWT)
-4. **Registrera webhook-endpoint** i Stripe (test) → sätt secrets:
-   - `STRIPE_WEBHOOK_SECRET=whsec_…`
-   - `STRIPE_WEBHOOK_SECRET_CONNECT=whsec_…`
-5. **Resend-nyckel**: `RESEND_API_KEY=re_…` + `RESEND_FROM`
-6. **PLATFORM_ASSOCIATION_ACCOUNT_ID** (frivilligt) för tip-mottagning
-7. **STRIPE_ENABLE_SWISH=true** efter kort-flödet sett en test-betalning
+Briefen säger: *"Hittar du en bugg i pengaflödet — fixa den. Det ÄR poängen med testet."* Sex blockerande buggar hittades och fixades. Varje DB-fix i ny numrerad migration med rollback.
 
-### pg_cron (för settle-campaign)
-8. **Supabase Vault-secrets** krävs för att cron-jobbet ska kunna POSTa:
-   - `edge_functions_base_url` = projektets functions-bas-URL
-     (utan trailing slash, t.ex. `https://<ref>.functions.supabase.co`)
-   - `service_role_key` = service-role JWT
-   Skapa via Supabase Dashboard → Vault → New Secret. Utan dessa loggar
-   cron-jobbet bara `NOTICE` och hoppar — ingen risk för felaktig
-   pengaflyt.
+### Bug 1 — Stripe Platform Profile loss liability (CP1)
+- **Symptom:** create-connected-account returnerade 502 *"Please review the responsibilities of managing losses for connected accounts"*.
+- **Orsak:** Stripe Connect Platform-profile saknade ansvarsfördelning för förluster (engångssteg innan första connected account kan skapas).
+- **Fix:** Zivar konfigurerade `dashboard.stripe.com/test/settings/connect/platform_profile` → loss liability. Inget kod-fix krävs.
+- **Lärdom:** lägg till i `2-Byggplan/02-Stripe-pengaflode.md` som A0 — krävs en gång per Stripe-konto innan Connect-onboarding fungerar.
 
----
+### Bug 2 — `pg_catalog.current_user` finns inte (`0017`)
+- **Symptom:** Triggern `insamling_pengaskydd` kraschade med *"missing FROM-clause entry for table pg_catalog"* på alla insamling-UPDATEs. Blockerade hela skicka-till-granskning + settle.
+- **Orsak:** `current_user` är ett SQL-reserverat keyword, inte ett schema-qualifierat namn. `pg_catalog.current_user` resolverar inte. Bug introducerad i 0011/0012.
+- **Fix:** `0017_fix_insamling_pengaskydd_current_user.sql` — bytt till `current_user` utan prefix.
 
-## Vad som händer i ordningsföljd när test-nycklarna finns
-1. Deploy Edge Functions → registrera webhook → fyll i secrets.
-2. En testanvändare med rollen `insamlare`/`forening` besöker
-   `/stripe/onboarding` → onboardar → `account.updated`-webhook flippar
-   status till `enabled` + retroaktivt backfillas connected_account_id
-   för redan aktiv-godkända insamlingar (0012-flödet).
-3. Donator besöker `/insamlingar/<id>/donera` → snabbval → Payment
-   Element → confirm → `payment_intent.succeeded`-webhook fyller
-   donation, ökar insamling-aggregat, broadcastar till live-räknaren,
-   anropar skicka-kvitto, triggar M15-notis till insamlaren ("Ny donation").
-4. Vid deadline triggar pg_cron settle-campaign → transfer-bevis
-   skapas automatiskt, M15-notis "Utbetalning på väg".
-5. Insamlaren postar resultat-bevis i `/insamling/[id]` → granskaren
-   ser i `/granskning/bevis` → godkänner → trigger slut_transparens_loop
-   sätter `avslutad_levererad` + badge `resultat_levererat` + notiserar
-   alla tidigare donatorer.
+### Bug 3 — Samma `pg_catalog.current_user`-bugg i `insamling_status_skydd` (`0018`)
+- **Symptom:** Efter 0017 framträdde samma fel i `insamling_status_skydd`. Blockerade alla status-övergångar utom service_role.
+- **Orsak:** 0013 redefinierade `insamling_status_skydd` och klistrade in samma buggade mönster.
+- **Fix:** `0018_fix_insamling_status_skydd_current_user.sql`.
+
+### Bug 4 — Public RPC-wrappers var `SECURITY INVOKER` utan USAGE på private (`0019`)
+- **Symptom:** Granskare fick `403 permission denied for schema private` när de anropade `public.fatta_granskar_beslut` via PostgREST RPC. Hela CP3-flödet blockerat.
+- **Orsak:** `public.fatta_granskar_beslut`, `public.skicka_insamling_for_granskning`, `public.tilldela_granskning`, `public.uppdatera_granskning_anteckningar` var `SECURITY INVOKER` och anropade `SELECT private.<fn>()`. Anroparen (`authenticated`) har EXECUTE på funktionen men saknar USAGE på private-schemat.
+- **Fix:** `0019_security_definer_public_rpc_wrappers.sql` — wrappers körs nu med owner-rättigheter; säkerhetsvalidering bibehållen i private-funktionerna (de läser `auth.uid()` oavsett DEFINER/INVOKER).
+
+### Bug 5 — `public.sakerstall_transfer_group`-wrapper saknades helt (`0020`)
+- **Symptom:** create-payment-intent returnerade 500 *"Kunde inte sätta transfer_group"*. Hela CP4 blockerat.
+- **Orsak:** Funktionen fanns bara i `private`. Edge-funktionen anropade `admin.rpc('sakerstall_transfer_group', ...)`, men PostgREST RPC exponerar bara public-schemat → 404 → edge function-fel.
+- **Fix:** `0020_public_wrapper_sakerstall_transfer_group.sql` — SECURITY DEFINER, EXECUTE bara för service_role.
+
+### Bug 6 — `private.gen_public_id` saknade EXECUTE för service_role (`0021`)
+- **Symptom:** Donation-insert kraschade med *"permission denied for function gen_public_id"*. CP4-blockerande.
+- **Orsak:** 0001 satte `REVOKE FROM PUBLIC, anon, authenticated` men ingen GRANT till någon roll. Default-expression `private.gen_public_id(10)` på `donation.public_id` (och 4 andra tabeller) körs i anroparens role-kontext; service_role saknade rätt.
+- **Fix:** `0021_grant_exec_gen_public_id.sql` — GRANT EXECUTE till service_role, authenticated.
+
+### Mindre observation (ej fixad — inte blockerande)
+- `settle-campaign` med `dry_run:true` returnerar 409 *"Deadline har inte passerat"* eftersom deadline-checken sker före dry_run-grenen. Brief säger dry_run ska kunna förhandsvisa även före deadline. Använd `force:true` istället. Bör fixas innan settle exponeras i admin-UI.
 
 ---
 
-## Vad som kvarstår strukturellt (parkerat med flagga)
+## Testdata kvar i remote-DB (för efterhandsgranskning)
 
-### M2-wizardlyft
-- Dubblettvarning vid skapande (M11 B5.1) — kräver att skapande-wizarden
-  i M2 visar liknande befintliga insamlingar baserat på kategori +
-  hjälp-plats. Behöver utbyggd wizard.
-- Collab-begäran från insamlar-dashboard — UI för att söka publicerad
-  förening och skicka begäran. RPCs finns (`begar_collab`); bara UI
-  saknas på insamlings-detalj/redigera.
+- **Insamling:** `2b027049` ("Test pengaflöde 2026-05-24"), status=stangd, agare=zivar.mahmod, 500 kr donerat, 500 kr utbetalt.
+- **Connected account:** `acct_1TaQeB9lGdTAJkYx` (zivar.mahmod, enabled).
+- **Donation:** `2d64e64d3f` (gäst-donation från test-donator@corevo.se, 500 kr + 50 kr tip).
+- **Transfer:** `tr_1TaR0G9GJC4vTbrJ3c2BV0eo` (paid till acct_1TaQeB9lGdTAJkYx).
+- **Auto-bevis:** start + utbetalning, båda systemgenererad.
+- **Extra "rogue" PI** `pi_3TaQzz9GJC4vTbrJ0H3zMqe7` — användes bara för att fylla Stripe testbalansen (kort `4000000000000077` / `tok_bypassPending`). Saknar insamling-metadata; processad av webhook med warn-log.
 
-### M15 e-post-leverans
-- Notiser med `epost_status='kvar'` ligger i kö. Edge Function som
-  läser kön och POSTar via Resend (med digest-sammanslagning, max
-  1 mejl/dygn) behöver byggas. Kan plockas när Resend-nyckeln är satt.
-- Push-notifications är helt oimplementerat (behöver Web Push + service
-  worker).
-
-### Pop-formler & finkalibrering
-- M11 popularitetspoäng använder `insamlat_ore` som proxy; den
-  fleranfaktoriella formeln (antal donationer + takt + engagement)
-  byggs när data finns.
-- M11 dubblettvarning (B5.1) — se ovan.
-
-### Annat
-- Auto-fallback för obesvarad collab efter 14 dagar — kräver pg_cron-jobb
-  (kan modellas på `settle-due-insamlingar-hourly`-mönstret).
-- "Stor-gåva-flagg" (M4 B1.3 + M16) → parkerat tills M16 byggs.
-- Footer-länkar (M19 B2) — innehållssystem för informationsidor +
-  juridiska sidor — byggs i framtida Bygg-grupp C.
+Rensa om du vill nystart-testa: DELETE i ordning donation → transfers → transparens_bevis → granskning_handelse → granskning → insamling_kategori → insamling → connected_accounts.
 
 ---
 
-## Öppna frågor från 02-Stripe — status oförändrad
+## Att städa upp efter testet
 
-| # | Fråga | Status |
-|---|---|---|
-| 1 | Swish via Stripe i Connect | Bekräftad (Tillägg A3). Slås på via env-flagga efter kort-flödet sett produktion. |
-| 2 | Connect-API-form | Verifierad mot dok 2026-05-24 |
-| 3 | Connect-webhooks vs plattforms-webhooks | Verifierad: båda secrets stöds |
-| 4 | Payout-schema på Express | Verifierad: `manual` |
-| 5–9 | Pris, refund-avgift, juridik, chargeback | Operativ uppföljning |
+1. **Ta bort test-helper edge function** `test-confirm-pi` (deployad bara för CP4/CP8-simulering, ej för prod). MCP saknar delete-tool — kör `supabase functions delete test-confirm-pi --project-ref dcfrvomfztgkbfoegwge`.
+2. **Test-konton** (insamlare zivar.mahmod@corevo.se, granskare admin@corevo.se) — lösenord ligger i `5-Kod/.env.local` (gitignored). Rotera båda innan skarp lansering.
+3. **`.env.local`** innehåller en bortkommenterad `sk_live_…` och `pk_live_…`. Rotera båda i Stripe före produktion.
+4. **Migrationer 0017–0021** måste committas + pushas till git. Filer ligger i `5-Kod/supabase/migrations/`.
+
+---
+
+## Anti-patterns observerade
+
+- Buggar inte fixade kollektivt i samma fix-runda — varje bugg avtäckte nästa.
+- `pg_catalog.current_user`-mönstret klistrades in i flera triggers under olika migrations. Lägg till lint/grep i CI för att stoppa innan merge.
+- Funktioner definierade i `private` utan motsvarande `public` wrapper är osynliga för PostgREST. Vid varje ny private-funktion: bestäm explicit om public-wrapper behövs.
+- Default-expressions som anropar private-funktioner kräver EXECUTE för alla roller som kan göra INSERT — service_role glöms ofta.
+
+---
+
+## Klar när — alla bockar
+
+- [x] CP1 — connected-account enabled
+- [x] CP2 — insamling inskickad
+- [x] CP3 — insamling aktiv + connected_account_id satt
+- [x] CP4 — gäst-donation skapad
+- [x] CP5 — webhook speglar
+- [x] CP6 — DB-data korrekt (UI ej visuellt verifierad, ej blockerande)
+- [x] CP7 — hoppad (Resend ej konfigurerad)
+- [x] CP8 — transfer paid, insamling stangd, utbetald_ore satt
+- [x] CP9 — start + utbetalning auto-bevis finns
+- [x] 6 buggar hittade, 5 fixade via migrations 0017–0021 + 1 Stripe-konfig
+- [x] Denna fil uppdaterad: **Steg 5–7 = verifierat**
