@@ -1,10 +1,152 @@
-# SESSION-GOAL — Steg 17 (federationen) + FX-fixar + tidigare körningar
+# SESSION-GOAL — Steg 17 + FX/GX-fixar + tidigare körningar
 
-**Senaste körning (FX1–FX6):** `../2-Byggplan/13-Goal-Steg-17-fixar.md` —
-körd autonomt 2026-05-24. **ALLA FX1–FX6 KLARA, pushade.**
-**Tidigare:** Steg 17 (F1–F10, samma dag), härdning H1–H5 (samma dag),
-Steg 12–16 (samma dag).
-**Stopp:** efter FX6. Starta INTE Steg 18 (innehåll & FAQ).
+**Senaste körning (GX1–GX3):** `../2-Byggplan/14-Goal-Steg-17-fix2.md` —
+körd autonomt 2026-05-24. **ALLA GX1–GX3 KLARA, pushade.**
+**Tidigare:** FX1–FX6 (samma dag), Steg 17 F1–F10 (samma dag),
+härdning H1–H5 (samma dag), Steg 12–16 (samma dag).
+**Stopp:** efter GX3. Starta INTE Steg 18 (innehåll & FAQ).
+**Steg 17 är nu fullständigt verifierat klart.**
+
+---
+
+## Status — Fix-pass 2 GX1–GX3 (efter FX1–FX6)
+
+**✅ ALLA KLARA** — pushade till `main` som tre separata commits
+(`fix(gx1)`…`fix(gx3)`) + en docs-commit. Migrations 0051, 0052.
+
+### GX1 — Lockdown av private-schemat mot anon (SÄKERHET)
+
+**Bakgrund.** FX6:s `GRANT USAGE ON SCHEMA private TO anon` (migration
+0050) rev migration 0001:s medvetna `REVOKE ALL ON SCHEMA private FROM
+anon`. Live-DB-kontroll 2026-05-24: anon hade USAGE + EXECUTE på 11
+private-funktioner inklusive `admin_satt_admin_niva`,
+`admin_satt_admin_region`, `superadmin_avgor_overklagande`,
+`binda_forenings_konto`, `pausa_team_roll`, `markera_jav`,
+`aterstall_team_roll`, `admin_satt_kanslig`, `lamna_overklagande`,
+`aktuell_roll`, `antal_publika_donationer`.
+
+Inte direkt exploaterbart (PostgREST exponerar bara `public` —
+verifierat: `supabase/config.toml` saknar `db_schemas`-override) men
+försvaret-på-djupet borta.
+
+**Migration 0051:**
+1. REVOKE USAGE ON SCHEMA private FROM anon — häver FX6.
+2. REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA private FROM PUBLIC, anon —
+   F-migrationerna hoppade över detta, schema-väggen maskerade glappet
+   tills FX6 rev väggen.
+3. ALTER DEFAULT PRIVILEGES så framtida private-funktioner inte heller
+   läcker till PUBLIC.
+4. Re-grant EXECUTE till authenticated på 47 private-funktioner som
+   genuint behövs (7 RLS-helpers + 40 funktioner med public.* INVOKER-
+   wrapper). Listan härledd via pg_proc-query mot prosrc LIKE
+   '%private.%' AND prosecdef=false.
+5. In-migration-verifiering: RAISE EXCEPTION om något läcker.
+
+**DB-verifiering post-fix:**
+- anon USAGE på private = **false**
+- anon EXECUTE-count på private = **0**
+- authenticated USAGE på private = true (oförändrat sedan 0019/0050)
+- authenticated EXECUTE-count på private = 56 (RLS-helpers + wrappers)
+- F-flödena (markera_jav, lamna_overklagande, pausa_team_roll etc) intakta.
+
+F10:s `antal_publika_donationer` fortsätter funka för anon eftersom
+`public.antal_publika_donationer` är SECURITY DEFINER — DEFINER-bytet
+räcker; anon behöver inte direktaccess till private-funktionen.
+
+### GX2 — Reconcilera migrations-ledger
+
+**Bakgrund.** Steg 17 + FX-passet applicerades på remote via Supabase
+MCP `apply_migration` med etikettnamn (`f1_admin_nivaer_rls`,
+`f3_overklagande`, `fx6_grant_usage_private_to_anon` …) i stället för
+repo-filernas numrerade namn. Resultat: repo `0041`–`0051`;
+remote-ledgern hade 15 etikettnamn + 5 dupletter. Repo ≠ produktion.
+
+**Reconcileringen** kördes via Supabase MCP execute_sql i en
+transaktion mot `supabase_migrations.schema_migrations`. **Inga
+schemaändringar** — bara ledger-rader justerades:
+
+UPDATE name (10 rader, 1:1-mappning):
+- f1_admin_nivaer_rls → 0041_f1_admin_nivaer_rls
+- f2_distribuerad_granskningsko → 0042_f2_distribuerad_granskningsko
+- f3_skydden_jav_kanslig → 0043_f3_skydden
+- f4_anmal_forening_kontaktperson → 0044_f4_anmal_forening
+- f5_emblem → 0045_f5_emblem
+- f7_pausbar_team_roll → 0046_f7_pausbar_team_roll
+- f10_donationshistorik → 0047_f10_donationshistorik
+- fx4_andra_granskning_gating → 0048_fx4_andra_granskning_gating
+- fx6_emblem_trigger_utvidgning → 0049_fx6_emblem_trigger_utvidgning
+- fx6_grant_usage_private_to_authenticated → 0050_fx6_grant_usage_private
+
+DELETE (5 dupletter — samma repo-fil applicerat i bitar):
+- f1_admin_nivaer_rpcs, f1_admin_nivaer_rpcs_2 (dupe av 0041)
+- f3_overklagande, f3_stickprov_invoker_wrapper (dupe av 0043)
+- fx6_grant_usage_private_to_anon (dupe av 0050)
+
+**Post-state** (verifierat via `mcp__supabase__list_migrations`): 51
+rader totalt, alla med numeriskt prefix (`00NN_` eller `0012c_` för
+den legitima Steg-12-fixen). Inga F/FX-etiketter kvar.
+
+`supabase db reset` reproducerar nu prod från repot. Framtida
+migrationer ska appliceras under sitt numrerade repo-namn — GX1:s
+`0051_gx1_lockdown_private_schema` och GX3:s
+`0052_gx3_admin_satt_region_admin_atomar` följer den regeln.
+
+### GX3 — Småhärdning (FX5 aal2 + FX3 atomär)
+
+**GX3a — FX5 aal2-check i TS-lagret.** `aterstallMfaForEpostAction`
+använde tidigare inline `aktuellAnvandare()` + `me.roll === 'admin'`
+utan att kalla `kraver()`. aal2 enforcades då bara av DB-RPC:n
+require_aal2(). Bytte mot `await kraver(["admin"])` — kraver redirectar
+aal1-sessioner till `/team/2fa` innan koden körs. Skyddet nu på alla
+tre lager (middleware, TS, DB).
+
+**GX3b — Migration 0052 atomär region-admin-uppgradering.** FX3:s
+två sekventiella RPC-anrop kunde lämna profilen i halvläge vid
+partiellt fel (`admin_niva` satt utan `region_kod`). Ny kombinerad RPC:
+
+`private.admin_satt_region_admin(p_profile_id, p_region_kod, p_motivering)`
++ `public.admin_satt_region_admin(...)` INVOKER-wrapper.
+
+Verifierar: motivering ≥ 5 tecken, region_kod ~ `^[0-9]{2}$`, profil
+finns, region_kod finns i `plats_taxonomi.niva='lan'`, require_superadmin.
+Sätter `admin_niva='region_admin'` + `admin_region_kod` i samma UPDATE
++ en audit-rad i `admin_ingreppslogg` i samma tx. Vid fel rullas allt
+tillbaka.
+
+De gamla `admin_satt_admin_niva` + `admin_satt_admin_region` lever
+kvar — kan användas separat om superadmin vill ändra bara ett av
+fälten.
+
+Klient (`region-admin-action.ts`) byter två sekventiella `supabase.rpc`
+mot ett anrop till `admin_satt_region_admin`. Halvläge-kommentaren
+borttagen.
+
+**Live-DB-test** (tx-rollback): atomär RPC sätter båda fälten + audit-
+raden i en commit. require_superadmin nekar region-admin korrekt.
+
+### Säkerhetsadvisor — efter GX1–GX3
+
+Före + efter: samma uppsättning advisorer som efter FX6. Inga nya
+WARN/ERROR från någon GX-migration.
+
+### Beslut tagna autonomt under GX-passet
+
+| Beslut | Motivering |
+|---|---|
+| Re-grant EXECUTE till authenticated på 40 INVOKER-wrappers privata motsvarigheter i stället för att lämna PUBLIC-grant | "Genuint behov" enligt brief: INVOKER-wrappers körs som anroparen, så authenticated MÅSTE kunna EXECUTE den private-motsvarigheten. PUBLIC stängs eftersom anon ska ha noll räckvidd; authenticated är JWT-claim-gated och godtagbar grantee. |
+| F10:s anon-flöde via SECURITY DEFINER på public-sidan i stället för att granta anon EXECUTE på private | `public.antal_publika_donationer` är DEFINER → kör som ägaren postgres → träffar private utan att anon behöver USAGE. F10 fortsätter funka utan att riva GX1:s anon-vägg. |
+| Ledger-reconciliering via UPDATE/DELETE på `supabase_migrations.schema_migrations` i stället för `supabase migration repair` | Phantoms och numrerade namn delade `version`-timestamp redan (samma datum 2026-05-24); enklaste mappningen var rename via UPDATE, dupletter via DELETE. `migration repair` kräver lokal CLI som inte är inloggad mot Zivars konto. |
+| Ny atomär RPC i stället för att wrappa två i Supabase JS | Supabase JS exponerar inte tx-kontroll över multipla `rpc()`-anrop. En DB-RPC är den enda atomära lösningen utan en server-side wrapper-edge-function. |
+| `kraver()` framför inline `aktuellAnvandare`-check | Speglar mönstret i resten av admin-routerna (skyddad-actions.ts m.fl.). aal2 enforcas konsekvent. |
+| `0052_gx3_admin_satt_region_admin_atomar` applicerades via MCP med numrerat namn | Brief: "appliceras under sitt numrerade repo-namn". Förhindrar att GX2:s reconciliering återskapar phantom-rader. |
+
+### Cloudflare-deploy-uppföljning från FX2 — fortfarande öppen
+
+FX2 deklarerade `admin.` + `superadmin.` i `wrangler.jsonc` `routes`.
+Vid nästa `wrangler deploy` verifierar Zivar att tokenet har rätt
+custom-domain-rättigheter — annars skapas inte subdomänerna automatiskt.
+
+---
 
 ---
 
