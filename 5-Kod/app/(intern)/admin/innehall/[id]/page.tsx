@@ -4,7 +4,13 @@ import { notFound, redirect } from "next/navigation";
 import { kraver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/innehall/markdown";
-import { uppdateraSidaAction, publiceraSidaAction, avpubliceraSidaAction } from "../actions";
+import {
+  uppdateraSidaAction,
+  publiceraSidaAction,
+  avpubliceraSidaAction,
+  skapaJuridiskVersionAction,
+  publiceraJuridiskVersionAction,
+} from "../actions";
 
 export const runtime = "edge";
 
@@ -25,6 +31,14 @@ export default async function RedigeraSidaPage({ params }: { params: Promise<{ i
     .from("lard_profil")
     .select("id, namn")
     .order("namn", { ascending: true });
+
+  const juridiska_versioner = sida.sidtyp === "juridisk"
+    ? (await supabase
+        .from("juridisk_version")
+        .select("id, versionsnummer, brodtext, ikrafttradande_datum, status, skapad_at, publicerad_at")
+        .eq("innehallssida_id", sida.id)
+        .order("versionsnummer", { ascending: false })).data ?? []
+    : [];
 
   async function spara(formData: FormData) {
     "use server";
@@ -56,6 +70,18 @@ export default async function RedigeraSidaPage({ params }: { params: Promise<{ i
     fd.set("till_status", "kommer_snart");
     const r = await avpubliceraSidaAction(fd);
     if (!r.ok) throw new Error(r.fel ?? "Kunde inte sätta kommer-snart");
+  }
+
+  async function skapaJuridiskVersion(formData: FormData) {
+    "use server";
+    const r = await skapaJuridiskVersionAction(formData);
+    if (!r.ok) throw new Error(r.fel ?? "Kunde inte skapa version");
+  }
+
+  async function publiceraJuridiskVersion(formData: FormData) {
+    "use server";
+    const r = await publiceraJuridiskVersionAction(formData);
+    if (!r.ok) throw new Error(r.fel ?? "Kunde inte publicera version");
   }
 
   return (
@@ -207,6 +233,74 @@ Du skriver innehållet själv. Code skriver inget."
           </section>
         </aside>
       </div>
+
+      {sida.sidtyp === "juridisk" && (
+        <section className="mt-12">
+          <header className="mb-6">
+            <h2 className="heading-2">Juridiska versioner</h2>
+            <p className="lead mt-2 max-w-[680px]">
+              Juridiska sidor ändras inte fritt-live. Skapa en ny version med juristgranskad
+              text + ikraftträdandedatum. När versionen publiceras blir den den aktiva
+              texten; tidigare version arkiveras (kastas aldrig).
+            </p>
+          </header>
+
+          <div className="grid gap-8 lg:grid-cols-[1fr_2fr]">
+            <form action={skapaJuridiskVersion} className="card flex flex-col gap-4">
+              <input type="hidden" name="innehallssida_id" value={sida.id} />
+              <h3 className="heading-3">Skapa version (utkast)</h3>
+              <label className="flex flex-col gap-1">
+                <span className="field-label field-label-required">Brödtext (Markdown)</span>
+                <textarea name="brodtext" rows={10} required className="textarea font-mono text-xs" />
+                <span className="field-help">Texten kommer från juristen. Code skriver inget.</span>
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="field-label field-label-required">Ikraftträdandedatum</span>
+                <input type="date" name="ikrafttradande_datum" required className="input" />
+              </label>
+              <div className="flex justify-end">
+                <button type="submit" className="btn btn-primary">Spara version</button>
+              </div>
+            </form>
+
+            <div className="card card-tight">
+              <h3 className="heading-3 mb-4">Versionshistorik</h3>
+              {juridiska_versioner.length === 0 ? (
+                <p className="text-sm italic" style={{ color: "var(--color-ink-3)" }}>
+                  Inga versioner ännu.
+                </p>
+              ) : (
+                <ul className="flex flex-col gap-4">
+                  {juridiska_versioner.map((v) => (
+                    <li key={v.id} className="border-t pt-3" style={{ borderColor: "var(--color-ink-line)" }}>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">v{v.versionsnummer}</span>
+                        <span className={`pill ${v.status === "publicerad" ? "pill-success" : v.status === "arkiverad" ? "pill-paper" : "pill-copper"}`}>
+                          {v.status}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
+                        Ikraft {new Date(v.ikrafttradande_datum).toLocaleDateString("sv-SE")} ·
+                        skapad {new Date(v.skapad_at).toLocaleDateString("sv-SE")}
+                        {v.publicerad_at && ` · publicerad ${new Date(v.publicerad_at).toLocaleDateString("sv-SE")}`}
+                      </p>
+                      {v.status === "utkast" && (
+                        <form action={publiceraJuridiskVersion} className="mt-2">
+                          <input type="hidden" name="version_id" value={v.id} />
+                          <input type="hidden" name="innehallssida_id" value={sida.id} />
+                          <button type="submit" className="btn btn-copper btn-sm">
+                            Publicera v{v.versionsnummer}
+                          </button>
+                        </form>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }

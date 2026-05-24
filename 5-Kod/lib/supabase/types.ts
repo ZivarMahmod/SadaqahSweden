@@ -1502,6 +1502,50 @@ export type Database = {
           },
         ]
       }
+      juridisk_version: {
+        Row: {
+          brodtext: string
+          id: string
+          ikrafttradande_datum: string
+          innehallssida_id: string
+          publicerad_at: string | null
+          skapad_at: string
+          skapad_av: string | null
+          status: Database["public"]["Enums"]["juridisk_version_status"]
+          versionsnummer: number
+        }
+        Insert: {
+          brodtext: string
+          id?: string
+          ikrafttradande_datum: string
+          innehallssida_id: string
+          publicerad_at?: string | null
+          skapad_at?: string
+          skapad_av?: string | null
+          status?: Database["public"]["Enums"]["juridisk_version_status"]
+          versionsnummer: number
+        }
+        Update: {
+          brodtext?: string
+          id?: string
+          ikrafttradande_datum?: string
+          innehallssida_id?: string
+          publicerad_at?: string | null
+          skapad_at?: string
+          skapad_av?: string | null
+          status?: Database["public"]["Enums"]["juridisk_version_status"]
+          versionsnummer?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "juridisk_version_innehallssida_id_fkey"
+            columns: ["innehallssida_id"]
+            isOneToOne: false
+            referencedRelation: "innehallssida"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kategori: {
         Row: {
           aktiv: boolean
@@ -3217,6 +3261,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      juridisk_publicera_version: {
+        Args: { p_version_id: string }
+        Returns: undefined
+      }
+      juridisk_skapa_version: {
+        Args: {
+          p_brodtext: string
+          p_ikrafttradande_datum: string
+          p_innehallssida_id: string
+        }
+        Returns: string
+      }
       k_anonymity_troskel: { Args: never; Returns: number }
       lamna_overklagande: {
         Args: { p_insamling_id: string; p_skal: string }
@@ -3450,6 +3506,7 @@ export type Database = {
         | "avslutad_utan_resultat"
         | "pausad"
         | "nedstangd"
+      juridisk_version_status: "utkast" | "publicerad" | "arkiverad"
       larm_kategori:
         | "sla_brott"
         | "stripe_misslyckande"
@@ -3748,6 +3805,7 @@ export const Constants = {
         "pausad",
         "nedstangd",
       ],
+      juridisk_version_status: ["utkast", "publicerad", "arkiverad"],
       larm_kategori: [
         "sla_brott",
         "stripe_misslyckande",

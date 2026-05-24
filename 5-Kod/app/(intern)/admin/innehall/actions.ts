@@ -95,6 +95,47 @@ export async function publiceraSidaAction(formData: FormData): Promise<FormResul
   return { ok: true };
 }
 
+export async function skapaJuridiskVersionAction(formData: FormData): Promise<FormResultat> {
+  await kravSuperadmin();
+  const sidaId = String(formData.get("innehallssida_id") ?? "");
+  const brodtext = String(formData.get("brodtext") ?? "");
+  const ikraftRaw = String(formData.get("ikrafttradande_datum") ?? "").trim();
+  if (!sidaId) return { ok: false, fel: "Saknar sida-id" };
+  if (!brodtext || !brodtext.trim()) return { ok: false, fel: "Brödtext krävs" };
+  if (!ikraftRaw) return { ok: false, fel: "Ikraftträdandedatum krävs" };
+
+  const v = validateMarkdown(brodtext);
+  if (!v.ok) return { ok: false, fel: `Brödtext: ${v.reason}` };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("juridisk_skapa_version", {
+    p_innehallssida_id: sidaId,
+    p_brodtext: brodtext,
+    p_ikrafttradande_datum: new Date(ikraftRaw).toISOString(),
+  });
+  if (error) return { ok: false, fel: error.message };
+
+  revalidatePath(`/admin/innehall/${sidaId}`);
+  return { ok: true };
+}
+
+export async function publiceraJuridiskVersionAction(formData: FormData): Promise<FormResultat> {
+  await kravSuperadmin();
+  const versionId = String(formData.get("version_id") ?? "");
+  const sidaId = String(formData.get("innehallssida_id") ?? "");
+  if (!versionId) return { ok: false, fel: "Saknar version-id" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("juridisk_publicera_version", { p_version_id: versionId });
+  if (error) return { ok: false, fel: error.message };
+
+  revalidatePath(`/admin/innehall/${sidaId}`);
+  if (sidaId) {
+    revalidatePath(`/admin/innehall/${sidaId}`);
+  }
+  return { ok: true };
+}
+
 export async function avpubliceraSidaAction(formData: FormData): Promise<FormResultat> {
   await kravSuperadmin();
   const id = String(formData.get("id") ?? "");
