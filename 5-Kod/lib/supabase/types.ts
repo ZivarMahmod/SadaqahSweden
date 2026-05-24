@@ -1727,6 +1727,7 @@ export type Database = {
       }
       organisation: {
         Row: {
+          ar_region_admin: boolean
           beskrivning: string
           besoksadress: string | null
           created_at: string
@@ -1749,6 +1750,7 @@ export type Database = {
           verifieringsniva: string | null
         }
         Insert: {
+          ar_region_admin?: boolean
           beskrivning: string
           besoksadress?: string | null
           created_at?: string
@@ -1771,6 +1773,7 @@ export type Database = {
           verifieringsniva?: string | null
         }
         Update: {
+          ar_region_admin?: boolean
           beskrivning?: string
           besoksadress?: string | null
           created_at?: string

@@ -35,7 +35,7 @@ export default async function OrgProfil({ params }: { params: Params }) {
   const { data: o, error } = await supabase
     .from("organisation")
     .select(
-      "id, public_id, namn, org_nummer, organisationstyp, stad, region, besoksadress, beskrivning, logotyp_path, verifieringsniva, created_at, profil_id",
+      "id, public_id, namn, org_nummer, organisationstyp, stad, region, besoksadress, beskrivning, logotyp_path, verifieringsniva, created_at, profil_id, ar_region_admin",
     )
     .eq("public_id", publicId)
     .eq("katalog_status", "publicerad")
@@ -127,6 +127,11 @@ export default async function OrgProfil({ params }: { params: Params }) {
                 <Pill tone={o.verifieringsniva === "org_nr" ? "success" : "copper"}>
                   {o.verifieringsniva === "org_nr" ? "Verifierad — org.nr" : "Verifierad — kontakt"}
                 </Pill>
+                {o.ar_region_admin && (
+                  <Pill tone="copper">
+                    <Icon name="shield-check" size={12} /> Region-admin — godkänd samarbetspartner
+                  </Pill>
+                )}
               </div>
               <h1 className="h-1 mt-3">{o.namn}</h1>
               <p className="lead mt-3" style={{ maxWidth: "60ch" }}>{o.beskrivning}</p>

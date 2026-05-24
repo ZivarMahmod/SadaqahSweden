@@ -29,10 +29,11 @@ export default async function ForeningarKatalog({ searchParams }: { searchParams
   let query = supabase
     .from("organisation")
     .select(
-      "public_id, namn, organisationstyp, stad, region, beskrivning, logotyp_path, verifieringsniva",
+      "public_id, namn, organisationstyp, stad, region, beskrivning, logotyp_path, verifieringsniva, ar_region_admin",
     )
     .eq("katalog_status", "publicerad")
     .is("deleted_at", null)
+    .order("ar_region_admin", { ascending: false })
     .order("namn", { ascending: true })
     .limit(120);
 
@@ -147,9 +148,16 @@ export default async function ForeningarKatalog({ searchParams }: { searchParams
                           o.namn.charAt(0).toUpperCase()
                         )}
                       </div>
-                      <Pill tone={o.verifieringsniva === "org_nr" ? "success" : "copper"} className="text-xs">
-                        {o.verifieringsniva === "org_nr" ? "Verifierad — org.nr" : "Verifierad — kontakt"}
-                      </Pill>
+                      <div className="flex flex-col items-end gap-1">
+                        {o.ar_region_admin && (
+                          <Pill tone="copper" className="text-xs">
+                            <Icon name="shield-check" size={12} /> Region-admin
+                          </Pill>
+                        )}
+                        <Pill tone={o.verifieringsniva === "org_nr" ? "success" : "copper"} className="text-xs">
+                          {o.verifieringsniva === "org_nr" ? "Verifierad — org.nr" : "Verifierad — kontakt"}
+                        </Pill>
+                      </div>
                     </div>
                     <div>
                       <h3 style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 500, margin: 0 }}>
