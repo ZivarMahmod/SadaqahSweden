@@ -6,6 +6,84 @@
 
 ---
 
+## Status — Steg 14: Events & platsinfo (M14)
+
+**✅ KLAR** — pushad (commit nedan).
+
+### Vad som byggdes
+
+**Databas (migrations 0029–0030)**
+
+- `0029_event` — `event`-tabell (M14 Block 1.2 alla fält + återkommande
+  som JSON-mönster, en rad), `oppettid` (organisations öppettider,
+  Block 2.3), check-constraints för exakt en arrangör + konsistent plats.
+  RLS: publicerade events publika; arrangör + granskare/admin ser sina.
+  Utökar `granskning` med `event_id`; granskning är nu polymorph
+  (insamling_id eller event_id, en av två). Trigger `event_status_skydd`
+  förhindrar att arrangören sätter status fritt.
+- `0030_event_funktioner` — `skicka_event_for_granskning` med fast-track
+  för organisationer som har minst 3 publicerade event (privatpersoner
+  granskas alltid, brief). `fatta_event_granskar_beslut` (godkänn /
+  begär ändring / avvisa). `event_auto_cleanup`: passerade events →
+  `avslutad`, gamla utkast → soft-delete efter 30 dagar, orörda
+  återkommande serier → `arkiverad` efter 6 mån. pg_cron schemalägger
+  jobbet 04:05 varje natt.
+
+**App**
+
+- `/events` — publik lista med stad-/typ-filter, "nästa förekomst"
+  för återkommande, kort med plats/typ-pills.
+- `/event/[publicId]-[slug]` — publik detalj.
+- `/konto/event` + `/konto/event/nytt` — arrangörens flöde:
+  skapa utkast → skickas direkt för granskning (eller fast-track för
+  betrodd förening).
+- `/granskning/event` + `/granskning/event/[id]` — granskar-kö med
+  48 h SLA-markering, beslutspanel (samma triad som M3).
+- `/foreningar/[publicId]` får en moské-/förenings-sektion med
+  öppettider + kommande events (M14 Block 2 — moské-sidan = vy av
+  M10-entitet med M14-överlägg).
+- `lib/event.ts` — typer, label-mappar, `nastaForekomst` för
+  återkommande, `formatEventTid`, `formatUpprepning`.
+
+**Klar när**
+
+- [x] Event-objekt skapas, granskas (48 h SLA, lättare checklista) och publiceras.
+- [x] Moské-sida som vy av M10-entitet med öppettider (under förening-sidan).
+- [x] Eventlista med filter (stad, typ).
+- [ ] **Delvis:** Events som pin-lager på M12-kartan — `event.plats_lat`/`lng`
+      finns och datan kan laddas; UI-lagret defer. Se uppföljning nedan.
+- [x] Återkommande event som ett objekt (`upprepning` + `upprepning_veckodag`).
+- [x] Auto-städning av passerade event (`event_auto_cleanup` pg_cron).
+- [x] Fast-track efter 3 rena event (orgs only, privatpersoner aldrig).
+- [x] RLS på nya tabeller.
+- [x] `npm run build` grön.
+- [x] Pushad till `main`.
+
+### Beslut tagna autonomt
+
+| Beslut | Motivering |
+|---|---|
+| Återanvänd `granskning`-tabellen med nytt `event_id`-fält + check att exakt en av (insamling_id, event_id) är satt | Brief: "Återanvänd M3:s kö-koncept". Polymorf granskning ger samma kö-mekanik + samma append-only logg (`granskning_handelse`). |
+| Fast-track-kriterium: `arrangor_org.events publicerade >= 3` (utan eskaleringscheck i v1) | Brief säger "betrodda föreningar efter 3 rena event". Eskalering finns inte ännu på events — uppgradera kriteriet när M16 inför detta. Privatpersoner låsta från fast-track per brief. |
+| Återkommande visas som **ett** objekt med `upprepning` + `upprepning_veckodag`; `nastaForekomst()` beräknar i klient/server vid render | Brief: "ett objekt med upprepningsmönster, inte hundra rader". Inställda enskilda förekomster i `installt_forekomster date[]`. |
+| Auto-cleanup-cron 04:05 svensk natt | Låg trafik, slipper konflikta med settle-jobben på :15. |
+| Event utan separat "submit"-knapp; formuläret skickar direkt för granskning vid create | Färre steg → snabbare time-to-publish. Arrangören kan inte spara utkast utan att skicka i v1 — om behovet uppstår, gör en separat "spara utkast"-knapp. |
+
+### Kantfall noterade i kod
+
+- **Events på M12-kartan** — `event`-features kan tillfälligt visas
+  som pin-layer i `karta-klient.tsx`. Datan stöder det (event-table
+  har `plats_lat`/`plats_lng`); UI-toggle och layer-rendering är en
+  liten patch att göra i nästa pass. Lägger som batchad uppföljning så
+  Zivar ser den.
+- **Cover-bild-uppladdning** — `event.cover_path` finns; UI för upload
+  defer (Supabase Storage-flödet är samma som för insamling_media).
+- **Skapande-flödet för organisationer** kräver att organisationen är
+  publicerad (M10 katalog_status='publicerad'). Endast då dyker den upp
+  i "Arrangera som"-dropdownen.
+
+---
+
 ## Status — Steg 13: Community & samtal (M13)
 
 **✅ KLAR** — pushad (commit nedan).

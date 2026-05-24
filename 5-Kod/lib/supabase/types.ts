@@ -328,6 +328,167 @@ export type Database = {
           },
         ]
       }
+      event: {
+        Row: {
+          anmalan_lank: string | null
+          arrangor_org_id: string | null
+          arrangor_profil_id: string | null
+          beskrivning: string
+          cover_path: string | null
+          created_at: string
+          deleted_at: string | null
+          digital_lank: string | null
+          godkand_av: string | null
+          id: string
+          insamlar_lan_kod: string | null
+          installt_forekomster: string[]
+          kontakt_epost: string | null
+          kontakt_telefon: string | null
+          kostnad: string | null
+          plats_adress: string | null
+          plats_lat: number | null
+          plats_lng: number | null
+          plats_namn: string | null
+          plats_organisation_id: string | null
+          plats_stad: string | null
+          plats_typ: Database["public"]["Enums"]["event_plats_typ"]
+          public_id: string
+          publicerad_at: string | null
+          slug: string
+          slut_at: string | null
+          start_at: string
+          status: Database["public"]["Enums"]["event_status"]
+          titel: string
+          typ: Database["public"]["Enums"]["event_typ"]
+          updated_at: string
+          upprepning: Database["public"]["Enums"]["event_upprepning"] | null
+          upprepning_slut: string | null
+          upprepning_veckodag: number | null
+        }
+        Insert: {
+          anmalan_lank?: string | null
+          arrangor_org_id?: string | null
+          arrangor_profil_id?: string | null
+          beskrivning: string
+          cover_path?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          digital_lank?: string | null
+          godkand_av?: string | null
+          id?: string
+          insamlar_lan_kod?: string | null
+          installt_forekomster?: string[]
+          kontakt_epost?: string | null
+          kontakt_telefon?: string | null
+          kostnad?: string | null
+          plats_adress?: string | null
+          plats_lat?: number | null
+          plats_lng?: number | null
+          plats_namn?: string | null
+          plats_organisation_id?: string | null
+          plats_stad?: string | null
+          plats_typ: Database["public"]["Enums"]["event_plats_typ"]
+          public_id?: string
+          publicerad_at?: string | null
+          slug: string
+          slut_at?: string | null
+          start_at: string
+          status?: Database["public"]["Enums"]["event_status"]
+          titel: string
+          typ: Database["public"]["Enums"]["event_typ"]
+          updated_at?: string
+          upprepning?: Database["public"]["Enums"]["event_upprepning"] | null
+          upprepning_slut?: string | null
+          upprepning_veckodag?: number | null
+        }
+        Update: {
+          anmalan_lank?: string | null
+          arrangor_org_id?: string | null
+          arrangor_profil_id?: string | null
+          beskrivning?: string
+          cover_path?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          digital_lank?: string | null
+          godkand_av?: string | null
+          id?: string
+          insamlar_lan_kod?: string | null
+          installt_forekomster?: string[]
+          kontakt_epost?: string | null
+          kontakt_telefon?: string | null
+          kostnad?: string | null
+          plats_adress?: string | null
+          plats_lat?: number | null
+          plats_lng?: number | null
+          plats_namn?: string | null
+          plats_organisation_id?: string | null
+          plats_stad?: string | null
+          plats_typ?: Database["public"]["Enums"]["event_plats_typ"]
+          public_id?: string
+          publicerad_at?: string | null
+          slug?: string
+          slut_at?: string | null
+          start_at?: string
+          status?: Database["public"]["Enums"]["event_status"]
+          titel?: string
+          typ?: Database["public"]["Enums"]["event_typ"]
+          updated_at?: string
+          upprepning?: Database["public"]["Enums"]["event_upprepning"] | null
+          upprepning_slut?: string | null
+          upprepning_veckodag?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_arrangor_org_id_fkey"
+            columns: ["arrangor_org_id"]
+            isOneToOne: false
+            referencedRelation: "organisation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_arrangor_profil_id_fkey"
+            columns: ["arrangor_profil_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_arrangor_profil_id_fkey"
+            columns: ["arrangor_profil_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_godkand_av_fkey"
+            columns: ["godkand_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_godkand_av_fkey"
+            columns: ["godkand_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_insamlar_lan_kod_fkey"
+            columns: ["insamlar_lan_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
+          },
+          {
+            foreignKeyName: "event_plats_organisation_id_fkey"
+            columns: ["plats_organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       geo_aggregat: {
         Row: {
           aktiva_antal: number
@@ -391,8 +552,9 @@ export type Database = {
           avgjord_at: string | null
           created_at: string
           eskalerad: boolean
+          event_id: string | null
           id: string
-          insamling_id: string
+          insamling_id: string | null
           inskickad_at: string
           interna_anteckningar: string | null
           region_kod: string | null
@@ -406,8 +568,9 @@ export type Database = {
           avgjord_at?: string | null
           created_at?: string
           eskalerad?: boolean
+          event_id?: string | null
           id?: string
-          insamling_id: string
+          insamling_id?: string | null
           inskickad_at?: string
           interna_anteckningar?: string | null
           region_kod?: string | null
@@ -421,8 +584,9 @@ export type Database = {
           avgjord_at?: string | null
           created_at?: string
           eskalerad?: boolean
+          event_id?: string | null
           id?: string
-          insamling_id?: string
+          insamling_id?: string | null
           inskickad_at?: string
           interna_anteckningar?: string | null
           region_kod?: string | null
@@ -432,6 +596,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "granskning_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "event"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "granskning_insamling_id_fkey"
             columns: ["insamling_id"]
@@ -1223,6 +1394,50 @@ export type Database = {
             columns: ["profil_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oppettid: {
+        Row: {
+          ar_stangd: boolean
+          created_at: string
+          id: string
+          notering: string | null
+          oppnar: string | null
+          organisation_id: string
+          stanger: string | null
+          updated_at: string
+          veckodag: number
+        }
+        Insert: {
+          ar_stangd?: boolean
+          created_at?: string
+          id?: string
+          notering?: string | null
+          oppnar?: string | null
+          organisation_id: string
+          stanger?: string | null
+          updated_at?: string
+          veckodag: number
+        }
+        Update: {
+          ar_stangd?: boolean
+          created_at?: string
+          id?: string
+          notering?: string | null
+          oppnar?: string | null
+          organisation_id?: string
+          stanger?: string | null
+          updated_at?: string
+          veckodag?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oppettid_organisation_id_fkey"
+            columns: ["organisation_id"]
+            isOneToOne: false
+            referencedRelation: "organisation"
             referencedColumns: ["id"]
           },
         ]
@@ -2114,6 +2329,14 @@ export type Database = {
         }
         Returns: string
       }
+      fatta_event_granskar_beslut: {
+        Args: {
+          p_beslut: Database["public"]["Enums"]["granskning_beslut"]
+          p_granskning_id: string
+          p_motivering: string
+        }
+        Returns: undefined
+      }
       fatta_granskar_beslut: {
         Args: {
           p_beslut: Database["public"]["Enums"]["granskning_beslut"]
@@ -2177,6 +2400,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      skicka_event_for_granskning: {
+        Args: { p_event_id: string }
+        Returns: string
+      }
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
         Returns: string
@@ -2226,6 +2453,29 @@ export type Database = {
         | "refunded"
         | "partially_refunded"
       donation_undermal_val: "ge_anda" | "aterbetala"
+      event_plats_typ: "fysisk" | "digital"
+      event_status:
+        | "utkast"
+        | "inskickad"
+        | "under_granskning"
+        | "andring_begard"
+        | "avvisad"
+        | "publicerad"
+        | "avslutad"
+        | "installt"
+        | "arkiverad"
+      event_typ:
+        | "forelasning"
+        | "insamlingskvall"
+        | "eid_firande"
+        | "iftar"
+        | "kurs"
+        | "familjedag"
+        | "ungdom"
+        | "sister"
+        | "oppet_hus"
+        | "annat"
+      event_upprepning: "vecka" | "manad"
       granskning_beslut: "godkann" | "begar_andring" | "avvisa"
       insamling_status:
         | "utkast"
@@ -2440,6 +2690,31 @@ export const Constants = {
         "partially_refunded",
       ],
       donation_undermal_val: ["ge_anda", "aterbetala"],
+      event_plats_typ: ["fysisk", "digital"],
+      event_status: [
+        "utkast",
+        "inskickad",
+        "under_granskning",
+        "andring_begard",
+        "avvisad",
+        "publicerad",
+        "avslutad",
+        "installt",
+        "arkiverad",
+      ],
+      event_typ: [
+        "forelasning",
+        "insamlingskvall",
+        "eid_firande",
+        "iftar",
+        "kurs",
+        "familjedag",
+        "ungdom",
+        "sister",
+        "oppet_hus",
+        "annat",
+      ],
+      event_upprepning: ["vecka", "manad"],
       granskning_beslut: ["godkann", "begar_andring", "avvisa"],
       insamling_status: [
         "utkast",

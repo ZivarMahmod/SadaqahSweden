@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 const PUBLIC_LINKS = [
   { href: "/insamlingar", label: "Insamlingar" },
   { href: "/foreningar", label: "Föreningar" },
+  { href: "/events", label: "Events" },
   { href: "/karta", label: "Karta" },
   // TODO (M11): /om-plattformen — informationsida.
 ];
@@ -56,13 +57,22 @@ export async function SiteNav() {
             </Link>
           ))}
           {arGranskare && (
-            <Link
-              href="/granskning"
-              className="text-sm font-semibold transition-colors"
-              style={{ color: "var(--color-copper-deep)" }}
-            >
-              Granskningskö
-            </Link>
+            <>
+              <Link
+                href="/granskning"
+                className="text-sm font-semibold transition-colors"
+                style={{ color: "var(--color-copper-deep)" }}
+              >
+                Granskningskö
+              </Link>
+              <Link
+                href="/granskning/event"
+                className="text-sm font-semibold transition-colors"
+                style={{ color: "var(--color-copper-deep)" }}
+              >
+                Event-kö
+              </Link>
+            </>
           )}
         </nav>
 

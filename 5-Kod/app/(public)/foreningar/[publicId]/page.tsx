@@ -184,6 +184,79 @@ export default async function OrgProfil({ params }: { params: Params }) {
           </Container>
         </Section>
       )}
+
+      {/* M14 — moské-/förenings-vy: öppettider + kommande events. */}
+      <Section tone="paper" spacing="default">
+        <Container width="narrow">
+          <ForeningEventsOchOppettider organisationId={o.id} />
+        </Container>
+      </Section>
     </main>
+  );
+}
+
+async function ForeningEventsOchOppettider({ organisationId }: { organisationId: string }) {
+  const supabase = await createClient();
+  const [{ data: oppettider }, { data: events }] = await Promise.all([
+    supabase
+      .from("oppettid")
+      .select("veckodag, ar_stangd, oppnar, stanger, notering")
+      .eq("organisation_id", organisationId)
+      .order("veckodag"),
+    supabase
+      .from("event")
+      .select("id, public_id, slug, titel, typ, start_at, plats_namn, plats_stad")
+      .or(`arrangor_org_id.eq.${organisationId},plats_organisation_id.eq.${organisationId}`)
+      .eq("status", "publicerad")
+      .is("deleted_at", null)
+      .order("start_at", { ascending: true })
+      .limit(6),
+  ]);
+
+  const DAGAR = ["Söndag","Måndag","Tisdag","Onsdag","Torsdag","Fredag","Lördag"];
+
+  if ((oppettider ?? []).length === 0 && (events ?? []).length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2">
+      {(oppettider ?? []).length > 0 && (
+        <Card variant="tight">
+          <h3 className="h-3">Öppettider</h3>
+          <dl className="mt-3 grid grid-cols-[100px_1fr] gap-1.5 text-sm">
+            {(oppettider ?? []).map((o) => (
+              <div key={o.veckodag} className="contents">
+                <dt style={{ color: "var(--color-ink-3)" }}>{DAGAR[o.veckodag]}</dt>
+                <dd>
+                  {o.ar_stangd
+                    ? <span style={{ color: "var(--color-ink-3)" }}>stängt</span>
+                    : `${(o.oppnar ?? "").slice(0,5)}–${(o.stanger ?? "").slice(0,5)}`}
+                  {o.notering ? <span className="ml-2 text-xs" style={{ color: "var(--color-ink-3)" }}>({o.notering})</span> : null}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
+      )}
+      {(events ?? []).length > 0 && (
+        <Card variant="tight">
+          <h3 className="h-3">Kommande events</h3>
+          <ul className="mt-3 flex flex-col gap-2 text-sm">
+            {(events ?? []).map((e) => (
+              <li key={e.id}>
+                <a
+                  href={`/event/${e.public_id}-${e.slug}`}
+                  className="hover:underline"
+                  style={{ color: "var(--color-forest)" }}
+                >
+                  {new Date(e.start_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })} — {e.titel}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+    </div>
   );
 }
