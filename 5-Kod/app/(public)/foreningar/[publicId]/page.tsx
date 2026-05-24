@@ -133,7 +133,7 @@ export default async function OrgProfil({ params }: { params: Params }) {
                   </Pill>
                 )}
               </div>
-              <h1 className="h-1 mt-3">{o.namn}</h1>
+              <h1 className="heading-1 mt-3">{o.namn}</h1>
               <p className="lead mt-3" style={{ maxWidth: "60ch" }}>{o.beskrivning}</p>
               <p className="mt-3 text-xs" style={{ color: "var(--color-ink-3)" }}>
                 {o.stad}{o.region ? `, ${o.region}` : ""}
@@ -148,7 +148,7 @@ export default async function OrgProfil({ params }: { params: Params }) {
       {drivna.length > 0 && (
         <Section tone="cream" spacing="default">
           <Container>
-            <h2 className="h-2">Drivna insamlingar</h2>
+            <h2 className="heading-2">Drivna insamlingar</h2>
             <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {drivna.map((i) => (
                 <InsamlingCard key={i.publicId} data={i} />
@@ -161,7 +161,7 @@ export default async function OrgProfil({ params }: { params: Params }) {
       {collabInsamlingar.length > 0 && (
         <Section tone="paper" spacing="default">
           <Container>
-            <h2 className="h-2">Stöttat via collab</h2>
+            <h2 className="heading-2">Stöttat via collab</h2>
             <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
               Insamlingar där föreningen aktivt står bakom en privatpersons initiativ.
             </p>
@@ -228,7 +228,7 @@ async function ForeningEventsOchOppettider({ organisationId }: { organisationId:
     <div className="grid gap-8 md:grid-cols-2">
       {(oppettider ?? []).length > 0 && (
         <Card variant="tight">
-          <h3 className="h-3">Öppettider</h3>
+          <h3 className="heading-3">Öppettider</h3>
           <dl className="mt-3 grid grid-cols-[100px_1fr] gap-1.5 text-sm">
             {(oppettider ?? []).map((o) => (
               <div key={o.veckodag} className="contents">
@@ -246,7 +246,7 @@ async function ForeningEventsOchOppettider({ organisationId }: { organisationId:
       )}
       {(events ?? []).length > 0 && (
         <Card variant="tight">
-          <h3 className="h-3">Kommande events</h3>
+          <h3 className="heading-3">Kommande events</h3>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
             {(events ?? []).map((e) => (
               <li key={e.id}>

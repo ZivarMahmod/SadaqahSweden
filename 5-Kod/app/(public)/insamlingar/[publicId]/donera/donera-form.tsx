@@ -309,7 +309,7 @@ function BetalSteg(props: {
     <form className="flex flex-col gap-6" onSubmit={handleConfirm}>
       <div>
         <span className="eyebrow">BETALNING</span>
-        <h3 className="h-3 mt-2">
+        <h3 className="heading-3 mt-2">
           Betala {kr(props.beloppOre + props.tipOre)}
         </h3>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>

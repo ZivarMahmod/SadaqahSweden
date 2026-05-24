@@ -47,7 +47,7 @@ export default async function DoneraPage({ params }: { params: Params }) {
             <Icon name="arrow-left" size={14} /> Tillbaka till insamlingen
           </Link>
           <span className="eyebrow mt-6 block">DONATION</span>
-          <h1 className="h-1 mt-3">Stötta {i.titel}</h1>
+          <h1 className="heading-1 mt-3">Stötta {i.titel}</h1>
           <p className="lead mt-3">{i.kort_beskrivning}</p>
         </Container>
       </Section>
@@ -75,14 +75,14 @@ export default async function DoneraPage({ params }: { params: Params }) {
 
             <aside className="flex flex-col gap-4">
               <Card variant="tight">
-                <h3 className="h-3">Om målet inte nås</h3>
+                <h3 className="heading-3">Om målet inte nås</h3>
                 <p className="mt-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Din gåva används <strong>ändå</strong> för saken — pengarna flödar framåt.
                   Insamlingen kan förlängas eller skalas till en mindre insats.
                 </p>
               </Card>
               <Card variant="tight">
-                <h3 className="h-3">Trygga pengar</h3>
+                <h3 className="heading-3">Trygga pengar</h3>
                 <ul
                   className="mt-4 flex flex-col gap-3 text-sm"
                   style={{ color: "var(--color-ink-2)" }}
@@ -109,7 +109,7 @@ export default async function DoneraPage({ params }: { params: Params }) {
               </Card>
               {i.insamlat_ore != null && (
                 <Card variant="tight">
-                  <h3 className="h-3">Hittills insamlat</h3>
+                  <h3 className="heading-3">Hittills insamlat</h3>
                   <p
                     className="tabular mt-3"
                     style={{

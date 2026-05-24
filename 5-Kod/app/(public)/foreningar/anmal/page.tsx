@@ -18,7 +18,7 @@ export default async function AnmalForening() {
         <LinkButton href="/foreningar" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
           Tillbaka till katalogen
         </LinkButton>
-        <h1 className="h-1 mt-4">Är ni en förening eller moské och vill synas?</h1>
+        <h1 className="heading-1 mt-4">Är ni en förening eller moské och vill synas?</h1>
         <p className="lead mt-3" style={{ maxWidth: "60ch" }}>
           Fyll i formuläret nedan — vi publicerar er i katalogen efter granskning.
           Plattformen är gratis att synas på och tar inget mellanskick på det ni

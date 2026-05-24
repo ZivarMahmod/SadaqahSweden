@@ -34,11 +34,11 @@ export default async function TeamSida() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Team</h1>
+        <h1 className="heading-2">Team</h1>
         <p className="lead mt-2">Inga självregistreringar — admin bjuder in. TOTP är obligatorisk.</p>
 
         <Card variant="loose" className="mt-8">
-          <h2 className="h-3">Bjud in</h2>
+          <h2 className="heading-3">Bjud in</h2>
           <p className="text-sm mt-1" style={{ color: "var(--color-ink-3)" }}>
             En länk genereras — kopiera och skicka till mottagaren via en
             kanal du litar på. Länken är giltig 7 dagar.
@@ -46,7 +46,7 @@ export default async function TeamSida() {
           <TeamInviteForm />
         </Card>
 
-        <h2 className="h-3 mt-12">Aktiva inbjudningar</h2>
+        <h2 className="heading-3 mt-12">Aktiva inbjudningar</h2>
         {(invitationer ?? []).length === 0 ? (
           <p className="mt-3 text-sm" style={{ color: "var(--color-ink-3)" }}>Inga öppna inbjudningar.</p>
         ) : (
@@ -75,7 +75,7 @@ export default async function TeamSida() {
           </ul>
         )}
 
-        <h2 className="h-3 mt-12">Team-medlemmar</h2>
+        <h2 className="heading-3 mt-12">Team-medlemmar</h2>
         <ul className="mt-3 flex flex-col gap-2">
           {(medlemmar ?? []).map((p) => (
             <li key={p.id}>

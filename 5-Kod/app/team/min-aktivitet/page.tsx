@@ -39,7 +39,7 @@ export default async function MinAktivitet() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Min aktivitet</h1>
+        <h1 className="heading-2">Min aktivitet</h1>
         <p className="lead mt-2">Allt som rör ditt team-konto loggas här — append-only.</p>
 
         {(rader ?? []).length === 0 ? (

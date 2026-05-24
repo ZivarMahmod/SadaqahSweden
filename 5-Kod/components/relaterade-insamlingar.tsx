@@ -79,7 +79,7 @@ export async function RelateradeInsamlingar({
 
   return (
     <section>
-      <h2 className="h-2">Relaterade insamlingar</h2>
+      <h2 className="heading-2">Relaterade insamlingar</h2>
       <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
         Andra granskade insamlingar som ligger nära den här — om du vill ge mer.
       </p>

@@ -11,7 +11,7 @@ export function Topplista({ lan }: { lan: LanAggregat[] }) {
 
   return (
     <div className="card card-tight">
-      <h3 className="h-3 mb-1">Topplista</h3>
+      <h3 className="heading-3 mb-1">Topplista</h3>
       <p
         className="text-xs mb-4"
         style={{ color: "var(--color-ink-3)" }}

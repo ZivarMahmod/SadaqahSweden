@@ -58,14 +58,14 @@ export default async function BevisDetalj({ params }: { params: Params }) {
             {b.godkant_at ? "Godkänt" : "Väntar"}
           </Pill>
         </div>
-        <h1 className="h-1 mt-4">{ins.titel}</h1>
+        <h1 className="heading-1 mt-4">{ins.titel}</h1>
         <p className="lead mt-2">{ins.kort_beskrivning}</p>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[2fr_1fr]">
           <div className="flex flex-col gap-6">
             <Card>
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="h-3">Beviset som lämnats</h2>
+                <h2 className="heading-3">Beviset som lämnats</h2>
                 <span className="text-xs" style={{ color: "var(--color-ink-3)" }}>
                   Lämnat {datum(b.created_at)}
                 </span>
@@ -85,7 +85,7 @@ export default async function BevisDetalj({ params }: { params: Params }) {
             </Card>
 
             <Card>
-              <h2 className="h-3">Löftet (startbevis)</h2>
+              <h2 className="heading-3">Löftet (startbevis)</h2>
               <p
                 className="mt-3 whitespace-pre-wrap text-sm leading-relaxed"
                 style={{ color: "var(--color-ink-1)" }}
@@ -98,7 +98,7 @@ export default async function BevisDetalj({ params }: { params: Params }) {
             </Card>
 
             <Card>
-              <h2 className="h-3">Hela tidslinjen</h2>
+              <h2 className="heading-3">Hela tidslinjen</h2>
               <div className="mt-6">
                 <TransparensTidslinje insamlingId={ins.id} />
               </div>
@@ -107,7 +107,7 @@ export default async function BevisDetalj({ params }: { params: Params }) {
 
           <aside className="flex flex-col gap-6">
             <Card variant="tight">
-              <h3 className="h-3">Beslut</h3>
+              <h3 className="heading-3">Beslut</h3>
               {b.godkant_at ? (
                 <p className="mt-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Godkänt {datum(b.godkant_at)} — loopen är sluten.
@@ -120,7 +120,7 @@ export default async function BevisDetalj({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Insamlaren</h3>
+              <h3 className="heading-3">Insamlaren</h3>
               <dl className="mt-3 flex flex-col gap-2 text-sm">
                 <Row label="Namn">{insamlare?.visningsnamn ?? "okänd"}</Row>
                 <Row label="E-post">
@@ -141,7 +141,7 @@ export default async function BevisDetalj({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Bedömning</h3>
+              <h3 className="heading-3">Bedömning</h3>
               <ul className="mt-3 flex flex-col gap-2 text-xs" style={{ color: "var(--color-ink-2)" }}>
                 <li>Finns beviset?</li>
                 <li>Knyter texten resultatet till det utlovade?</li>

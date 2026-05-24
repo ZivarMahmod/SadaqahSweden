@@ -47,7 +47,7 @@ export default async function Setup2fa() {
         <Section tone="paper" spacing="default">
           <Container width="narrow">
             <Card variant="loose">
-              <h1 className="h-3">MFA-enroll misslyckades</h1>
+              <h1 className="heading-3">MFA-enroll misslyckades</h1>
               <p className="mt-3" style={{ color: "var(--color-danger)" }}>
                 {error?.message ?? "Okänt fel"}
               </p>
@@ -67,7 +67,7 @@ export default async function Setup2fa() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Aktivera 2FA</h1>
+        <h1 className="heading-2">Aktivera 2FA</h1>
         <p className="lead mt-2">
           Team-konton kräver MFA. Skanna QR-koden i en Authenticator-app och
           mata in den 6-siffriga koden för att aktivera.

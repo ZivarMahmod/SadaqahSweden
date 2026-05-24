@@ -57,7 +57,7 @@ export default async function EventListsida({ searchParams }: { searchParams: So
       <Container width="narrow">
         <header className="max-w-3xl">
           <span className="eyebrow">Events &amp; platsinfo</span>
-          <h1 className="h-1 mt-3">Vad händer just nu.</h1>
+          <h1 className="heading-1 mt-3">Vad händer just nu.</h1>
           <p className="lead mt-4">
             Föreläsningar, iftar, kurser, öppna hus — events i muslimska Sverige. Granskade, fysiska eller digitala.
           </p>
@@ -121,7 +121,7 @@ export default async function EventListsida({ searchParams }: { searchParams: So
                         <Pill tone="paper">Digitalt</Pill>
                       )}
                     </div>
-                    <h3 className="h-3 mt-3">{e.titel}</h3>
+                    <h3 className="heading-3 mt-3">{e.titel}</h3>
                     <p
                       className="mt-2 text-sm leading-relaxed"
                       style={{ color: "var(--color-ink-2)" }}

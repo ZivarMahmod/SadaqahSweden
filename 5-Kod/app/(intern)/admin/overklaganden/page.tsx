@@ -32,7 +32,7 @@ export default async function OverklagandenPage() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Överklaganden</h1>
+        <h1 className="heading-2">Överklaganden</h1>
         <p className="lead mt-2 max-w-[640px]">
           Insamlare vars projekt avvisats av en region-admin kan överklaga{" "}
           <strong>en gång</strong> direkt till superadmin. Du kan låta avslaget
@@ -46,7 +46,7 @@ export default async function OverklagandenPage() {
           </Card>
         )}
 
-        <h2 className="h-3 mt-10">Inkomna ({pending.length})</h2>
+        <h2 className="heading-3 mt-10">Inkomna ({pending.length})</h2>
         {pending.length === 0 ? (
           <EmptyState
             icon={<Icon name="check-circle" size={28} />}
@@ -65,7 +65,7 @@ export default async function OverklagandenPage() {
 
         {avgjorda.length > 0 && (
           <>
-            <h2 className="h-3 mt-12">Avgjorda ({avgjorda.length})</h2>
+            <h2 className="heading-3 mt-12">Avgjorda ({avgjorda.length})</h2>
             <ul className="mt-4 flex flex-col gap-3">
               {avgjorda.map((o) => (
                 <li key={o.id}>

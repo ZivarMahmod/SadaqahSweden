@@ -27,7 +27,7 @@ export default async function EventGranskningsKo() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Event-granskning</h1>
+        <h1 className="heading-2">Event-granskning</h1>
         <p className="lead mt-2">SLA 48 h. Lättare checklista — bra för samhället, ingen diskriminering, riktig arrangör.</p>
 
         {(rader ?? []).length === 0 ? (
@@ -56,7 +56,7 @@ export default async function EventGranskningsKo() {
                           Inskickat {new Date(r.inskickad_at).toLocaleDateString("sv-SE")}
                         </span>
                       </div>
-                      <h3 className="h-3 mt-2">{e.titel}</h3>
+                      <h3 className="heading-3 mt-2">{e.titel}</h3>
                       <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
                         {formatEventTid(e.start_at)} · {e.plats_stad ?? (e.plats_typ === "digital" ? "Digital" : "—")}
                       </p>

@@ -83,7 +83,7 @@ export default async function GranskningKoPage() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <span className="eyebrow">GRANSKARE</span>
-            <h1 className="h-1 mt-3">Granskningskö</h1>
+            <h1 className="heading-1 mt-3">Granskningskö</h1>
             <p className="lead mt-3 max-w-[640px]">
               Inkommande och pågående ärenden. SLA-riktmärke 72 h från inskickning till första
               besked. Plocka ett ärende eller fortsätt på ett du redan tilldelats.
@@ -187,7 +187,7 @@ export default async function GranskningKoPage() {
                               Inskickad {timmarSedan(g.inskickad_at)}
                             </span>
                           </div>
-                          <h3 className="h-3">{ins.titel}</h3>
+                          <h3 className="heading-3">{ins.titel}</h3>
                           <p
                             className="mt-1 line-clamp-2 text-sm"
                             style={{ color: "var(--color-ink-2)" }}

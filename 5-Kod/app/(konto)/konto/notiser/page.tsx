@@ -35,7 +35,7 @@ export default async function NotiserPage() {
             <LinkButton href="/konto" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
               Tillbaka till konto
             </LinkButton>
-            <h1 className="h-1 mt-3">Notiser</h1>
+            <h1 className="heading-1 mt-3">Notiser</h1>
             <p className="lead mt-2">
               Allt som hänt — granskningsbeslut, donationer, badge-tilldelningar
               och uppdateringar från insamlingar du stöttat.

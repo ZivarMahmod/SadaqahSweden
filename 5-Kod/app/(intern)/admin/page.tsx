@@ -102,7 +102,7 @@ export default async function AdminDriftoversikt() {
     <Section tone="paper" spacing="default">
       <Container width="narrow">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h1 className="h-2">Drift &amp; admin</h1>
+          <h1 className="heading-2">Drift &amp; admin</h1>
           <nav className="flex flex-wrap gap-2">
             <LinkButton href="/admin/larm" variant="ghost" size="sm">Larm</LinkButton>
             <LinkButton href="/admin/logg" variant="ghost" size="sm">Ingreppslogg</LinkButton>
@@ -119,7 +119,7 @@ export default async function AdminDriftoversikt() {
         {/* Larm-band — visas bara när det finns aktivt */}
         {roda.length + gula.length > 0 && (
           <Card variant="tight" className="mt-6">
-            <h2 className="h-3">Aktiva larm</h2>
+            <h2 className="heading-3">Aktiva larm</h2>
             <ul className="mt-3 flex flex-col gap-2 text-sm">
               {roda.map((l) => <LarmRad key={l.id} l={l} />)}
               {gula.map((l) => <LarmRad key={l.id} l={l} />)}
@@ -130,7 +130,7 @@ export default async function AdminDriftoversikt() {
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {/* A: Livscykel */}
           <Card variant="tight">
-            <h3 className="h-3">Livscykel-hälsa</h3>
+            <h3 className="heading-3">Livscykel-hälsa</h3>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <Stat label="Aktiva" varde={antal(aktiva)} />
               <Stat label="Väntar resultat" varde={antal(lc.vantar_pa_resultat ?? 0)} />
@@ -145,7 +145,7 @@ export default async function AdminDriftoversikt() {
 
           {/* B: Granskningskö */}
           <Card variant="tight">
-            <h3 className="h-3">Granskningskö</h3>
+            <h3 className="heading-3">Granskningskö</h3>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <Stat label="I kö" varde={antal(ko)} />
               <Stat label="Eskalerade" varde={antal(eskalerade)} varning={eskalerade > 0} />
@@ -174,7 +174,7 @@ export default async function AdminDriftoversikt() {
 
           {/* C: Pengaflöde */}
           <Card variant="tight">
-            <h3 className="h-3">Pengaflöde</h3>
+            <h3 className="heading-3">Pengaflöde</h3>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <Stat label="Insamlat (30 dygn)" varde={kortBelopp(insamlat30d)} />
               <Stat label="Donationer (30 dygn)" varde={antal((stripe30d ?? []).length)} />
@@ -187,7 +187,7 @@ export default async function AdminDriftoversikt() {
 
           {/* D: Systemhälsa */}
           <Card variant="tight">
-            <h3 className="h-3">Systemhälsa</h3>
+            <h3 className="heading-3">Systemhälsa</h3>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt className="text-xs" style={{ color: "var(--color-ink-3)" }}>Senaste webhook</dt>
@@ -218,7 +218,7 @@ export default async function AdminDriftoversikt() {
         {/* F2: Distribuerad granskningskö — per-region översikt */}
         {regionKo && regionKo.length > 0 && (
           <Card variant="tight" className="mt-8">
-            <h3 className="h-3">Kön per region</h3>
+            <h3 className="heading-3">Kön per region</h3>
             <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
               Region-admins ser bara egen region. Superadmin och nationellt team
               ser alla regioner; insamlingar utan region hamnar i superadmins kö.
@@ -263,7 +263,7 @@ export default async function AdminDriftoversikt() {
         {/* F9: insamlare med pending Stripe-onboarding */}
         {pendingInsamlare && pendingInsamlare.length > 0 && (
           <Card variant="tight" className="mt-8">
-            <h3 className="h-3">Stripe-pending insamlare ({pendingInsamlare.length})</h3>
+            <h3 className="heading-3">Stripe-pending insamlare ({pendingInsamlare.length})</h3>
             <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
               Insamlare som har påbörjat Stripe-onboarding men inte godkänts än.
               Webhook account.updated flippar status automatiskt.

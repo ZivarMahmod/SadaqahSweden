@@ -35,7 +35,7 @@ export default async function KartaSida() {
     <main className="mx-auto w-full max-w-[1280px] px-6 py-12 md:px-12 md:py-20">
       <header className="mb-12 max-w-3xl">
         <span className="eyebrow">Karta &amp; geografisk insikt</span>
-        <h1 className="h-1 mt-3">Sverige, regionvis.</h1>
+        <h1 className="heading-1 mt-3">Sverige, regionvis.</h1>
         <p className="lead mt-5">
           Var i landet drivs insamlingar — och vart i världen landar hjälpen.
           Allt på kartan är aggregat. Inga enskilda personer pekas ut.
@@ -84,7 +84,7 @@ export default async function KartaSida() {
         <aside className="order-1 lg:order-2">
           <Topplista lan={data.lan} />
           <div className="card card-tight mt-6">
-            <h3 className="h-3 mb-3">Vill du starta något här?</h3>
+            <h3 className="heading-3 mb-3">Vill du starta något här?</h3>
             <p
               className="text-sm leading-relaxed mb-4"
               style={{ color: "var(--color-ink-2)" }}

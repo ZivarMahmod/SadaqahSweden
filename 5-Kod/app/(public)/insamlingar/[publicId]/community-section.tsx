@@ -93,7 +93,7 @@ export async function CommunitySektion({
   return (
     <section aria-label="Samtal" className="mt-12">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="h-2">Samtal</h2>
+        <h2 className="heading-2">Samtal</h2>
         <span className="text-xs" style={{ color: "var(--color-ink-3)" }}>
           {top.length} kommentar{top.length === 1 ? "" : "er"}
         </span>

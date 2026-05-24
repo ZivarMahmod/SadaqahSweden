@@ -53,7 +53,7 @@ export default async function MinaEvents() {
     <Section tone="paper" spacing="default">
       <Container width="narrow">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="h-2">Mina events</h1>
+          <h1 className="heading-2">Mina events</h1>
           <LinkButton href="/event/nytt" variant="primary" size="sm" leftIcon={<Icon name="plus" size={14} />}>
             Nytt event
           </LinkButton>
@@ -83,7 +83,7 @@ export default async function MinaEvents() {
                         {formatEventTid(e.start_at)}
                       </span>
                     </div>
-                    <h3 className="h-3 mt-3">{e.titel}</h3>
+                    <h3 className="heading-3 mt-3">{e.titel}</h3>
                     {(e.plats_namn || e.plats_stad) && (
                       <p
                         className="mt-1 text-xs"

@@ -67,7 +67,7 @@ export default async function EventSida({ params }: { params: Params }) {
           {e.status === "installt" && <Pill tone="danger">Inställt</Pill>}
           {e.status === "avslutad" && <Pill tone="paper">Avslutat</Pill>}
         </div>
-        <h1 className="h-1 mt-4">{e.titel}</h1>
+        <h1 className="heading-1 mt-4">{e.titel}</h1>
 
         <div
           className="mt-6 flex flex-wrap items-center gap-4 text-sm"
@@ -93,7 +93,7 @@ export default async function EventSida({ params }: { params: Params }) {
 
         <div className="mt-10 grid gap-10 md:grid-cols-[2fr_1fr]">
           <article>
-            <h2 className="h-3">Om eventet</h2>
+            <h2 className="heading-3">Om eventet</h2>
             <p
               className="mt-3 whitespace-pre-wrap text-base leading-relaxed"
               style={{ color: "var(--color-ink-1)" }}
@@ -104,7 +104,7 @@ export default async function EventSida({ params }: { params: Params }) {
 
           <aside className="flex flex-col gap-4">
             <Card variant="tight">
-              <h3 className="h-3">Arrangör</h3>
+              <h3 className="heading-3">Arrangör</h3>
               <p className="mt-3 text-sm" style={{ color: "var(--color-ink-1)" }}>
                 {arrangorNamn}
                 {org && (
@@ -146,7 +146,7 @@ export default async function EventSida({ params }: { params: Params }) {
 
             {(e.anmalan_lank || e.plats_typ === "digital") && (
               <Card variant="tight">
-                <h3 className="h-3">Delta</h3>
+                <h3 className="heading-3">Delta</h3>
                 {e.kostnad && (
                   <p className="mt-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
                     {e.kostnad}
@@ -176,7 +176,7 @@ export default async function EventSida({ params }: { params: Params }) {
             )}
 
             <Card variant="tight">
-              <h3 className="h-3">Granskat</h3>
+              <h3 className="heading-3">Granskat</h3>
               <p
                 className="mt-3 text-xs leading-relaxed"
                 style={{ color: "var(--color-ink-2)" }}

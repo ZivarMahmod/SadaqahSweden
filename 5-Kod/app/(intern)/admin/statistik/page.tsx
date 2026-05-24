@@ -62,10 +62,10 @@ export default async function AdminStatistik() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Statistik (intern)</h1>
+        <h1 className="heading-2">Statistik (intern)</h1>
         <p className="lead mt-2">Bredare än publika sidan. Räknar från råa rader — uppdateras direkt.</p>
 
-        <h2 className="h-3 mt-10">Insamlingar</h2>
+        <h2 className="heading-3 mt-10">Insamlingar</h2>
         <div className="mt-3 grid gap-4 md:grid-cols-4">
           <KortStat label="Totalt" varde={antal(insamlingarTotal)} />
           <KortStat label="Aktiva" varde={antal(aktivaTotal)} />
@@ -74,7 +74,7 @@ export default async function AdminStatistik() {
           <KortStat label="Nådde målet" varde={antal(malNadda)} />
         </div>
 
-        <h2 className="h-3 mt-10">Donationer</h2>
+        <h2 className="heading-3 mt-10">Donationer</h2>
         <div className="mt-3 grid gap-4 md:grid-cols-4">
           <KortStat label="Donationer" varde={antal(donationerTotal)} />
           <KortStat label="Insamlat totalt" varde={kortBelopp(insamlatTotal)} />
@@ -83,14 +83,14 @@ export default async function AdminStatistik() {
           <KortStat label="Median per donation" varde={medianBelopp ? kortBelopp(medianBelopp) : "—"} />
         </div>
 
-        <h2 className="h-3 mt-10">Granskning</h2>
+        <h2 className="heading-3 mt-10">Granskning</h2>
         <div className="mt-3 grid gap-4 md:grid-cols-4">
           <KortStat label="Avgjorda ärenden" varde={antal(granskningarAvgjorda)} />
           <KortStat label="Eskaleringar" varde={antal(eskaleringar)} />
           <KortStat label="Flerrundor %" varde={`${flerrundorAndel}%`} />
         </div>
 
-        <h2 className="h-3 mt-10">Geografi (per län — fullt utan k-anon)</h2>
+        <h2 className="heading-3 mt-10">Geografi (per län — fullt utan k-anon)</h2>
         <div className="mt-3 overflow-x-auto">
           <table className="table">
             <thead>

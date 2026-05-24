@@ -213,7 +213,7 @@ export default async function MarketingPage() {
             <Star size={16} />
             <span className="eyebrow">SÅ FUNGERAR DET</span>
           </div>
-          <h2 className="h-1 max-w-[800px]">Tre tydliga steg — från idé till bevis.</h2>
+          <h2 className="heading-1 max-w-[800px]">Tre tydliga steg — från idé till bevis.</h2>
           <div
             className="mt-16 grid overflow-hidden md:grid-cols-3"
             style={{ background: "var(--color-ink-line)", gap: 1, border: "1px solid var(--color-ink-line)", borderRadius: 20 }}
@@ -265,7 +265,7 @@ export default async function MarketingPage() {
                 <Star size={16} />
                 <span className="eyebrow">AKTIVA INSAMLINGAR</span>
               </div>
-              <h2 className="h-2">Granskade och aktiva just nu.</h2>
+              <h2 className="heading-2">Granskade och aktiva just nu.</h2>
             </div>
             <Link
               href="/insamlingar"
@@ -316,7 +316,7 @@ export default async function MarketingPage() {
                   GRANSKNINGSLÖFTET
                 </span>
               </div>
-              <h2 className="h-1" style={{ color: "var(--color-paper)" }}>
+              <h2 className="heading-1" style={{ color: "var(--color-paper)" }}>
                 Vi granskar varje insamling — innan en enda krona ges.
               </h2>
               <ul className="mt-10 flex flex-col gap-5">
@@ -377,7 +377,7 @@ export default async function MarketingPage() {
             <Star size={16} />
             <span className="eyebrow">OMRÅDEN</span>
           </div>
-          <h2 className="h-2">Från akut katastrofhjälp till långsiktiga projekt.</h2>
+          <h2 className="heading-2">Från akut katastrofhjälp till långsiktiga projekt.</h2>
           {kategorier.length === 0 ? (
             <p
               className="mt-8 text-sm"

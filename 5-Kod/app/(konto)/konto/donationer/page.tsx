@@ -36,7 +36,7 @@ export default async function MinaDonationer() {
         <LinkButton href="/konto" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
           Tillbaka till konto
         </LinkButton>
-        <h1 className="h-1 mt-4">Mina donationer</h1>
+        <h1 className="heading-1 mt-4">Mina donationer</h1>
         <p className="lead mt-2 max-w-[60ch]">
           Privat historik — bara du och plattformens granskare ser den. Du kan
           slå på en öppen vy på din profil; då visas bara <strong>antalet</strong>{" "}

@@ -63,7 +63,7 @@ export default async function MinaInsamlingarPage() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <span className="eyebrow">INSAMLAR-VY</span>
-            <h1 className="h-1 mt-3">Mina insamlingar</h1>
+            <h1 className="heading-1 mt-3">Mina insamlingar</h1>
             <p className="lead mt-3 max-w-[640px]">
               Skapa, redigera och skicka in dina projekt. Granskaren tar vid när du är klar.
             </p>
@@ -145,7 +145,7 @@ export default async function MinaInsamlingarPage() {
                             {i.publicerad_at && <> · Publicerad {datum(i.publicerad_at)}</>}
                           </span>
                         </div>
-                        <h3 className="h-3">{i.titel}</h3>
+                        <h3 className="heading-3">{i.titel}</h3>
                         <p
                           className="mt-2 text-sm"
                           style={{ color: "var(--color-ink-2)" }}

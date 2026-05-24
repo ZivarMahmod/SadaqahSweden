@@ -40,7 +40,7 @@ export default async function StickprovPage() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Stickprov — avvikande granskare</h1>
+        <h1 className="heading-2">Stickprov — avvikande granskare</h1>
         <p className="lead mt-2 max-w-[640px]">
           Granskare med <strong>&gt;60% avvisningsandel</strong> och minst 5
           beslut. En signal — inte en automatisk åtgärd. Granska enskilda fall

@@ -39,7 +39,7 @@ export default async function AdminLoggSida() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Ingreppslogg</h1>
+        <h1 className="heading-2">Ingreppslogg</h1>
         <p className="lead mt-2">Varje admin-ingrepp loggas här — vem, vad, när, varför. Loggen är append-only.</p>
 
         {(logg ?? []).length === 0 ? (

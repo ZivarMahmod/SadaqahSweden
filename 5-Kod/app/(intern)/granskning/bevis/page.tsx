@@ -38,7 +38,7 @@ export default async function ResultatBevisKo() {
           </LinkButton>
           <Pill tone="copper">M7 Bevis 3</Pill>
         </div>
-        <h1 className="h-1 mt-4">Resultat-bevis att granska</h1>
+        <h1 className="heading-1 mt-4">Resultat-bevis att granska</h1>
         <p className="lead mt-2 max-w-[60ch]">
           Lättviktig äkthetskoll. Du bedömer att beviset <em>finns, är
           relevant och rimligt</em> — inte sanningshalten i fält. Stockbilder
@@ -73,7 +73,7 @@ export default async function ResultatBevisKo() {
                         Lämnat {datum(b.created_at)}
                       </span>
                     </div>
-                    <h3 className="h-3">{b.insamling?.titel ?? "Insamling utan titel"}</h3>
+                    <h3 className="heading-3">{b.insamling?.titel ?? "Insamling utan titel"}</h3>
                     <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
                       Insamlare: {b.insamling?.profiles?.visningsnamn ?? "okänd"} · ID {b.insamling?.public_id}
                     </p>

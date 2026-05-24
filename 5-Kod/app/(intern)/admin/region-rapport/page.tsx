@@ -31,7 +31,7 @@ export default async function RegionrapportListsida() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Regionrapporter</h1>
+        <h1 className="heading-2">Regionrapporter</h1>
         <p className="lead mt-2">
           Underlag per län — att lägga på kommunens eller regionens bord.
           Rapporten är utskriftsvänlig: öppna och skriv ut som PDF från
@@ -45,7 +45,7 @@ export default async function RegionrapportListsida() {
               <li key={n.kod}>
                 <Link href={`/admin/region-rapport/${n.kod}`} className="block">
                   <Card variant="tight" className="card-hover">
-                    <h3 className="h-3">{n.namn}</h3>
+                    <h3 className="heading-3">{n.namn}</h3>
                     <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
                       {a ? `${antal(a.aktiva_antal)} aktiva · ${kortBelopp(a.insamlat_summa_ore)}` : "Ingen data"}
                     </p>

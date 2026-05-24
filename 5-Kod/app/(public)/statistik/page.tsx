@@ -46,7 +46,7 @@ export default async function PublikStatistik() {
       <Container width="narrow">
         <header className="max-w-3xl">
           <span className="eyebrow">Plattformen i siffror</span>
-          <h1 className="h-1 mt-3">Statistik</h1>
+          <h1 className="heading-1 mt-3">Statistik</h1>
           <p className="lead mt-4">
             Aggregerad data — inga enskilda personer eller individers
             insamlingar exponeras. Kommunnivå visas bara där minst 5
@@ -61,7 +61,7 @@ export default async function PublikStatistik() {
           <Stat label="Insamlingar (alla statusar)" varde={antal(totalt.insamlingar)} />
         </div>
 
-        <h2 className="h-3 mt-12">Per län</h2>
+        <h2 className="heading-3 mt-12">Per län</h2>
         <div className="mt-3 overflow-x-auto">
           <table className="table">
             <thead>

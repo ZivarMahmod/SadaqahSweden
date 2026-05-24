@@ -49,7 +49,7 @@ export function OverklagandeForm({ insamlingId }: { insamlingId: string }) {
     <Card>
       <div className="flex items-center gap-2">
         <Icon name="flag" size={18} />
-        <h2 className="h-3">Överklaga avslaget</h2>
+        <h2 className="heading-3">Överklaga avslaget</h2>
       </div>
       <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
         Tycker du att avslaget är fel? Du kan överklaga <strong>en gång</strong>

@@ -41,29 +41,29 @@ export default async function EventGranskning({ params }: { params: Params }) {
           {e.plats_typ === "digital" && <Pill tone="paper">Digitalt</Pill>}
           {g.runda > 1 && <Pill tone="outline">Runda {g.runda}</Pill>}
         </div>
-        <h1 className="h-1 mt-3">{e.titel}</h1>
+        <h1 className="heading-1 mt-3">{e.titel}</h1>
 
         <div className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
           <article>
-            <h2 className="h-3">När</h2>
+            <h2 className="heading-3">När</h2>
             <p className="mt-2 text-sm">
               {formatEventTid(e.start_at, e.slut_at)}
               {formatUpprepning(e) && ` · ${formatUpprepning(e)}`}
             </p>
 
-            <h2 className="h-3 mt-6">Plats</h2>
+            <h2 className="heading-3 mt-6">Plats</h2>
             <p className="mt-2 text-sm">
               {e.plats_typ === "fysisk"
                 ? `${e.plats_namn ?? ""}${e.plats_adress ? ", " + e.plats_adress : ""}${e.plats_stad ? ", " + e.plats_stad : ""}`
                 : `Digitalt: ${e.digital_lank ?? "—"}`}
             </p>
 
-            <h2 className="h-3 mt-6">Beskrivning</h2>
+            <h2 className="heading-3 mt-6">Beskrivning</h2>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{e.beskrivning}</p>
 
             {(e.kontakt_epost || e.kontakt_telefon || e.anmalan_lank || e.kostnad) && (
               <>
-                <h2 className="h-3 mt-6">Övrigt</h2>
+                <h2 className="heading-3 mt-6">Övrigt</h2>
                 <dl className="mt-2 grid grid-cols-[110px_1fr] gap-2 text-sm">
                   {e.kostnad && <><dt style={{ color: "var(--color-ink-3)" }}>Kostnad</dt><dd>{e.kostnad}</dd></>}
                   {e.kontakt_epost && <><dt style={{ color: "var(--color-ink-3)" }}>E-post</dt><dd>{e.kontakt_epost}</dd></>}
@@ -76,14 +76,14 @@ export default async function EventGranskning({ params }: { params: Params }) {
 
           <aside className="flex flex-col gap-4">
             <Card variant="tight">
-              <h3 className="h-3">Arrangör</h3>
+              <h3 className="heading-3">Arrangör</h3>
               <p className="mt-2 text-sm">{arrangor}</p>
               {profil?.bankid_verifierad && (
                 <Pill tone="success" className="mt-2 text-xs">Identitetsverifierad</Pill>
               )}
             </Card>
             <Card variant="tight">
-              <h3 className="h-3">Beslut</h3>
+              <h3 className="heading-3">Beslut</h3>
               <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
                 Checklista: gagnar samhället? Fritt från diskriminering/sekterism (M8 principerna 10–11)? Riktig arrangör?
               </p>

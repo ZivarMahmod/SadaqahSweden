@@ -81,7 +81,7 @@ export default async function KategoriSida({ params }: { params: Params }) {
       <Section tone="paper" spacing="tight">
         <Container width="narrow">
           <span className="eyebrow">KATEGORI</span>
-          <h1 className="h-1 mt-3">{kat.namn}</h1>
+          <h1 className="heading-1 mt-3">{kat.namn}</h1>
           <p className="lead mt-3" style={{ maxWidth: "60ch" }}>
             Plattformen styr donatorn mot befintliga insamlingar — samordnad
             godhet hjälper mottagaren mer än splittrade gåvor. Se vad som
@@ -92,7 +92,7 @@ export default async function KategoriSida({ params }: { params: Params }) {
 
       <Section tone="cream" spacing="default">
         <Container>
-          <h2 className="h-2">Aktiva i {kat.namn.toLowerCase()}</h2>
+          <h2 className="heading-2">Aktiva i {kat.namn.toLowerCase()}</h2>
           {aktivaItems.length === 0 ? (
             <div className="mt-8">
               <EmptyState
@@ -117,7 +117,7 @@ export default async function KategoriSida({ params }: { params: Params }) {
           <Container>
             <div className="flex items-end justify-between">
               <div>
-                <h2 className="h-2">Så har det gått tidigare</h2>
+                <h2 className="heading-2">Så har det gått tidigare</h2>
                 <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
                   Insamlingar i {kat.namn.toLowerCase()} som stängt loopen — bevis på leverans.
                 </p>
@@ -141,7 +141,7 @@ function tomKategori(namn: string) {
       <Section tone="paper" spacing="tight">
         <Container width="narrow">
           <span className="eyebrow">KATEGORI</span>
-          <h1 className="h-1 mt-3">{namn}</h1>
+          <h1 className="heading-1 mt-3">{namn}</h1>
           <p className="lead mt-3" style={{ maxWidth: "60ch" }}>
             Ingen insamling i {namn.toLowerCase()} än — vill du starta en?
           </p>

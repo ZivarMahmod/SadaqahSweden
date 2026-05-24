@@ -69,7 +69,7 @@ export default async function MinaForeningar() {
         </div>
         <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="h-1">Mina föreningar</h1>
+            <h1 className="heading-1">Mina föreningar</h1>
             <p className="lead mt-2">Ansökningar och publicerade katalogposter du äger.</p>
           </div>
           <LinkButton href="/foreningar/anmal" leftIcon={<Icon name="plus" size={16} />}>
@@ -79,7 +79,7 @@ export default async function MinaForeningar() {
 
         {collabBegarda.length > 0 && (
           <Card className="mt-8" variant="forest">
-            <h2 className="h-3">Inkomna collab-förfrågningar ({collabBegarda.length})</h2>
+            <h2 className="heading-3">Inkomna collab-förfrågningar ({collabBegarda.length})</h2>
             <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
               En insamlare vill att er förening står bakom deras insamling. Ert ja
               eller nej är synligt på insamlingen.
@@ -118,7 +118,7 @@ export default async function MinaForeningar() {
                               Anmäld {datum(o.created_at)}
                             </span>
                           </div>
-                          <h3 className="h-3 mt-2">{o.namn}</h3>
+                          <h3 className="heading-3 mt-2">{o.namn}</h3>
                           <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
                             {o.organisationstyp} · {o.stad}, {o.region}
                           </p>

@@ -22,7 +22,7 @@ export default async function LarmListsida() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Larm</h1>
+        <h1 className="heading-2">Larm</h1>
         <p className="lead mt-2">Aktiva först, sedan avfärdade/behandlade. Inga aktiva = grönt läge.</p>
 
         {(larm ?? []).filter((l) => l.status === "aktiv").length === 0 && (
@@ -47,7 +47,7 @@ export default async function LarmListsida() {
                       {new Date(l.triggered_at).toLocaleString("sv-SE")}
                     </span>
                   </div>
-                  <h3 className="h-3 mt-2">{l.rubrik}</h3>
+                  <h3 className="heading-3 mt-2">{l.rubrik}</h3>
                   {l.detaljer && (
                     <p className="mt-1 text-sm" style={{ color: "var(--color-ink-2)" }}>
                       {l.detaljer}

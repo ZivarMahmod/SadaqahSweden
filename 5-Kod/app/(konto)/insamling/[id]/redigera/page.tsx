@@ -43,7 +43,7 @@ export default async function RedigeraInsamlingPage({ params }: { params: Params
             {i.status === "andring_begard" ? "Ändring begärd — uppdatera och skicka in igen" : "Utkast"}
           </Pill>
         </div>
-        <h1 className="h-1 mt-4">Redigera insamling</h1>
+        <h1 className="heading-1 mt-4">Redigera insamling</h1>
         <p className="lead mt-3 max-w-[640px]">
           Allt sparas via knappen <em>Spara utkast</em>. När du är klar — klicka{" "}
           <em>Skicka till granskning</em>, så går projektet till granskningskön.

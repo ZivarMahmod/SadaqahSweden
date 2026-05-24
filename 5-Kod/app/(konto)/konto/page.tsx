@@ -40,7 +40,7 @@ export default async function KontoPage() {
         <div className="flex items-end justify-between gap-6">
           <div>
             <span className="eyebrow">DITT KONTO</span>
-            <h1 className="h-1 mt-3">{me.profil.visningsnamn}</h1>
+            <h1 className="heading-1 mt-3">{me.profil.visningsnamn}</h1>
             <p className="lead mt-3">{me.epost}</p>
           </div>
           <div className="flex gap-2">
@@ -113,7 +113,7 @@ export default async function KontoPage() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <Card>
-            <h3 className="h-3">Kontouppgifter</h3>
+            <h3 className="heading-3">Kontouppgifter</h3>
             <dl className="mt-6 flex flex-col gap-4 text-sm">
               <Row label="Visningsnamn">{me.profil.visningsnamn}</Row>
               <Row label="E-post">{me.epost}</Row>
@@ -132,7 +132,7 @@ export default async function KontoPage() {
           </Card>
 
           <Card>
-            <h3 className="h-3">Vad du kan göra här</h3>
+            <h3 className="heading-3">Vad du kan göra här</h3>
             <ul className="mt-6 flex flex-col gap-4 text-sm" style={{ color: "var(--color-ink-2)" }}>
               {arInsamlare && (
                 <li className="flex items-start gap-3">

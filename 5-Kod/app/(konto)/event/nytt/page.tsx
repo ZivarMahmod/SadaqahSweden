@@ -24,7 +24,7 @@ export default async function NyttEvent() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Nytt event</h1>
+        <h1 className="heading-2">Nytt event</h1>
         <p className="lead mt-2 max-w-2xl">
           Skapa ett utkast — när allt är ifyllt kan du skicka det för granskning.
           Föreningar med tre rena event går direkt till publicering med stickprov.

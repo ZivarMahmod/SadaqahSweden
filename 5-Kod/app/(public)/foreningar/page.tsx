@@ -70,7 +70,7 @@ export default async function ForeningarKatalog({ searchParams }: { searchParams
       <Section tone="paper" spacing="tight">
         <Container>
           <span className="eyebrow">KATALOG</span>
-          <h1 className="h-1 mt-3">Föreningar & moskéer</h1>
+          <h1 className="heading-1 mt-3">Föreningar & moskéer</h1>
           <p className="lead mt-3" style={{ maxWidth: "60ch" }}>
             En självregistrerad lista över muslimska föreningar och moskéer i
             Sverige — granskade innan publicering. Letar du efter er lokala

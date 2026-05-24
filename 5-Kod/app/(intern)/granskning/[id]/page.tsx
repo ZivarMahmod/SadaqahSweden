@@ -98,14 +98,14 @@ export default async function GranskarArendePage({ params }: { params: Params })
             </Pill>
           )}
         </div>
-        <h1 className="h-1 mt-4">{ins.titel}</h1>
+        <h1 className="heading-1 mt-4">{ins.titel}</h1>
         <p className="lead mt-3">{ins.kort_beskrivning}</p>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[2fr_1fr]">
           {/* Vänster: innehåll + checklista */}
           <div className="flex flex-col gap-6">
             <Card>
-              <h2 className="h-3">Beskrivning</h2>
+              <h2 className="heading-3">Beskrivning</h2>
               <p
                 className="mt-4 whitespace-pre-wrap text-base leading-relaxed"
                 style={{ color: "var(--color-ink-1)" }}
@@ -115,7 +115,7 @@ export default async function GranskarArendePage({ params }: { params: Params })
             </Card>
 
             <Card>
-              <h2 className="h-3">Mottagare</h2>
+              <h2 className="heading-3">Mottagare</h2>
               <p
                 className="mt-2 text-sm"
                 style={{ color: "var(--color-ink-3)" }}
@@ -128,13 +128,13 @@ export default async function GranskarArendePage({ params }: { params: Params })
 
             {ins.tillat_overmal && ins.overmalsplan && (
               <Card>
-                <h2 className="h-3">Övermålsplan</h2>
+                <h2 className="heading-3">Övermålsplan</h2>
                 <p className="mt-3">{ins.overmalsplan}</p>
               </Card>
             )}
 
             <Card>
-              <h2 className="h-3">Granskningschecklista</h2>
+              <h2 className="heading-3">Granskningschecklista</h2>
               <p
                 className="mt-2 text-xs"
                 style={{ color: "var(--color-ink-3)" }}
@@ -185,7 +185,7 @@ export default async function GranskarArendePage({ params }: { params: Params })
           {/* Höger: meta + insamlare + beslutspanel */}
           <aside className="flex flex-col gap-6">
             <Card variant="tight">
-              <h3 className="h-3">Mål & tid</h3>
+              <h3 className="heading-3">Mål & tid</h3>
               <dl className="mt-4 flex flex-col gap-3 text-sm">
                 <Row label="Insamlat">
                   <span className="tabular" style={{ fontFamily: "var(--font-mono)" }}>
@@ -216,7 +216,7 @@ export default async function GranskarArendePage({ params }: { params: Params })
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Insamlaren</h3>
+              <h3 className="heading-3">Insamlaren</h3>
               {insamlare ? (
                 <dl className="mt-4 flex flex-col gap-3 text-sm">
                   <Row label="Namn">{insamlare.visningsnamn}</Row>
@@ -264,7 +264,7 @@ export default async function GranskarArendePage({ params }: { params: Params })
             />
 
             <Card variant="tight">
-              <h3 className="h-3">Historik</h3>
+              <h3 className="heading-3">Historik</h3>
               <ul className="mt-4 flex flex-col gap-3 text-sm">
                 {(handelser ?? []).length === 0 && (
                   <li style={{ color: "var(--color-ink-3)" }}>Inga händelser än.</li>

@@ -15,7 +15,7 @@ export default function StripeRefreshPage() {
     <Section tone="paper" spacing="default">
       <Container width="narrow">
         <span className="eyebrow">STRIPE</span>
-        <h1 className="h-1 mt-3">Länken gick ut</h1>
+        <h1 className="heading-1 mt-3">Länken gick ut</h1>
         <p className="lead mt-3">
           Stripes onboarding-länkar är kortlivade av säkerhetsskäl. Klicka nedan för
           att fortsätta där du var.
@@ -28,7 +28,7 @@ export default function StripeRefreshPage() {
                 <Icon name="refresh-cw" size={24} />
               </span>
               <div className="flex-1">
-                <h3 className="h-3">Fortsätt onboarding</h3>
+                <h3 className="heading-3">Fortsätt onboarding</h3>
                 <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Vi öppnar Stripes onboarding-flow på nytt — du fortsätter där du var.
                 </p>

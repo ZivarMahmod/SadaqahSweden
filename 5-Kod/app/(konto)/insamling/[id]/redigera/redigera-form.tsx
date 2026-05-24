@@ -81,7 +81,7 @@ export function RedigeraForm({ insamling }: { insamling: InsamlingForm }) {
   return (
     <form action={spara} className="mt-10 flex flex-col gap-6">
       <Card>
-        <h2 className="h-3">Innehåll</h2>
+        <h2 className="heading-3">Innehåll</h2>
         <div className="mt-5 flex flex-col gap-4">
           <Field label="Titel" htmlFor="titel" required help="Max 80 tecken — vad insamlingen heter publikt.">
             <Input
@@ -128,7 +128,7 @@ export function RedigeraForm({ insamling }: { insamling: InsamlingForm }) {
       </Card>
 
       <Card>
-        <h2 className="h-3">Mottagare</h2>
+        <h2 className="heading-3">Mottagare</h2>
         <div className="mt-5 flex flex-col gap-4">
           <Field label="Mottagar-typ" htmlFor="mottagare_typ" required>
             <Select
@@ -163,7 +163,7 @@ export function RedigeraForm({ insamling }: { insamling: InsamlingForm }) {
       </Card>
 
       <Card>
-        <h2 className="h-3">Plats</h2>
+        <h2 className="heading-3">Plats</h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <Field label="Land där hjälpen landar" htmlFor="hjalp_land" required>
             <Input id="hjalp_land" name="hjalp_land" defaultValue={insamling.hjalp_land} required />
@@ -190,7 +190,7 @@ export function RedigeraForm({ insamling }: { insamling: InsamlingForm }) {
       </Card>
 
       <Card>
-        <h2 className="h-3">Mål & tid</h2>
+        <h2 className="heading-3">Mål & tid</h2>
         <div className="mt-5 flex flex-col gap-4">
           <Field label="Målbelopps-modell" htmlFor="malbelopp_modell" required>
             <Select

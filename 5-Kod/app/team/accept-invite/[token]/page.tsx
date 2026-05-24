@@ -26,7 +26,7 @@ export default async function AcceptInvite({ params }: { params: Params }) {
       <Section tone="paper" spacing="default">
         <Container width="narrow">
           <Card variant="loose">
-            <h1 className="h-3">Logga in för att acceptera inbjudan</h1>
+            <h1 className="heading-3">Logga in för att acceptera inbjudan</h1>
             <p className="mt-3" style={{ color: "var(--color-ink-2)" }}>
               Skapa konto eller logga in med exakt den e-post som inbjudan
               skickats till. Återvänd hit efter inloggning.
@@ -59,7 +59,7 @@ export default async function AcceptInvite({ params }: { params: Params }) {
       <Section tone="paper" spacing="default">
         <Container width="narrow">
           <Card variant="loose">
-            <h1 className="h-3">Kunde inte lösa in inbjudan</h1>
+            <h1 className="heading-3">Kunde inte lösa in inbjudan</h1>
             <p className="mt-3" style={{ color: "var(--color-danger)" }}>{error.message}</p>
             <Link href="/konto" className="btn btn-secondary btn-sm mt-4 inline-flex">
               Till mitt konto

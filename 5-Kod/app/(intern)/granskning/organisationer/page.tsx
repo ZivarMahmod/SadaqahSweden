@@ -33,7 +33,7 @@ export default async function OrgKo() {
           </LinkButton>
           <Pill tone="forest">M10</Pill>
         </div>
-        <h1 className="h-1 mt-4">Föreningar att granska</h1>
+        <h1 className="heading-1 mt-4">Föreningar att granska</h1>
         <p className="lead mt-2 max-w-[60ch]">
           Endast muslimska föreningar och moskéer (M10 B2.4). Kontrollera
           org.nr mot offentligt register, verifiera kontaktväg, bedöm
@@ -69,7 +69,7 @@ export default async function OrgKo() {
                           Anmäld {datum(o.created_at)}
                         </span>
                       </div>
-                      <h3 className="h-3 mt-2">{o.namn}</h3>
+                      <h3 className="heading-3 mt-2">{o.namn}</h3>
                       <p className="mt-1 text-xs uppercase" style={{ letterSpacing: "0.08em", color: "var(--color-copper-deep)" }}>
                         {o.organisationstyp} · {o.stad}, {o.region}
                       </p>

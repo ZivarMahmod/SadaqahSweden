@@ -34,7 +34,7 @@ export default async function MinProfilPage() {
             Tillbaka till konto
           </LinkButton>
         </div>
-        <h1 className="h-1 mt-4">Min profil</h1>
+        <h1 className="heading-1 mt-4">Min profil</h1>
         <p className="lead mt-2">
           Det här är vad andra ser. Vill du dölja något – kryssa av i Integritet
           längst ner.
@@ -52,7 +52,7 @@ export default async function MinProfilPage() {
             />
           </Card>
           <Card variant="tight">
-            <h3 className="h-3">Förhandsvy</h3>
+            <h3 className="heading-3">Förhandsvy</h3>
             <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
               Öppna din publika profil i en ny flik — så ser besökare ut den
               just nu.
@@ -72,7 +72,7 @@ export default async function MinProfilPage() {
         {/* F7: paus av team-roll — synligt bara för team-konton (även när pausade). */}
         {(me.profil.roll === "granskare" || me.profil.roll === "admin") && (
           <Card className="mt-8">
-            <h2 className="h-2">Team-roll</h2>
+            <h2 className="heading-2">Team-roll</h2>
             <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
               En person = ett konto. Pausa team-rollen om du tillfälligt vill
               agera som vanlig insamlare för en egen insamling.
@@ -88,7 +88,7 @@ export default async function MinProfilPage() {
         )}
 
         <Card className="mt-8">
-          <h2 className="h-2">Notiser</h2>
+          <h2 className="heading-2">Notiser</h2>
           <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
             Plattformen pratar sällan men i rätt stund. Du styr per grupp och
             kanal — transaktionella kvitton kan inte stängas av (det vore som

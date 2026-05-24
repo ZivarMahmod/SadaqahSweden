@@ -56,7 +56,7 @@ export default async function TackPage({
             <span style={{ color: "var(--color-copper)" }}>
               <Icon name={bekraftad ? "shield-check" : "heart"} size={48} />
             </span>
-            <h1 className="h-1 mt-4">Tack för din gåva</h1>
+            <h1 className="heading-1 mt-4">Tack för din gåva</h1>
             <p className="lead mt-3">
               {bekraftad
                 ? "Din gåva är registrerad. Må Allah belöna dig."
@@ -65,7 +65,7 @@ export default async function TackPage({
           </div>
 
           <Card className="mt-10">
-            <h3 className="h-3">Sammanställning</h3>
+            <h3 className="heading-3">Sammanställning</h3>
             <dl className="mt-6 flex flex-col gap-3 text-sm">
               <Row label="Insamling">{i.titel}</Row>
               <Row label="Gåva">

@@ -33,14 +33,14 @@ export default async function VerktygSida() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Verktygslåda</h1>
+        <h1 className="heading-2">Verktygslåda</h1>
         <p className="lead mt-2">
           Refund-verktyget: återbetala en enskild donation eller alla
           donationer på en insamling. Varje refund loggas i
           ingreppsloggen och kan inte ångras.
         </p>
 
-        <h2 className="h-3 mt-10">Refund</h2>
+        <h2 className="heading-3 mt-10">Refund</h2>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
           Refund är ett undantag — vid bedrägeri eller fel. Pengarna flödar
           annars framåt.
@@ -71,7 +71,7 @@ export default async function VerktygSida() {
           </ul>
         )}
 
-        <h2 className="h-3 mt-12">Skyddad identitet</h2>
+        <h2 className="heading-3 mt-12">Skyddad identitet</h2>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
           M12 Block 5.3 — insamlare med skyddad identitet exkluderas från
           kommun-nivå på kartan. Län-nivån (21 grova områden) inkluderar dem.
@@ -81,7 +81,7 @@ export default async function VerktygSida() {
           <SkyddadIdentitetForm />
         </Card>
 
-        <h2 className="h-3 mt-12">MFA-nollställning (alla konton)</h2>
+        <h2 className="heading-3 mt-12">MFA-nollställning (alla konton)</h2>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
           F8/FX5 — slå upp ett konto via e-post och radera samtliga MFA-faktorer.
           Funkar för alla roller (insamlare, förening, granskare, admin) — inte

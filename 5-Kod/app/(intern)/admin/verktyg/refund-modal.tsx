@@ -80,7 +80,7 @@ export function RefundModal({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
         <div className="max-w-md rounded p-6" style={{ background: "var(--color-paper)", border: "1px solid var(--color-ink-line)" }}>
-          <h2 className="h-3">Bekräfta refund</h2>
+          <h2 className="heading-3">Bekräfta refund</h2>
           <p className="mt-3 text-sm">
             Detta refunderar <strong>{forhand.antal}</strong> donation{forhand.antal === 1 ? "" : "er"} för{" "}
             <strong>{kortBelopp(forhand.summa_ore)}</strong> på insamlingen <strong>{insamlingNamn}</strong>.
@@ -112,7 +112,7 @@ export function RefundModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.4)" }}>
       <div className="max-w-md rounded p-6" style={{ background: "var(--color-paper)", border: "1px solid var(--color-ink-line)" }}>
-        <h2 className="h-3">Initiera refund</h2>
+        <h2 className="heading-3">Initiera refund</h2>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
           Insamling: {insamlingNamn}
         </p>

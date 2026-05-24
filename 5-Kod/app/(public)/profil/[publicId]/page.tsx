@@ -122,7 +122,7 @@ export default async function ProfilPage({ params }: { params: Params }) {
                   </Pill>
                 )}
               </div>
-              <h1 className="h-1 mt-3">{p.visningsnamn ?? "Profil"}</h1>
+              <h1 className="heading-1 mt-3">{p.visningsnamn ?? "Profil"}</h1>
               {p.presentation && (
                 <p className="lead mt-3" style={{ maxWidth: "60ch" }}>
                   {p.presentation}
@@ -140,7 +140,7 @@ export default async function ProfilPage({ params }: { params: Params }) {
       {/* Track record (M9 B1.3) */}
       <Section tone="cream" spacing="tight">
         <Container width="narrow">
-          <h2 className="h-2">Track record</h2>
+          <h2 className="heading-2">Track record</h2>
           <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
             Plattformen visar fakta — du drar slutsatsen.
           </p>
@@ -165,7 +165,7 @@ export default async function ProfilPage({ params }: { params: Params }) {
       {/* Insamlingar */}
       <Section tone="paper" spacing="default">
         <Container width="narrow">
-          <h2 className="h-2">Insamlingar</h2>
+          <h2 className="heading-2">Insamlingar</h2>
 
           {arNy && (
             <div className="mt-6">
@@ -197,7 +197,7 @@ export default async function ProfilPage({ params }: { params: Params }) {
       {(badges ?? []).length > 0 && (
         <Section tone="cream" spacing="tight">
           <Container width="narrow">
-            <h2 className="h-2">Utmärkelser</h2>
+            <h2 className="heading-2">Utmärkelser</h2>
             <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
               Lugnt tack — inte ranking. Sadaqah är komplett när pengarna lämnar handen.
             </p>
@@ -214,7 +214,7 @@ export default async function ProfilPage({ params }: { params: Params }) {
                       </span>
                       <div>
                         <div className="flex items-baseline gap-2">
-                          <h3 className="h-3">{row.badge.namn}</h3>
+                          <h3 className="heading-3">{row.badge.namn}</h3>
                           {row.antal > 1 && (
                             <span className="text-xs" style={{ color: "var(--color-ink-3)" }}>
                               ×{row.antal}
@@ -261,7 +261,7 @@ function InsamlingsGrupp({
 }) {
   return (
     <div>
-      <h3 className="h-3">{titel}</h3>
+      <h3 className="heading-3">{titel}</h3>
       <div className="mt-4 grid gap-3">
         {insamlingar.map((i) => {
           const procent = procentAvMal(
@@ -292,7 +292,7 @@ function InsamlingsGrupp({
                       </span>
                     )}
                   </div>
-                  <h4 className="h-3 mt-2">{i.titel}</h4>
+                  <h4 className="heading-3 mt-2">{i.titel}</h4>
                   <p
                     className="mt-1 text-sm"
                     style={{ color: "var(--color-ink-2)" }}

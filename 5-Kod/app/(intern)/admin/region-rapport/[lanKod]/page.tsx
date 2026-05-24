@@ -45,7 +45,7 @@ export default async function Regionrapport({ params }: { params: Params }) {
   if (!agg || agg.insamlingar_antal < TROSKEL) {
     return (
       <main className="mx-auto max-w-2xl p-8">
-        <h1 className="h-2">Regionrapport — {lan.namn}</h1>
+        <h1 className="heading-2">Regionrapport — {lan.namn}</h1>
         <p
           className="mt-4 rounded-md p-4"
           style={{ background: "var(--color-paper-deep)", color: "var(--color-ink-2)" }}
@@ -84,7 +84,7 @@ export default async function Regionrapport({ params }: { params: Params }) {
         >
           <p className="eyebrow">Sadaqah Sweden — regionrapport</p>
           <h1
-            className="h-1 mt-2"
+            className="heading-1 mt-2"
             style={{ fontSize: 36 }}
           >
             {lan.namn}
@@ -96,7 +96,7 @@ export default async function Regionrapport({ params }: { params: Params }) {
         </header>
 
         <section>
-          <h2 className="h-3">Översikt</h2>
+          <h2 className="heading-3">Översikt</h2>
           <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
             <Row label="Aktiva insamlingar" v={antal(agg.aktiva_antal)} />
             <Row label="Levererade resultat" v={antal(agg.avslutade_levererade)} />
@@ -106,7 +106,7 @@ export default async function Regionrapport({ params }: { params: Params }) {
         </section>
 
         <section>
-          <h2 className="h-3">Per kommun</h2>
+          <h2 className="heading-3">Per kommun</h2>
           <table className="table mt-3" style={{ fontSize: 13 }}>
             <thead>
               <tr><th>Kommun</th><th>Insamlingar</th><th>Insamlat</th></tr>
@@ -132,7 +132,7 @@ export default async function Regionrapport({ params }: { params: Params }) {
 
         {kategorier && kategorier.length > 0 && (
           <section>
-            <h2 className="h-3">Kategori-mix</h2>
+            <h2 className="heading-3">Kategori-mix</h2>
             <table className="table mt-3" style={{ fontSize: 13 }}>
               <thead><tr><th>Kategori</th><th>Insamlingar</th><th>Insamlat</th></tr></thead>
               <tbody>

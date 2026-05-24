@@ -57,7 +57,7 @@ export function BeslutsPanel({
   if (avgjort) {
     return (
       <Card variant="tight">
-        <h3 className="h-3">Ärendet är avgjort</h3>
+        <h3 className="heading-3">Ärendet är avgjort</h3>
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
           Beslut är fattat och kan inte ändras (append-only-loggning enligt M3 Block 3.4). Vid
           felaktigt beslut: kontakta admin för manuell åtgärd.
@@ -140,7 +140,7 @@ export function BeslutsPanel({
 
   return (
     <Card>
-      <h3 className="h-3">Fatta beslut</h3>
+      <h3 className="heading-3">Fatta beslut</h3>
 
       {!ar_mitt_arende && (
         <div

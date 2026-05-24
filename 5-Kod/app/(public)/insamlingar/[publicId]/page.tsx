@@ -91,7 +91,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
               {i.hjalp_plats ? ` (${i.hjalp_plats})` : ""}
             </span>
           </div>
-          <h1 className="h-1 mt-5">{i.titel}</h1>
+          <h1 className="heading-1 mt-5">{i.titel}</h1>
           <p className="lead mt-4">{i.kort_beskrivning}</p>
         </Container>
       </Section>
@@ -183,7 +183,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
         <Container width="narrow">
           <div className="grid gap-12 md:grid-cols-[2fr_1fr]">
             <article>
-              <h2 className="h-2">Om insamlingen</h2>
+              <h2 className="heading-2">Om insamlingen</h2>
               <p
                 className="mt-6 whitespace-pre-wrap text-base leading-relaxed"
                 style={{ color: "var(--color-ink-1)" }}
@@ -191,7 +191,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
                 {i.lang_beskrivning}
               </p>
 
-              <h2 className="h-3 mt-12">Mottagare</h2>
+              <h2 className="heading-3 mt-12">Mottagare</h2>
               <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
                 {humanMottagare(i.mottagare_typ)}
               </p>
@@ -201,7 +201,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
 
               {i.tillat_overmal && i.overmalsplan && (
                 <>
-                  <h2 className="h-3 mt-12">Vad händer vid övermål</h2>
+                  <h2 className="heading-3 mt-12">Vad händer vid övermål</h2>
                   <p className="mt-3" style={{ color: "var(--color-ink-1)" }}>
                     {i.overmalsplan}
                   </p>
@@ -211,7 +211,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
 
             <aside>
               <Card variant="tight">
-                <h3 className="h-3">Granskningslöftet</h3>
+                <h3 className="heading-3">Granskningslöftet</h3>
                 <ul className="mt-4 flex flex-col gap-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   <li className="flex items-start gap-2">
                     <span style={{ color: "var(--color-copper)" }}>
@@ -236,7 +236,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
 
               {i.profiles && (
                 <Card variant="tight" className="mt-4">
-                  <h3 className="h-3">Insamlaren</h3>
+                  <h3 className="heading-3">Insamlaren</h3>
                   <p className="mt-3 text-sm" style={{ color: "var(--color-ink-1)" }}>
                     {i.profiles.visningsnamn}
                     {i.profiles.ar_organisation ? " (förening)" : ""}
@@ -261,7 +261,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
               )}
 
               <Card variant="tight" className="mt-4">
-                <h3 className="h-3">Dela</h3>
+                <h3 className="heading-3">Dela</h3>
                 <p className="mt-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Sprid insamlingen i ditt nätverk — varje delning är sadaqah jariyah.
                 </p>

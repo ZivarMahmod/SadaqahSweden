@@ -36,7 +36,7 @@ export default async function StripeOnboardingPage() {
     <Section tone="paper" spacing="default">
       <Container width="narrow">
         <span className="eyebrow">STRIPE-ONBOARDING</span>
-        <h1 className="h-1 mt-3">Koppla Stripe</h1>
+        <h1 className="heading-1 mt-3">Koppla Stripe</h1>
         <p className="lead mt-3">
           För att din insamling ska kunna ta emot donationer måste du verifiera ditt Stripe-konto.
           Stripe sköter identitet och bankuppgifter — plattformen ser aldrig ditt kontonummer.
@@ -45,7 +45,7 @@ export default async function StripeOnboardingPage() {
         <div className="mt-10 grid gap-6">
           <Card>
             <div className="flex items-center justify-between gap-4">
-              <h3 className="h-3">Status</h3>
+              <h3 className="heading-3">Status</h3>
               {inteOnboardatAn ? (
                 <Pill tone="paper">Ej kopplat</Pill>
               ) : klart ? (
@@ -92,7 +92,7 @@ export default async function StripeOnboardingPage() {
           </Card>
 
           <Card>
-            <h3 className="h-3">Hur det fungerar</h3>
+            <h3 className="heading-3">Hur det fungerar</h3>
             <ol className="mt-6 flex flex-col gap-3 text-sm" style={{ color: "var(--color-ink-2)" }}>
               <li>
                 <strong>1. Starta onboarding</strong> — du skickas till Stripes hostade flow.

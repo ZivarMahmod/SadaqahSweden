@@ -16,7 +16,7 @@ export default function StripeReturPage() {
     <Section tone="paper" spacing="default">
       <Container width="narrow">
         <span className="eyebrow">STRIPE</span>
-        <h1 className="h-1 mt-3">Tack — vi tar det härifrån</h1>
+        <h1 className="heading-1 mt-3">Tack — vi tar det härifrån</h1>
         <p className="lead mt-3">
           Stripe verifierar dina uppgifter. Det går oftast på minuter, men ibland tar
           det längre. Du får en notis när allt är klart.
@@ -28,7 +28,7 @@ export default function StripeReturPage() {
               <Icon name="shield-check" size={24} />
             </span>
             <div>
-              <h3 className="h-3">Vad händer nu</h3>
+              <h3 className="heading-3">Vad händer nu</h3>
               <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
                 När Stripe har verifierat ditt konto kan du publicera insamlingar
                 och börja ta emot donationer.

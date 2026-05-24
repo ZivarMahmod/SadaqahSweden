@@ -40,7 +40,7 @@ export default async function MfaChallenge({ searchParams }: { searchParams: Sea
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <h1 className="h-2">Verifiera 2FA</h1>
+        <h1 className="heading-2">Verifiera 2FA</h1>
         <p className="lead mt-2">
           Ange den 6-siffriga koden från din Authenticator-app för att
           fortsätta till team-arbetsytan.

@@ -155,7 +155,7 @@ export default async function InsamlingarPage({ searchParams }: { searchParams: 
         <Container>
           <div className="flex flex-col gap-3">
             <span className="eyebrow">INSAMLINGAR</span>
-            <h1 className="h-1">
+            <h1 className="heading-1">
               {valdKat ? `Insamlingar — ${valdKat.namn}` : "Granskade insamlingar"}
             </h1>
             <p className="lead max-w-[640px]">

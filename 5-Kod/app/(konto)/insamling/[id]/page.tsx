@@ -112,14 +112,14 @@ export default async function InsamlingDashboard({ params }: { params: Params })
             <Pill tone="copper">Stripe-onboarding saknas</Pill>
           )}
         </div>
-        <h1 className="h-1 mt-4">{i.titel}</h1>
+        <h1 className="heading-1 mt-4">{i.titel}</h1>
         <p className="lead mt-2">{i.kort_beskrivning}</p>
 
         <div className="mt-10 grid gap-8 md:grid-cols-[2fr_1fr]">
           {/* Vänster: transparens-flöde + actions */}
           <div className="flex flex-col gap-8">
             <Card>
-              <h2 className="h-3">Transparens-loopen</h2>
+              <h2 className="heading-3">Transparens-loopen</h2>
               <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
                 Start och utbetalning skapas automatiskt av plattformen.
                 Resultat-bevis postar du själv när det lovade är genomfört.
@@ -131,7 +131,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
 
             {kanPostaUppdatering && (
               <Card>
-                <h2 className="h-3">Fri uppdatering</h2>
+                <h2 className="heading-3">Fri uppdatering</h2>
                 <div className="mt-4">
                   <UppdateringForm insamlingId={i.id} />
                 </div>
@@ -141,7 +141,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
             {kanPostaResultat && (
               <Card>
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="h-3">Resultat-bevis</h2>
+                  <h2 className="heading-3">Resultat-bevis</h2>
                   <Pill tone="copper">M7 Bevis 3</Pill>
                 </div>
                 <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
@@ -157,7 +157,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
 
             {i.status === "avslutad_levererad" && (
               <Card variant="forest">
-                <h2 className="h-3">Loopen är sluten</h2>
+                <h2 className="heading-3">Loopen är sluten</h2>
                 <p className="mt-2" style={{ color: "var(--color-ink-2)" }}>
                   Tack — du levererade. Historiken följer dig och insamlingens
                   publika sida visar nu hela resan.
@@ -173,7 +173,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
               <Card>
                 <div className="flex items-center gap-2">
                   <Icon name="flag" size={18} />
-                  <h2 className="h-3">Överklagande inlämnat</h2>
+                  <h2 className="heading-3">Överklagande inlämnat</h2>
                 </div>
                 <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Status: <strong>{befintligOverklagan.status}</strong>.{" "}
@@ -186,7 +186,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
 
             {i.status === "avslutad_utan_resultat" && (
               <Card variant="tight">
-                <h2 className="h-3">Avslutad utan resultat</h2>
+                <h2 className="heading-3">Avslutad utan resultat</h2>
                 <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
                   Inget resultat-bevis kom in inom tidsramen. Du kan fortfarande
                   posta en fri uppdatering om läget — historiken visas neutralt
@@ -199,7 +199,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
           {/* Höger: meta + länkar */}
           <aside className="flex flex-col gap-6">
             <Card variant="tight">
-              <h3 className="h-3">Insamlat</h3>
+              <h3 className="heading-3">Insamlat</h3>
               <div className="mt-4">
                 <div
                   className="tabular"
@@ -235,7 +235,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Länkar</h3>
+              <h3 className="heading-3">Länkar</h3>
               <div className="mt-4 flex flex-col gap-2">
                 {arPublik && (
                   <LinkButton
@@ -259,7 +259,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Community</h3>
+              <h3 className="heading-3">Community</h3>
               <div className="mt-3">
                 <KommentarerToggle
                   insamlingId={i.id}
@@ -270,7 +270,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Säkerhet</h3>
+              <h3 className="heading-3">Säkerhet</h3>
               <ul className="mt-3 flex flex-col gap-2 text-xs" style={{ color: "var(--color-ink-2)" }}>
                 <li className="flex items-start gap-2">
                   <span style={{ color: "var(--color-copper)" }}>

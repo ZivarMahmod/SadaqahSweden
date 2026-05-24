@@ -105,7 +105,7 @@ export async function TransparensTidslinje({
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="h-2">Transparens-loopen</h2>
+          <h2 className="heading-2">Transparens-loopen</h2>
           <p className="lead mt-2" style={{ maxWidth: "60ch" }}>
             Start, utbetalning, resultat — tre obligatoriska punkter, plus fria
             uppdateringar däremellan. Plattformen visar fakta, drar inga

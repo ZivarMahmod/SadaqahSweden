@@ -488,7 +488,7 @@ function OmradePanel({
       <div className="flex items-start justify-between gap-3">
         <div>
           <span className="eyebrow">{eyebrow}</span>
-          <h3 className="h-3 mt-1">{titel}</h3>
+          <h3 className="heading-3 mt-1">{titel}</h3>
         </div>
         <button
           type="button"

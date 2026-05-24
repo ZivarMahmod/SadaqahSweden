@@ -56,12 +56,12 @@ export default async function GranskaOrg({ params }: { params: Params }) {
         <LinkButton href="/granskning/organisationer" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
           Tillbaka till kön
         </LinkButton>
-        <h1 className="h-1 mt-4">{o.namn}</h1>
+        <h1 className="heading-1 mt-4">{o.namn}</h1>
         <p className="lead mt-2">{o.beskrivning}</p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-[2fr_1fr]">
           <Card>
-            <h2 className="h-3">Ansökningsuppgifter</h2>
+            <h2 className="heading-3">Ansökningsuppgifter</h2>
             <dl className="mt-4 grid grid-cols-[140px_1fr] gap-x-4 gap-y-3 text-sm">
               <dt style={{ color: "var(--color-ink-3)" }}>Typ</dt>
               <dd>{o.organisationstyp}</dd>
@@ -86,7 +86,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
 
           <aside className="flex flex-col gap-4">
             <Card variant="tight">
-              <h3 className="h-3">Insändare</h3>
+              <h3 className="heading-3">Insändare</h3>
               <p className="mt-2 text-sm">{o.profiles?.visningsnamn ?? "okänd"}</p>
               <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
                 <code style={{ fontFamily: "var(--font-mono)" }}>
@@ -96,7 +96,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Checklista</h3>
+              <h3 className="heading-3">Checklista</h3>
               <ul className="mt-3 flex flex-col gap-2 text-xs" style={{ color: "var(--color-ink-2)" }}>
                 <li>Är detta en muslimsk förening eller moské? (M10 B2.4)</li>
                 <li>Stämmer org.nr mot offentligt register?</li>
@@ -106,7 +106,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Kontaktperson (förening)</h3>
+              <h3 className="heading-3">Kontaktperson (förening)</h3>
               <p className="mt-2 text-sm">{o.kontaktperson_namn ?? "—"}</p>
               <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
                 <code style={{ fontFamily: "var(--font-mono)" }}>
@@ -116,7 +116,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
-              <h3 className="h-3">Beslut</h3>
+              <h3 className="heading-3">Beslut</h3>
               <div className="mt-3">
                 <OrgGranskarPanel orgId={o.id} />
               </div>
@@ -124,7 +124,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
 
             {(o.katalog_status === "publicerad" || o.forenings_konto_user_id) && (
               <Card variant="tight">
-                <h3 className="h-3">Förenings-konto</h3>
+                <h3 className="heading-3">Förenings-konto</h3>
                 <div className="mt-3">
                   <AktiveraForeningsKontoKnapp
                     orgId={o.id}
@@ -136,7 +136,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
 
             {arSuperadmin && o.forenings_konto_user_id && (
               <Card variant="tight">
-                <h3 className="h-3">Region-admin (federation)</h3>
+                <h3 className="heading-3">Region-admin (federation)</h3>
                 <div className="mt-3">
                   <UppgraderaRegionAdminForm
                     orgId={o.id}
