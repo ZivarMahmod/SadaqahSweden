@@ -38,11 +38,15 @@ export const aktuellAnvandare = cache(
       return null;
     }
 
+    // F7: pausad team-roll -> agera som insamlare. Speglar DB-helper
+    // private.aktuell_roll() så server components inte ser "admin" när rollen
+    // är pausad.
+    const pausad = profil.team_roll_pausad_at != null;
     return {
       userId: user.id,
       epost: user.email ?? profil.e_post,
       profil,
-      roll: profil.roll,
+      roll: pausad ? ("insamlare" as Roll) : profil.roll,
     };
   },
 );

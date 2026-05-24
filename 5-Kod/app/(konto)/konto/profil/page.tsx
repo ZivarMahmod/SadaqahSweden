@@ -8,6 +8,7 @@ import { LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { ProfilForm } from "./profil-form";
 import { NotisPrefForm } from "./notis-pref-form";
+import { TeamRollPaus } from "./team-roll-paus";
 
 export const metadata = {
   title: "Min profil — Sadaqah Sweden",
@@ -67,6 +68,24 @@ export default async function MinProfilPage() {
             </LinkButton>
           </Card>
         </div>
+
+        {/* F7: paus av team-roll — synligt bara för team-konton (även när pausade). */}
+        {(me.profil.roll === "granskare" || me.profil.roll === "admin") && (
+          <Card className="mt-8">
+            <h2 className="h-2">Team-roll</h2>
+            <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
+              En person = ett konto. Pausa team-rollen om du tillfälligt vill
+              agera som vanlig insamlare för en egen insamling.
+            </p>
+            <div className="mt-4">
+              <TeamRollPaus
+                arPausad={me.profil.team_roll_pausad_at != null}
+                pausadSkal={me.profil.team_roll_pausad_skal ?? null}
+                pausadAt={me.profil.team_roll_pausad_at ?? null}
+              />
+            </div>
+          </Card>
+        )}
 
         <Card className="mt-8">
           <h2 className="h-2">Notiser</h2>

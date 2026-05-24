@@ -2023,6 +2023,8 @@ export type Database = {
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
           team_inaktiverad_at: string | null
+          team_roll_pausad_at: string | null
+          team_roll_pausad_skal: string | null
           updated_at: string
           visa_stad: boolean
           visa_total_summa: boolean
@@ -2050,6 +2052,8 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
+          team_roll_pausad_at?: string | null
+          team_roll_pausad_skal?: string | null
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -2077,6 +2081,8 @@ export type Database = {
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
+          team_roll_pausad_at?: string | null
+          team_roll_pausad_skal?: string | null
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -2819,6 +2825,7 @@ export type Database = {
         }
         Returns: string
       }
+      aterstall_team_roll: { Args: never; Returns: undefined }
       avvisa_resultat_bevis: {
         Args: { p_bevis_id: string; p_motivering: string }
         Returns: undefined
@@ -2889,6 +2896,7 @@ export type Database = {
         Returns: undefined
       }
       markera_notis_last: { Args: { p_notis_id: string }; Returns: undefined }
+      pausa_team_roll: { Args: { p_skal: string }; Returns: undefined }
       posta_kommentar: {
         Args: {
           p_insamling_id: string
