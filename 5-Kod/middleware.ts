@@ -39,7 +39,7 @@ const MFA_LIFT_EXEMPT = [
 // admin_niva styr vad användaren ser efteråt. Subdomänen är en INGÅNG,
 // inte säkerhetsgränsen — F1's RLS är säkerheten i djupet.
 const PUBLIK_HOST = "sadaqahsweden.se";
-const REGIONALADMIN_HOST = "regionaladmin.sadaqahsweden.se";
+const ADMIN_HOST = "admin.sadaqahsweden.se";
 const SUPERADMIN_HOST = "superadmin.sadaqahsweden.se";
 
 function arInternZon(path: string): boolean {
@@ -50,9 +50,9 @@ function arMfaLiftExempt(path: string): boolean {
   return MFA_LIFT_EXEMPT.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
-function detekteraHost(request: NextRequest): "publik" | "regionaladmin" | "superadmin" | "okand" {
+function detekteraHost(request: NextRequest): "publik" | "admin" | "superadmin" | "okand" {
   const host = (request.headers.get("host") ?? "").toLowerCase();
-  if (host === REGIONALADMIN_HOST) return "regionaladmin";
+  if (host === ADMIN_HOST) return "admin";
   if (host === SUPERADMIN_HOST) return "superadmin";
   if (host === PUBLIK_HOST || host === `www.${PUBLIK_HOST}`) return "publik";
   return "okand";
@@ -68,14 +68,14 @@ export async function middleware(request: NextRequest) {
   // Steg 2 (F6): host-baserad routning.
   if (host === "publik") {
     // Publika domänen exponerar INTE admin-/granskar-ingångar. Direktanrop
-    // hit -> redirect till regionaladmin-subdomänen (delad landning).
+    // hit -> redirect till admin-subdomänen (delad landning).
     if (path.startsWith("/admin") || path.startsWith("/granskning") || path.startsWith("/team")) {
       const url = new URL(request.nextUrl.toString());
-      url.host = REGIONALADMIN_HOST;
+      url.host = ADMIN_HOST;
       url.protocol = "https:";
       return NextResponse.redirect(url, 308);
     }
-  } else if (host === "regionaladmin" || host === "superadmin") {
+  } else if (host === "admin" || host === "superadmin") {
     // Admin-subdomänernas rotväg leder till samma admin-landning.
     if (path === "/" || path === "") {
       const url = request.nextUrl.clone();

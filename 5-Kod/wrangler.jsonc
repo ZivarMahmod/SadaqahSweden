@@ -23,8 +23,14 @@
     // Pages-projektet är borttaget → custom_domain kan ta över. Cloudflare
     // hanterar DNS automatiskt (skapar/uppdaterar A/AAAA i zonen och
     // dirigerar direkt till Workern). Inga route-patterns behövs.
+    //
+    // F6/FX2: admin. + superadmin. deklareras här i koden — manuellt tillagda
+    // i Cloudflare-dashboarden raderas vid `wrangler deploy` (reconcileras mot
+    // denna lista). Versionshanterat = överlever varje framtida deploy.
     { "pattern": "sadaqahsweden.se", "custom_domain": true },
-    { "pattern": "www.sadaqahsweden.se", "custom_domain": true }
+    { "pattern": "www.sadaqahsweden.se", "custom_domain": true },
+    { "pattern": "admin.sadaqahsweden.se", "custom_domain": true },
+    { "pattern": "superadmin.sadaqahsweden.se", "custom_domain": true }
   ],
   "vars": {
     // Publika (klient-safe) miljövariabler. Bygger in i Worker-bundeln.

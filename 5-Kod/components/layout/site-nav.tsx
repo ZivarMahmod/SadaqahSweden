@@ -21,7 +21,7 @@ export async function SiteNav() {
   const hostTyp = await aktuellHostTyp();
   // F6: publika domänen exponerar INGA admin-/granskar-ingångar i navet,
   // även om en team-medlem är inloggad. Admin-länkar visas bara på
-  // regionaladmin/superadmin-subdomänen (eller okänd host i dev/preview).
+  // admin/superadmin-subdomänen (eller okänd host i dev/preview).
   const visaInternaLankar = hostTyp !== "publik";
   const arInsamlare =
     !!me && (me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin");
