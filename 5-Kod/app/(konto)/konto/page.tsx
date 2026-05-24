@@ -27,6 +27,13 @@ export default async function KontoPage() {
   const arInsamlare = me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin";
   const arGranskare = me.roll === "granskare" || me.roll === "admin";
 
+  // F9: insamlare/förening i Stripe-pending — onboarding påbörjad men ej klar.
+  const stripePending =
+    arInsamlare
+    && me.profil.stripe_account_id != null
+    && me.profil.stripe_onboarding_klar === false;
+  const stripeEjStartad = arInsamlare && me.profil.stripe_account_id == null;
+
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
@@ -47,8 +54,62 @@ export default async function KontoPage() {
             ) : (
               <Pill tone="paper">Ej BankID-verifierad</Pill>
             )}
+            {stripePending && (
+              <Pill tone="copper">
+                <Icon name="clock" size={12} /> Stripe — väntar på godkännande
+              </Pill>
+            )}
           </div>
         </div>
+
+        {/* F9: synlig pending-status för insamlare mitt i Stripe-verifiering */}
+        {stripePending && (
+          <Card variant="tight" className="mt-6">
+            <div className="flex items-start gap-3">
+              <span style={{ color: "var(--color-copper)" }}>
+                <Icon name="clock" size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold">Stripe-verifiering pågår</h3>
+                <p className="mt-1 text-sm" style={{ color: "var(--color-ink-2)" }}>
+                  Ditt Stripe-konto är skapat men ännu inte godkänt. Det tar
+                  vanligtvis ett par dagar. När Stripe är klar flippar statusen
+                  automatiskt och du blir fullvärdig insamlare.
+                </p>
+                <div className="mt-3">
+                  <LinkButton
+                    href="/stripe/onboarding"
+                    size="sm"
+                    variant="secondary"
+                    leftIcon={<Icon name="external" size={14} />}
+                  >
+                    Komplettera Stripe-uppgifter
+                  </LinkButton>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
+        {stripeEjStartad && (
+          <Card variant="tight" className="mt-6">
+            <div className="flex items-start gap-3">
+              <span style={{ color: "var(--color-copper)" }}>
+                <Icon name="shield" size={18} />
+              </span>
+              <div>
+                <h3 className="text-sm font-semibold">Stripe-onboarding krävs</h3>
+                <p className="mt-1 text-sm" style={{ color: "var(--color-ink-2)" }}>
+                  För att kunna ta emot donationer behöver du starta Stripe-onboarding.
+                </p>
+                <div className="mt-3">
+                  <LinkButton href="/stripe/onboarding" size="sm">
+                    Starta Stripe-onboarding
+                  </LinkButton>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           <Card>

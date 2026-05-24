@@ -64,6 +64,16 @@ export default async function AdminDriftoversikt() {
     supabase.rpc("region_ko_oversikt"),
   ]);
 
+  // F9: insamlare i Stripe-pending (har account_id men ej onboarding_klar).
+  const { data: pendingInsamlare } = await supabase
+    .from("profiles")
+    .select("public_id, visningsnamn, e_post, stripe_account_id, created_at")
+    .in("roll", ["insamlare", "forening"])
+    .not("stripe_account_id", "is", null)
+    .eq("stripe_onboarding_klar", false)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
   const lc = (lifecycle ?? []).reduce<Record<string, number>>((acc, r) => {
     acc[r.status] = (acc[r.status] ?? 0) + 1;
     return acc;
@@ -243,6 +253,30 @@ export default async function AdminDriftoversikt() {
                 </tbody>
               </table>
             </div>
+          </Card>
+        )}
+
+        {/* F9: insamlare med pending Stripe-onboarding */}
+        {pendingInsamlare && pendingInsamlare.length > 0 && (
+          <Card variant="tight" className="mt-8">
+            <h3 className="h-3">Stripe-pending insamlare ({pendingInsamlare.length})</h3>
+            <p className="mt-2 text-xs" style={{ color: "var(--color-ink-3)" }}>
+              Insamlare som har påbörjat Stripe-onboarding men inte godkänts än.
+              Webhook account.updated flippar status automatiskt.
+            </p>
+            <ul className="mt-4 flex flex-col gap-2 text-sm">
+              {pendingInsamlare.map((p) => (
+                <li key={p.public_id} className="flex items-center justify-between gap-3" style={{ borderTop: "1px solid var(--color-ink-line)", paddingTop: 8 }}>
+                  <span>
+                    <strong>{p.visningsnamn}</strong>{" "}
+                    <span style={{ color: "var(--color-ink-3)" }}>· {p.e_post}</span>
+                  </span>
+                  <code style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--color-ink-3)" }}>
+                    {p.stripe_account_id}
+                  </code>
+                </li>
+              ))}
+            </ul>
           </Card>
         )}
 
