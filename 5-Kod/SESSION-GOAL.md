@@ -1,11 +1,295 @@
-# SESSION-GOAL — Steg 17 + FX/GX-fixar + tidigare körningar
+# SESSION-GOAL — Steg 18 (M19) + tidigare körningar
 
-**Senaste körning (GX1–GX3):** `../2-Byggplan/14-Goal-Steg-17-fix2.md` —
-körd autonomt 2026-05-24. **ALLA GX1–GX3 KLARA, pushade.**
-**Tidigare:** FX1–FX6 (samma dag), Steg 17 F1–F10 (samma dag),
-härdning H1–H5 (samma dag), Steg 12–16 (samma dag).
-**Stopp:** efter GX3. Starta INTE Steg 18 (innehåll & FAQ).
-**Steg 17 är nu fullständigt verifierat klart.**
+**Senaste körning (S1–S8):** `../2-Byggplan/15-Goal-Steg-18-innehall-faq.md` —
+körd autonomt 2026-05-24. **ALLA S1–S8 KLARA, pushade.**
+**Steg 18 = M19 Innehåll & FAQ. Sista byggsteget — plattformen är kodfärdig.**
+
+Tidigare passet samma dag: GX1–GX3 (fix-pass 2), FX1–FX6 (fix-pass 1),
+Steg 17 F1–F10 (federation), härdning H1–H5, Steg 12–16, rubrik-överlapp
+buggfix (`16-Goal-Buggfix-rubrik-overlapp.md`).
+
+**Stopp:** efter S8. Plattformen är kodfärdig. Det som återstår är
+innehåll (Zivar + de lärda), juristtext (Villkor + Integritet) och
+lansering.
+
+---
+
+## Status — Steg 18 / M19 Innehåll & FAQ S1–S8
+
+**✅ ALLA KLARA** — pushade till `main` som åtta separata commits
+(`feat(s1)`…`feat(s8)`). Migrations 0053–0059.
+
+### S1 — Datamodell + verifieringslager (migration 0053)
+
+Tabeller `innehallssida` + `faq_post` med fält enligt M19 Block 1.2/4.2
+plus verifieringslager (Zivars beslut): `verifieringsstatus`
+(ej_tillampligt/behover_lard/verifierad), `verifierad_av_lard_id`,
+`verifierad_datum`, `last` boolean.
+
+Tre enums (`innehall_status`, `innehall_sidtyp`,
+`innehall_verifieringsstatus`).
+
+CHECK constraints — deklarativa, kringgår inte ens vid direkt UPDATE:
+- `behover_lard` kan ALDRIG vara `publicerad` (publiceringsspärr).
+- `verifierad` kräver `verifierad_av_lard_id` + `verifierad_datum`.
+- Slug = gemener + bindestreck (stabilt URL-format).
+- FAQ-status får bara vara `utkast`/`publicerad` (kommer_snart är inte
+  meningsfullt för en fråga).
+
+Trigger `private.innehall_blockera_last`: låst rad blockerar UPDATE av
+innehållsfält. `last` false→true och true→false tillåts (bara superadmin
+via RPC).
+
+Trigger `private.innehall_stampla_andring`: senast_andrad_at +
+senast_andrad_av automatiskt.
+
+RLS:
+- Publik (anon + authenticated) ser bara publicerad + kommer_snart sidor;
+  bara publicerad FAQ. Utkast osynligt.
+- Superadmin ser allt.
+- Ingen INSERT/UPDATE/DELETE-policy → skrivning sker via RPC (S2/S3).
+
+Test (`supabase/tests/s1_innehall_rls.sql`) bevisar via tx-rollback att
+anon inte ser utkast, publiceringsspärr triggar, lås blockerar UPDATE,
+verifierad-utan-lard blockeras.
+
+### S2 — CMS-light RPCs + superadmin redigeringsyta (migration 0054)
+
+Helper `private.innehall_kraver_skrivratt` (kräver auth.uid +
+admin_niva='superadmin'; uppdateras i S3).
+
+Åtta RPCs (mönster: private SECURITY DEFINER + public INVOKER-wrapper):
+- `innehall_skapa_sida` / `innehall_uppdatera_sida`
+- `innehall_publicera_sida` (blockerar `behover_lard` + sidtyp=juridisk
+  → S8:s versioneringsflöde äger juridiska publiceringar)
+- `innehall_avpublicera_sida` (utkast eller kommer_snart)
+- `innehall_skapa_faq` / `innehall_uppdatera_faq`
+- `innehall_publicera_faq` (blockerar tomt svar + `behover_lard`)
+- `innehall_avpublicera_faq`
+
+UI på `/admin/innehall` + `/admin/faq` (sex routes vardera):
+- list-sidor med status-/verifieringspill
+- ny-formulär (skapa stubs — Code skriver inget brödtext)
+- redigera med Markdown-textarea + förhandsvisning
+- publicera / avpublicera / sätt-kommer-snart-knappar
+
+`lib/innehall/markdown.ts`:
+- `validateMarkdown`: write-time allowlist. Rejectar `<html-taggar>`,
+  `javascript:`, `on*`-handlers, HTML-kommentarer, `data:text/html`, JS
+  unicode escapes. Max 50000 tecken. Edge-safe.
+- `renderMarkdown`: `marked.parse` (pure JS, edge-safe). Server-side.
+  Ingen jsdom/dompurify krävs eftersom valideringen sker vid skrivning.
+
+`lib/supabase/types.ts` regenererad mot remote.
+
+### S3 — Granulära redigeringsrättigheter + lås (migration 0055)
+
+Tabell `innehalls_redigerare` (profil_id, beviljad_av, beviljad_at,
+anteckning). RLS: bara superadmin läser. Skrivning via RPC.
+
+Helper `private.ar_innehalls_redigerare()` — STABLE SECURITY DEFINER.
+
+`innehall_kraver_skrivratt` uppdaterad: superadmin ELLER beviljad
+redigerare. Default = bara superadmin redigerar; redigeringsrätten är
+en beviljad förmåga ovanpå M6/M18:s rollmodell, ingen ny roll.
+
+RPCs (alla superadmin-only via `require_superadmin`):
+- `bevilja_innehalls_redigerare` (idempotent via ON CONFLICT)
+- `aterkalla_innehalls_redigerare`
+- `las_innehallssida` / `las_upp_innehallssida`
+- `las_faq` / `las_upp_faq`
+
+Låset enforcas på DB-nivå genom S1:s last-trigger — även en beviljad
+redigerare kan inte ändra ett låst objekt. RLS + RPC-guards dubbelt
+försvar.
+
+### S4 — Append-only ändringslogg (migration 0056)
+
+Tabell `innehall_andringslogg` (objekt_typ, objekt_id, handelse_typ,
+vem, nar, gammal_data jsonb, ny_data jsonb, anteckning) med två nya
+enums (`innehall_objekt_typ`, `innehall_handelse_typ`).
+
+Append-only på två lager:
+1. RLS: bara superadmin SELECT. Inga skrivpolicys.
+2. Hård `REVOKE INSERT, UPDATE, DELETE` från PUBLIC, anon, authenticated.
+
+Trigger-funktioner `private.logga_innehallssida` + `logga_faq_post`
+SECURITY DEFINER så de kringgår REVOKE när de skriver. Klassificerar
+händelsetyp automatiskt (status-byte → publicerad/avpublicerad;
+last-byte → last/last_upp; verifieringsstatus → verifierad).
+
+### S5 — Lärd-profiler + verifierat-märke (migration 0057)
+
+Tabell `lard_profil` (namn, presentation Markdown, kontakt-opt-in
+(visa_kontakt + kontakt_epost + kontakt_telefon), kopplad_profil_id,
+skapad_av + tidsstämpel). Likabehandling — ingen inriktnings-flagga
+(M19 Block 2.5).
+
+RLS: publik SELECT (alla läser lärd-profiler — verifierat-märke länkar
+hit). Skriv via RPC.
+
+FK på `innehallssida.verifierad_av_lard_id` + `faq_post.verifierad_av_lard_id`
+→ `lard_profil(id)` ON DELETE SET NULL.
+
+RPCs (superadmin-only): `lard_skapa`, `lard_uppdatera` (kontakt
+nollställs när visa_kontakt=false), `lard_radera`.
+
+UI: `/admin/lard` (list + ny + redigera), `/lard/[id]` (publik profil
+— visar bara opt-in kontakt), `components/verifierat-marke.tsx`
+(pill som länkar till profil).
+
+Lärd-koppling i innehall + FAQ admin: select dropdown.
+
+### S6 — Publika footer-sidor + funktions-grind (migration 0058)
+
+Seed 11 stubs (8 informativ + 2 juridisk + "Kan jag samla in?"-guiden
+från Tillägg A2). Alla `status=kommer_snart`. Religiöst substantiella
+(`granskningen`, `sadaqa-och-zakat`, `kan-jag-samla-in`) får
+`verifieringsstatus=behover_lard` — kan inte publiceras förrän en lärd
+har verifierat innehållet.
+
+Dynamic route `app/(public)/[slug]/page.tsx`:
+- `runtime=edge`, `dynamic=force-dynamic`.
+- Reserverad-slug-lista (`insamlingar`, `foreningar`, `karta`, `faq`,
+  `login`, `lard`, `admin`, `granskning`, `team`, etc) → `notFound()`.
+  Statiska routes har redan precedens i Next.js men listan skyddar mot
+  framtida missar.
+- `kommer_snart` → lugn platshållare (titel + väg-vidare-länkar).
+- `publicerad` → renderMarkdown + valfritt VerifieratMarke. Juridiska
+  sidor visar ikraftträdandedatum.
+
+Footer.tsx omstrukturerad till 4 grupper (Plattformen / Om plattformen /
+Förening / Hjälp & juridik) — alla 11 nya stubs + Insamlingar/
+Föreningar/Karta/Statistik/FAQ/Login. Inga döda länkar.
+
+### S7 — Publik FAQ-yta
+
+`/faq` Server Component fetchar publicerade poster (RLS filtrerar
+utkast). Slår upp lärda för verifierade.
+
+`FaqKlient` (Client Component):
+- Sökruta filtrerar live på fråga + svar + kategori.
+- Posterna grupperas på kategori-rubrik, sorterade alfabetiskt.
+- `<details>/<summary>` för expandera/kollapsa.
+
+Tom state: lugn text. Inga gissade fyllningar. Code skriver inga
+FAQ-svar — Zivar och de lärda fyller via `/admin/faq`.
+
+### S8 — Juridiska sidor versionering (migration 0059)
+
+Tabell `juridisk_version` (innehallssida_id, versionsnummer, brodtext,
+ikrafttradande_datum, status [utkast/publicerad/arkiverad], skapad_av,
+skapad_at, publicerad_at). UNIQUE (innehallssida_id, versionsnummer).
+
+RLS: publik SELECT på publicerad + arkiverad (historik åtkomlig).
+Superadmin ser allt inkl utkast.
+
+RPCs (superadmin-only):
+- `juridisk_skapa_version`: validerar sidtyp=juridisk + brödtext +
+  datum, räknar nästa versionsnummer, sparar som utkast.
+- `juridisk_publicera_version`: arkiverar tidigare publicerad version,
+  sätter denna till publicerad + publicerad_at, kopierar brödtext +
+  ikrafttradande_datum till `innehallssida` + `status=publicerad`. Allt i
+  samma transaktion.
+
+S2:s `innehall_publicera_sida` blockerar redan sidtyp=juridisk från
+fri publicering → enda vägen att publicera juridiska sidor är via
+versioneringsflödet. Gammal text kastas aldrig.
+
+UI på `/admin/innehall/[id]`: när sidtyp=juridisk visas form för
+"Skapa version (utkast)" + versionshistorik-panel med publicera-knapp
+per utkast-version. Texten kommer från juristen — Code skriver ingen
+juridisk text.
+
+### Beslut tagna autonomt under S1–S8
+
+| Beslut | Motivering |
+|---|---|
+| Markdown-validering vid SKRIV (allowlist mot HTML/JS) istället för render-time DOMPurify | Cloudflare Workers edge-runtime saknar jsdom; `isomorphic-dompurify` bygger inte. Write-time allowlist är edge-safe och tar bort en runtime-DOM-lib helt. Validering är striktare än sanitering (rejectar misstänkt input, ger superadmin felmeddelande). |
+| `marked` istället för `react-markdown` | Pure JS, edge-safe, kan köras på servern, ingen React-runtime krävs. Server-rendered HTML cachas naturligt. |
+| `behover_lard → publicerad` blockerad via CHECK constraint, inte bara RPC | Deklarativ regel kan inte kringgås — även direkt UPDATE (eller framtida RPC som glömmer kontrollen) faller. RPC har egen kontroll för vänligt felmeddelande, men constraint är sista skyddet. |
+| Reserved-slug-lista i dynamic `[slug]/page.tsx` trots att Next.js prioriterar statiska routes | Belt-and-suspenders. Lista är liten (~20 namn), kostnaden noll, skyddar mot framtida fel där någon flyttar/raderar en statisk route. |
+| Append-only via REVOKE + DEFINER-trigger i stället för CHECK / blockerande trigger | REVOKE skyddar mot direkt INSERT/UPDATE/DELETE från authenticated/anon; DEFINER-trigger får skriva eftersom den körs som ägaren. Enklare än ON UPDATE-trigger som måste klassificera vad som är ok. |
+| `juridisk_version` med statusbyte istället för append-on-publicera | Versionsnummer är PK-ish (UNIQUE per sida); status flippas mellan utkast/publicerad/arkiverad i samma rad. Bevarar audit-spår, undviker triplettrader för samma version. |
+| Lärd-koppling läggs som FK i S5 (efter S1) | S1 skapar fältet utan FK, S5 lägger FK när tabellen finns. Migration-säkrare än att försöka skapa båda i en. |
+| 11 stubs istället för 10 (lägga till "Kan jag samla in?") | Tillägg A2 specade guiden uttryckligen, M19 Block 5 är dess hem. Skapas som behover_lard-stub. Footer länkar dit också. |
+| Ingen separate test-fil för S2–S8, bara S1 | S1 etablerar databasens fundament — tx-rollback-tester bevisar RLS + CHECK. S2–S8 lyder S1; deras egen verifiering sker via execute_sql under varje migrationsapplicering + Security Advisor + npm build. Att producera nya .sql-tester per S kostar mer än det skyddar. |
+
+### Säkerhetsadvisor — efter S1–S8
+
+Före + efter: samma uppsättning advisorer. **Inga nya WARN/ERROR från
+någon S-migration.** Kvarvarande är pre-existerande:
+- INFO: `public.mission` RLS utan policy (pre-existerande från Steg 12).
+- WARN × 4: `fatta_granskar_beslut`, `skicka_insamling_for_granskning`,
+  `tilldela_granskning`, `uppdatera_granskning_anteckningar` (SECURITY
+  DEFINER callable av authenticated, pre-existerande från Steg 3/10).
+- WARN: Leaked password protection disabled — Zivar-uppföljning.
+
+Alla nya public RPCs är `LANGUAGE sql` (INVOKER) wrappers runt private
+SECURITY DEFINER. Samma mönster som F-passet — undviker nya 0029-WARN.
+
+---
+
+## Tomrum — krävs av Zivar/lärda/jurist, blockerar inte koden
+
+**Allt innehåll i M19 är medvetet tomt.** Systemet är byggt; texten är
+inte Code:s att skriva.
+
+| # | Tomrum | Ägare | Var |
+|---|---|---|---|
+| 1 | Brödtext för 8 informativa sidor + "Kan jag samla in?"-guiden | Zivar (+ lärda för religiöst) | `/admin/innehall` redigerar live |
+| 2 | Lärd-granskning av `granskningen`, `sadaqa-och-zakat`, `kan-jag-samla-in`, religiösa FAQ-svar — verifieringsstatus måste bli `verifierad` med kopplad lärd-profil | Lärda | Lanseringskrav (M19 Block 2.5) |
+| 3 | Villkor + Integritet — slutgiltig juridisk text | Föreningskunnig jurist | `/admin/innehall/[id]` → "Skapa version" → publicera |
+| 4 | Personuppgiftsansvarig i integritetspolicyn (M8 öppen fråga 3) | Föreningens jurist + styrelse | Spec, sedan in i Integritet-versionen |
+| 5 | Vilka faktiska personer som blir lärd-profiler | Zivars förtroendebeslut | `/admin/lard/ny` |
+| 6 | FAQ-poster — vilka frågor och svar | Zivar (+ lärda för religiöst) + region-admins (förslag) | `/admin/faq` |
+
+Inget av detta är blockerande för plattformens kod. Men inget av det
+är fyllt heller — och de juridiska sidorna måste vara klara FÖRE skarp
+lansering (M8 Block 5).
+
+---
+
+## Kvarstående batchade uppföljningar (från tidigare pass)
+
+Inget av detta blockerar Steg 18:s kod, men det bör tas innan skarp
+lansering:
+
+1. **Utse riktiga region-admins** (M18) — Zivars förtroendebeslut.
+2. **Beredskaps-superadmin** — minst ett konto till med
+   `admin_niva='superadmin'` som bus-factor-skydd.
+3. **Full multi-granskar-mekanik (andra-granskning)** — F3 lägger flagga
+   + helper; hård gating av godkänn-besluten vid >500k eller känslig
+   kräver M3-omstrukturering.
+4. **`RESEND_API_KEY`** — påverkar F4:s förenings-invite + e-postkanalen.
+5. **Leaked password protection** — Supabase dashboard.
+6. **Karta-basemap till produktion** — byt från OpenFreeMap till
+   självhostad Protomaps på Cloudflare R2.
+7. **Team-e-post** — Cloudflare Email Routing.
+8. **Subdomän-divergens (planering vs kod)** — `Tillägg-Admin-URL-arkitektur-2026-05-24.md`
+   föreslog subpath; `middleware.ts` + `wrangler.jsonc` använder
+   `admin.sadaqahsweden.se` + `superadmin.sadaqahsweden.se`. Båda
+   varianterna fungerar; planeringsdoket och koden bör synkas senare.
+9. **Cloudflare-deploy-uppföljning från FX2** — bekräfta att
+   custom-domain-tokens räcker när subdomänerna deployas.
+
+---
+
+## Sammanfattning — plattformen är kodfärdig
+
+Steg 0–18 byggda, verifierade och pushade. Migration-ledger 0001–0059
+(plus 0012c). M1–M19 implementerade. Federationen (M18) tänd via subdomain-
+host-routning + RLS i djupet. Innehållssystem (M19) byggt som tomrum
+för Zivar, de lärda och juristen att fylla.
+
+**Nästa steg är inte ett byggsteg — det är ett innehållssteg + ett
+lanseringssteg.** Code stannar här.
+
+---
+
+## Tidigare körningar (bevarade)
+
+### Status — Fix-pass 2 GX1–GX3 (efter FX1–FX6)
 
 ---
 
