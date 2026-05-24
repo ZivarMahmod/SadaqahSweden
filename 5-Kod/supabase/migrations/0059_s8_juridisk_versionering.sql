@@ -13,7 +13,8 @@
 --      a) Versionens status → publicerad.
 --      b) innehallssida.brodtext + .ikrafttradande_datum kopieras från
 --         versionen + status sätts till publicerad.
---   5. RPC juridisk_lista_versioner — superadmin/publik kan se historik.
+--      (Historik läses via vanlig SELECT mot juridisk_version — RLS
+--       filtrerar publicerad + arkiverad för publik, allt för superadmin.)
 -- =====================================================================
 
 DO $$ BEGIN
