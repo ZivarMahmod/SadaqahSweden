@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { aktuellAnvandare } from "@/lib/auth";
-import { deleteAllMfaFactors } from "@/lib/supabase/admin";
+import { deleteAllMfaFactors, revokeAllSessions } from "@/lib/supabase/admin";
 
 type Result = { ok: true; data?: unknown } | { ok: false; fel: string };
 
@@ -39,6 +39,16 @@ export async function inaktiveraTeamMedlemAction(
     p_motivering: motivering,
   });
   if (error) return { ok: false, fel: error.message };
+
+  // H4: hård offboarding. DB-roll-bytet är klart; nu döda sessionen globalt
+  // så den inaktiverade inte kan klicka vidare med kvarvarande access-token.
+  // På fel: logga men inte rapportera framåt — säkerhetshålet stängs ändå
+  // vid nästa request via kraver()-roll-check (roll=donator → redirect).
+  const ok = await revokeAllSessions(profileId);
+  if (!ok) {
+    console.warn("revokeAllSessions misslyckades — session lever tills nästa kraver()-call");
+  }
+
   revalidatePath("/admin/team");
   return { ok: true };
 }
