@@ -1942,6 +1942,7 @@ export type Database = {
           region: string | null
           roll: Database["public"]["Enums"]["anvandar_roll"]
           stad: string | null
+          skyddad_identitet: boolean
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
           team_inaktiverad_at: string | null
@@ -1968,6 +1969,7 @@ export type Database = {
           region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
           stad?: string | null
+          skyddad_identitet?: boolean
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
@@ -1994,6 +1996,7 @@ export type Database = {
           region?: string | null
           roll?: Database["public"]["Enums"]["anvandar_roll"]
           stad?: string | null
+          skyddad_identitet?: boolean
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
           team_inaktiverad_at?: string | null
@@ -2668,6 +2671,10 @@ export type Database = {
       }
       admin_inaktivera_team_medlem: {
         Args: { p_motivering: string; p_profile_id: string }
+        Returns: undefined
+      }
+      admin_satt_skyddad_identitet: {
+        Args: { p_profile_id: string; p_skydd: boolean; p_motivering: string }
         Returns: undefined
       }
       admin_initiera_refund_donation: {

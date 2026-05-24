@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Pill } from "@/components/ui/pill";
 import { kortBelopp } from "@/lib/format";
 import { RefundKnapp } from "./refund-modal";
+import { SkyddadIdentitetForm } from "./skyddad-identitet";
 
 export const metadata = { title: "Verktyg — Admin — Sadaqah Sweden" };
 export const dynamic = "force-dynamic";
@@ -68,6 +69,16 @@ export default async function VerktygSida() {
             ))}
           </ul>
         )}
+
+        <h2 className="h-3 mt-12">Skyddad identitet</h2>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
+          M12 Block 5.3 — insamlare med skyddad identitet exkluderas från
+          kommun-nivå på kartan. Län-nivån (21 grova områden) inkluderar dem.
+          Sätt flaggan här. Geo-aggregatet räknas om direkt.
+        </p>
+        <Card variant="tight" className="mt-4">
+          <SkyddadIdentitetForm />
+        </Card>
       </Container>
     </Section>
   );
