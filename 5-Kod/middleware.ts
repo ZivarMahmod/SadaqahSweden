@@ -35,12 +35,13 @@ const MFA_LIFT_EXEMPT = [
   "/auth/callback",
 ];
 
-// F6 — admin-subdomäner. Båda delar samma landningssida vid inloggning;
-// admin_niva styr vad användaren ser efteråt. Subdomänen är en INGÅNG,
-// inte säkerhetsgränsen — F1's RLS är säkerheten i djupet.
+// F6 — en admin-subdomän. Hela teamet (superadmin, region-admin,
+// medhjälpare) loggar in på admin.sadaqahsweden.se. admin_niva + RLS
+// avgör vad var och en ser. Subdomänen är en INGÅNG, inte en
+// säkerhetsgräns. (Tidigare versioner hade superadmin.sadaqahsweden.se
+// som separat host — slogs ihop 2026-05-24.)
 const PUBLIK_HOST = "sadaqahsweden.se";
 const ADMIN_HOST = "admin.sadaqahsweden.se";
-const SUPERADMIN_HOST = "superadmin.sadaqahsweden.se";
 
 function arInternZon(path: string): boolean {
   return INTERN_PREFIX.some((p) => path === p || path.startsWith(`${p}/`));
@@ -50,10 +51,9 @@ function arMfaLiftExempt(path: string): boolean {
   return MFA_LIFT_EXEMPT.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
-function detekteraHost(request: NextRequest): "publik" | "admin" | "superadmin" | "okand" {
+function detekteraHost(request: NextRequest): "publik" | "admin" | "okand" {
   const host = (request.headers.get("host") ?? "").toLowerCase();
   if (host === ADMIN_HOST) return "admin";
-  if (host === SUPERADMIN_HOST) return "superadmin";
   if (host === PUBLIK_HOST || host === `www.${PUBLIK_HOST}`) return "publik";
   return "okand";
 }
@@ -75,16 +75,16 @@ export async function middleware(request: NextRequest) {
       url.protocol = "https:";
       return NextResponse.redirect(url, 308);
     }
-  } else if (host === "admin" || host === "superadmin") {
-    // Admin-subdomänernas rotväg leder till samma admin-landning.
+  } else if (host === "admin") {
+    // Admin-subdomänens rotväg leder till admin-landningen.
     if (path === "/" || path === "") {
       const url = request.nextUrl.clone();
       url.pathname = "/admin";
       return NextResponse.redirect(url, 307);
     }
-    // Publika ytor (insamlingar, donera, karta) på admin-subdomäner är fortsatt
-    // åtkomliga — host är en ingång, inte en säkerhetsgräns. F1's RLS gör att
-    // en region-admin som råkar nå superadmin-subdomänen ändå bara ser sin region.
+    // Publika ytor (insamlingar, donera, karta) på admin-subdomänen är fortsatt
+    // åtkomliga — host är en ingång, inte en säkerhetsgräns. RLS på admin_niva
+    // gör att region-admins/superadmins ser olika data på samma URL.
   }
 
   // Steg 3: intern-zon-grind (AAL2). Gäller alla hosts.
