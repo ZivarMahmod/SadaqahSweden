@@ -9,6 +9,7 @@ import { LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { datum } from "@/lib/format";
 import { OrgGranskarPanel } from "./panel";
+import { AktiveraForeningsKontoKnapp } from "./aktivera-knapp";
 
 type Params = Promise<{ id: string }>;
 
@@ -21,7 +22,7 @@ export default async function GranskaOrg({ params }: { params: Params }) {
 
   const { data: o, error } = await supabase
     .from("organisation")
-    .select("id, namn, org_nummer, organisationstyp, stad, region, besoksadress, beskrivning, logotyp_path, katalog_status, created_at, profiles!organisation_profil_id_fkey(visningsnamn, e_post)")
+    .select("id, namn, org_nummer, organisationstyp, stad, region, besoksadress, beskrivning, logotyp_path, katalog_status, created_at, kontaktperson_namn, kontaktperson_epost, forenings_konto_user_id, forenings_konto_aktiverat_at, profiles!organisation_profil_id_fkey(visningsnamn, e_post)")
     .eq("id", id)
     .single();
 
@@ -83,11 +84,33 @@ export default async function GranskaOrg({ params }: { params: Params }) {
             </Card>
 
             <Card variant="tight">
+              <h3 className="h-3">Kontaktperson (förening)</h3>
+              <p className="mt-2 text-sm">{o.kontaktperson_namn ?? "—"}</p>
+              <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>
+                <code style={{ fontFamily: "var(--font-mono)" }}>
+                  {o.kontaktperson_epost ?? "—"}
+                </code>
+              </p>
+            </Card>
+
+            <Card variant="tight">
               <h3 className="h-3">Beslut</h3>
               <div className="mt-3">
                 <OrgGranskarPanel orgId={o.id} />
               </div>
             </Card>
+
+            {(o.katalog_status === "publicerad" || o.forenings_konto_user_id) && (
+              <Card variant="tight">
+                <h3 className="h-3">Förenings-konto</h3>
+                <div className="mt-3">
+                  <AktiveraForeningsKontoKnapp
+                    orgId={o.id}
+                    alreadyActive={!!o.forenings_konto_user_id}
+                  />
+                </div>
+              </Card>
+            )}
           </aside>
         </div>
       </Container>

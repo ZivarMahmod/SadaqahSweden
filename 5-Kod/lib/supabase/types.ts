@@ -1731,8 +1731,12 @@ export type Database = {
           besoksadress: string | null
           created_at: string
           deleted_at: string | null
+          forenings_konto_aktiverat_at: string | null
+          forenings_konto_user_id: string | null
           id: string
           katalog_status: string
+          kontaktperson_epost: string | null
+          kontaktperson_namn: string | null
           logotyp_path: string | null
           namn: string
           org_nummer: string | null
@@ -1749,8 +1753,12 @@ export type Database = {
           besoksadress?: string | null
           created_at?: string
           deleted_at?: string | null
+          forenings_konto_aktiverat_at?: string | null
+          forenings_konto_user_id?: string | null
           id?: string
           katalog_status?: string
+          kontaktperson_epost?: string | null
+          kontaktperson_namn?: string | null
           logotyp_path?: string | null
           namn: string
           org_nummer?: string | null
@@ -1767,8 +1775,12 @@ export type Database = {
           besoksadress?: string | null
           created_at?: string
           deleted_at?: string | null
+          forenings_konto_aktiverat_at?: string | null
+          forenings_konto_user_id?: string | null
           id?: string
           katalog_status?: string
+          kontaktperson_epost?: string | null
+          kontaktperson_namn?: string | null
           logotyp_path?: string | null
           namn?: string
           org_nummer?: string | null
@@ -2819,6 +2831,10 @@ export type Database = {
           p_typ: Database["public"]["Enums"]["collab_typ"]
         }
         Returns: string
+      }
+      binda_forenings_konto: {
+        Args: { p_org_id: string; p_user_id: string }
+        Returns: undefined
       }
       fatta_event_granskar_beslut: {
         Args: {

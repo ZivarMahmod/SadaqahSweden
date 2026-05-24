@@ -39,6 +39,17 @@ export async function anmalForening(formData: FormData): Promise<Resultat> {
   if (error) return { ok: false, message: error.message };
   if (!data) return { ok: false, message: "Okänt fel vid anmälan." };
 
+  // F4: sätt kontaktperson på den nya organisationen via update.
+  const kontNamn = String(formData.get("kontaktperson_namn") ?? "").trim();
+  const kontEpost = String(formData.get("kontaktperson_epost") ?? "").trim();
+  if (kontNamn && kontEpost) {
+    const orgId = String(data);
+    await supabase
+      .from("organisation")
+      .update({ kontaktperson_namn: kontNamn, kontaktperson_epost: kontEpost })
+      .eq("id", orgId);
+  }
+
   revalidatePath("/foreningar");
   revalidatePath("/konto/foreningar");
   return { ok: true, id: String(data) };

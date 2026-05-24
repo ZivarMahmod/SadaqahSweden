@@ -103,6 +103,28 @@ export function AnmalForeningForm() {
         <Input id="logotyp_url" name="logotyp_url" type="url" placeholder="https://…" />
       </Field>
 
+      {/* F4: kontaktperson — föreningen får ett eget separat inlogg efter granskning. */}
+      <fieldset
+        className="rounded-[14px] border p-4"
+        style={{ borderColor: "var(--color-ink-line)", background: "var(--color-paper)" }}
+      >
+        <legend className="text-xs font-semibold uppercase" style={{ letterSpacing: "0.08em", color: "var(--color-ink-3)" }}>
+          Kontaktperson för föreningen
+        </legend>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
+          Vid godkänd anmälan skapar vi ett separat inlogg för föreningen och
+          skickar invite till kontaktpersonens e-post. Du behåller ditt egna konto.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Field label="Kontaktperson namn" htmlFor="kontaktperson_namn" required>
+            <Input id="kontaktperson_namn" name="kontaktperson_namn" required maxLength={100} />
+          </Field>
+          <Field label="Kontaktperson e-post" htmlFor="kontaktperson_epost" required>
+            <Input id="kontaktperson_epost" name="kontaktperson_epost" type="email" required maxLength={200} />
+          </Field>
+        </div>
+      </fieldset>
+
       <fieldset
         className="rounded-[14px] border p-4"
         style={{ borderColor: "var(--color-ink-line)", background: "var(--color-paper)" }}
