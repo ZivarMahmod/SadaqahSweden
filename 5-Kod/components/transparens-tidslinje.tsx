@@ -3,11 +3,22 @@
 // Plan: Modul-07 Block 5 (Tripadvisor-modellen — visa fakta, anklaga aldrig).
 // Säkerhet: Läser via view public.transparens_tidslinje (security_invoker) +
 // public.transparens_bevis + public.transparens_uppdatering — RLS-skyddade.
+//
+// Om `community` är satt renderas M13 reaktioner + kommentarer inline per
+// uppdatering (insamlingssidan). Andra användare av komponenten (profilsida
+// osv) skickar inte in det och får tidigare beteende.
 import { createClient } from "@/lib/supabase/server";
 import { Pill } from "@/components/ui/pill";
 import { Icon } from "@/components/ui/icon";
 import { Card } from "@/components/ui/card";
 import { datum } from "@/lib/format";
+import { UppdateringCommunity } from "@/app/(public)/insamlingar/[publicId]/uppdatering-community";
+
+type CommunityConfig = {
+  insamlingPublicId: string;
+  agareId: string;
+  kommentarerAvstangda: boolean;
+};
 
 type BevisTyp = "start" | "utbetalning" | "resultat";
 
@@ -30,8 +41,10 @@ type TidslinjePost =
 
 export async function TransparensTidslinje({
   insamlingId,
+  community,
 }: {
   insamlingId: string;
+  community?: CommunityConfig;
 }) {
   const supabase = await createClient();
 
@@ -121,7 +134,13 @@ export async function TransparensTidslinje({
       ) : (
         <ol className="mt-8 flex flex-col gap-0" aria-label="Transparens-tidslinje">
           {posts.map((p, idx) => (
-            <TidslinjeRad key={p.id} post={p} sist={idx === posts.length - 1} />
+            <TidslinjeRad
+              key={p.id}
+              post={p}
+              sist={idx === posts.length - 1}
+              insamlingId={insamlingId}
+              community={community}
+            />
           ))}
           {!finnsResultat && <ResultatVantar />}
         </ol>
@@ -130,12 +149,16 @@ export async function TransparensTidslinje({
   );
 }
 
-function TidslinjeRad({
+async function TidslinjeRad({
   post,
   sist,
+  insamlingId,
+  community,
 }: {
   post: TidslinjePost;
   sist: boolean;
+  insamlingId: string;
+  community?: CommunityConfig;
 }) {
   const meta = postMeta(post);
   return (
@@ -200,12 +223,23 @@ function TidslinjeRad({
           </p>
         )}
         {post.kind === "uppdatering" && (
-          <p
-            className="mt-2 whitespace-pre-wrap text-sm leading-relaxed"
-            style={{ color: "var(--color-ink-1)" }}
-          >
-            {post.text}
-          </p>
+          <>
+            <p
+              className="mt-2 whitespace-pre-wrap text-sm leading-relaxed"
+              style={{ color: "var(--color-ink-1)" }}
+            >
+              {post.text}
+            </p>
+            {community && (
+              <UppdateringCommunity
+                insamlingId={insamlingId}
+                insamlingPublicId={community.insamlingPublicId}
+                uppdateringId={post.id}
+                agareId={community.agareId}
+                kommentarerAvstangda={community.kommentarerAvstangda}
+              />
+            )}
+          </>
         )}
       </div>
     </li>

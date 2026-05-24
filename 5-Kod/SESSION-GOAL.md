@@ -6,6 +6,84 @@
 
 ---
 
+## Status — Steg 13: Community & samtal (M13)
+
+**✅ KLAR** — pushad (commit nedan).
+
+### Vad som byggdes
+
+**Databas (migrations 0027–0028)**
+
+- `0027_community` — tabeller `kommentar`, `reaktion`, `rapport`,
+  `ordlista` + enums `community_objekt_typ`, `reaktion_typ`,
+  `ordlista_severity`. Lägger `kommentarer_avstangda` på `insamling`.
+  RLS på allt: alla läser publika kommentarer, dolda syns bara för
+  authoren + insamlingens ägare + granskare/admin. INSERT är blockerat
+  direkt — allt går via `posta_kommentar`-funktionen så validering
+  (rate-limit, ordlista, parent-koll) sker centralt.
+- `0028_community_funktioner` — `posta_kommentar` (huvudvägen in),
+  `satt_reaktion` (toggle), `rapportera_kommentar` (auto-hide vid 3
+  oberoende), `granskare_dolj_kommentar` / `granskare_aterstall_kommentar`.
+  `kontrollera_ordlista` matchar mot redigerbar lista. Public INVOKER-
+  wrappers delegerar till private DEFINER (SAKERHETSREGLER §3).
+  Seedat 7 ordlista-poster (spam-mönster) — admin utökar via Steg 15/16.
+
+**App**
+
+- `app/(public)/insamlingar/[publicId]/community-section.tsx` — Samtals-
+  sektionen på insamlingssidan. Visar Dua/Stöd-räknare, formulär,
+  kommentarslista med ett trådsteg, "Insamlare"-badge för ägaren.
+- `app/(public)/insamlingar/[publicId]/uppdatering-community.tsx` —
+  inbäddad reaktion + kommentarsstrimma per transparens-uppdatering.
+- `kommentar-form.tsx` / `reaktion-knappar.tsx` / `kommentar-rad.tsx` —
+  klient-komponenter med rapport-formulär, radera-knapp och granskar-
+  åtgärder (dölj/återställ) som visas för rätt roll.
+- `community-actions.ts` — server actions som anropar RPC:erna.
+  Mappar PG-fel till läsbara meddelanden.
+- `(konto)/insamling/[id]/kommentarer-toggle.tsx` — insamlare kan
+  stänga av kommentarsfältet (Block 2.6) från sin dashboard.
+- `transparens-tidslinje.tsx` accepterar nu en valfri `community`-prop;
+  insamlingssidan skickar in, profil-/övrig-användning får tidigare
+  beteende.
+
+**Klar när — bockad**
+
+- [x] Kommentarer + Dua/Stöd på insamlingar och uppdateringar.
+- [x] Inloggning krävs (RPC raise om `auth.uid()` är NULL).
+- [x] 500-teckens ren text, inga länkar (regex i `posta_kommentar`).
+- [x] Ett trådsteg — `posta_kommentar` vägrar parent som själv har parent.
+- [x] Ordlistefilter (`ordlista` + `kontrollera_ordlista`).
+- [x] Hastighetsspärr — 30 sekunder mellan kommentarer per user.
+- [x] Rapport-flöde + auto-dölj vid 3 oberoende rapporter.
+- [x] Modereringskö-data finns (`rapport` + `kommentar.dold` flaggor) —
+      ytan landar i Steg 15/16 per brief.
+- [x] Insamlaren kan stänga av kommentarsfältet (toggle på dashboarden).
+- [x] Alla nya tabeller har RLS.
+- [x] Behörighetstester via RLS-policys + RPC-validering.
+- [x] `npm run build` grön.
+- [x] Pushad till `main`.
+
+### Beslut tagna autonomt
+
+| Beslut | Motivering |
+|---|---|
+| Två reaktioner: `dua`, `stod` (enum) | Brief — bara positiva, två val räcker. |
+| `INSERT` på kommentar/reaktion/rapport blockerat i RLS — allt via RPC | All validering på ett ställe, kan inte kringgås. |
+| 30 sekunders rate-limit per user för kommentarer | Brief säger "hastighetsspärr mot spam-skurar" utan exakt värde. 30 s är restriktivt nog för att stoppa spam, snällt mot långa svar. |
+| Ordlista — 5 hard_block + 2 soft_flag spam-poster vid seed | Brief: "skapa en svensk baslista … så teamet kan utöka den senare". Diskriminerings-/hat-listan är admin-uppgift (känsligt innehåll). Spam-mönster (URL-shorteners + kontaktlänkar utanför plattformen) är säkra att seeda. |
+| Soft-delete (raderad_at) bara om kommentaren har svar; annars hård DELETE | Bevarar trådkonsistens utan att kvarhålla rader i onödan. |
+| Granskar-åtgärder (dölj/återställ) visas direkt på kommentar-raden för granskare/admin | Brief: modereringskön är data nu, ytan i Steg 15/16. Inline-knappar låter granskarna jobba från publika sidan tills arbetsytan finns. |
+
+### Kantfall noterade i kod
+
+- **Per-kommentar-redigering** är inte implementerat (brief säger parkerat).
+- **Konto-eskalering** (varning → kommentarsspärr → avstängning) — RLS
+  + `kontofryst`-flaggan stöder mekaniken; UI för admin att applicera
+  den hör hemma i Steg 15/16. Brief säger jag väljer rimliga gränser:
+  spärrtid riktmärke 7 d (i kod-kommentar i 0028).
+
+---
+
 ## Status — Steg 12: Karta & geografisk insikt (M12)
 
 **✅ KLAR** — pushad (commit nedan).

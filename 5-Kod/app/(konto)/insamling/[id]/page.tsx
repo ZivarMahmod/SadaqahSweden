@@ -13,6 +13,7 @@ import { LinkButton } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { TransparensTidslinje } from "@/components/transparens-tidslinje";
 import { UppdateringForm, ResultatBevisForm } from "./transparens-form";
+import { KommentarerToggle } from "./kommentarer-toggle";
 import { kortBelopp, kr, datum, procentAvMal, dagarKvar } from "@/lib/format";
 import { Progress } from "@/components/ui/progress";
 
@@ -46,7 +47,7 @@ export default async function InsamlingDashboard({ params }: { params: Params })
   const { data: i, error } = await supabase
     .from("insamling")
     .select(
-      "id, public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamlat_netto_ore, utbetald_ore, insamling_deadline, genomforande_datum, publicerad_at, agare_id, connected_account_id",
+      "id, public_id, titel, kort_beskrivning, status, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamlat_netto_ore, utbetald_ore, insamling_deadline, genomforande_datum, publicerad_at, agare_id, connected_account_id, kommentarer_avstangda",
     )
     .eq("id", id)
     .single();
@@ -223,6 +224,17 @@ export default async function InsamlingDashboard({ params }: { params: Params })
                 >
                   Stripe-onboarding
                 </LinkButton>
+              </div>
+            </Card>
+
+            <Card variant="tight">
+              <h3 className="h-3">Community</h3>
+              <div className="mt-3">
+                <KommentarerToggle
+                  insamlingId={i.id}
+                  insamlingPublicId={i.public_id}
+                  avstangda={i.kommentarer_avstangda ?? false}
+                />
               </div>
             </Card>
 

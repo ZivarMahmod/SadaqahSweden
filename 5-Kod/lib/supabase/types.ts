@@ -545,6 +545,7 @@ export type Database = {
           insamlat_ore: number
           insamling_deadline: string
           inskickad_at: string | null
+          kommentarer_avstangda: boolean
           kort_beskrivning: string
           lang_beskrivning: string
           malbelopp_max_ore: number | null
@@ -595,6 +596,7 @@ export type Database = {
           insamlat_ore?: number
           insamling_deadline: string
           inskickad_at?: string | null
+          kommentarer_avstangda?: boolean
           kort_beskrivning: string
           lang_beskrivning: string
           malbelopp_max_ore?: number | null
@@ -645,6 +647,7 @@ export type Database = {
           insamlat_ore?: number
           insamling_deadline?: string
           inskickad_at?: string | null
+          kommentarer_avstangda?: boolean
           kort_beskrivning?: string
           lang_beskrivning?: string
           malbelopp_max_ore?: number | null
@@ -925,6 +928,96 @@ export type Database = {
         }
         Relationships: []
       }
+      kommentar: {
+        Row: {
+          author_id: string
+          created_at: string
+          dold: boolean
+          dold_skal: string | null
+          flaggor: Json
+          id: string
+          insamling_id: string
+          objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          parent_id: string | null
+          public_id: string
+          raderad_at: string | null
+          rapporter_antal: number
+          text: string
+          updated_at: string
+          uppdatering_id: string | null
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          dold?: boolean
+          dold_skal?: string | null
+          flaggor?: Json
+          id?: string
+          insamling_id: string
+          objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          parent_id?: string | null
+          public_id?: string
+          raderad_at?: string | null
+          rapporter_antal?: number
+          text: string
+          updated_at?: string
+          uppdatering_id?: string | null
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          dold?: boolean
+          dold_skal?: string | null
+          flaggor?: Json
+          id?: string
+          insamling_id?: string
+          objekt_typ?: Database["public"]["Enums"]["community_objekt_typ"]
+          parent_id?: string | null
+          public_id?: string
+          raderad_at?: string | null
+          rapporter_antal?: number
+          text?: string
+          updated_at?: string
+          uppdatering_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kommentar_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kommentar_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kommentar_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kommentar_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "kommentar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kommentar_uppdatering_id_fkey"
+            columns: ["uppdatering_id"]
+            isOneToOne: false
+            referencedRelation: "transparens_uppdatering"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mission: {
         Row: {
           agare_id: string
@@ -1128,6 +1221,57 @@ export type Database = {
           {
             foreignKeyName: "notis_preferens_profil_id_fkey"
             columns: ["profil_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ordlista: {
+        Row: {
+          aktiv: boolean
+          created_at: string
+          id: string
+          inlagd_av: string | null
+          kategori: string
+          noteringar: string | null
+          severity: Database["public"]["Enums"]["ordlista_severity"]
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          aktiv?: boolean
+          created_at?: string
+          id?: string
+          inlagd_av?: string | null
+          kategori: string
+          noteringar?: string | null
+          severity: Database["public"]["Enums"]["ordlista_severity"]
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          aktiv?: boolean
+          created_at?: string
+          id?: string
+          inlagd_av?: string | null
+          kategori?: string
+          noteringar?: string | null
+          severity?: Database["public"]["Enums"]["ordlista_severity"]
+          term?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ordlista_inlagd_av_fkey"
+            columns: ["inlagd_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordlista_inlagd_av_fkey"
+            columns: ["inlagd_av"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1433,6 +1577,134 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "plats_taxonomi"
             referencedColumns: ["kod"]
+          },
+        ]
+      }
+      rapport: {
+        Row: {
+          created_at: string
+          granskad_at: string | null
+          granskad_av: string | null
+          id: string
+          kommentar_id: string
+          reporter_id: string | null
+          skal: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          granskad_at?: string | null
+          granskad_av?: string | null
+          id?: string
+          kommentar_id: string
+          reporter_id?: string | null
+          skal: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          granskad_at?: string | null
+          granskad_av?: string | null
+          id?: string
+          kommentar_id?: string
+          reporter_id?: string | null
+          skal?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rapport_granskad_av_fkey"
+            columns: ["granskad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapport_granskad_av_fkey"
+            columns: ["granskad_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapport_kommentar_id_fkey"
+            columns: ["kommentar_id"]
+            isOneToOne: false
+            referencedRelation: "kommentar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapport_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rapport_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reaktion: {
+        Row: {
+          created_at: string
+          id: string
+          insamling_id: string
+          objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          typ: Database["public"]["Enums"]["reaktion_typ"]
+          uppdatering_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          insamling_id: string
+          objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          typ: Database["public"]["Enums"]["reaktion_typ"]
+          uppdatering_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          insamling_id?: string
+          objekt_typ?: Database["public"]["Enums"]["community_objekt_typ"]
+          typ?: Database["public"]["Enums"]["reaktion_typ"]
+          uppdatering_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reaktion_insamling_id_fkey"
+            columns: ["insamling_id"]
+            isOneToOne: false
+            referencedRelation: "insamling"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reaktion_uppdatering_id_fkey"
+            columns: ["uppdatering_id"]
+            isOneToOne: false
+            referencedRelation: "transparens_uppdatering"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reaktion_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reaktion_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1858,9 +2130,27 @@ export type Database = {
         Args: { p_beslut: string; p_motivering?: string; p_org_id: string }
         Returns: undefined
       }
+      granskare_aterstall_kommentar: {
+        Args: { p_kommentar_id: string }
+        Returns: undefined
+      }
+      granskare_dolj_kommentar: {
+        Args: { p_kommentar_id: string; p_skal: string }
+        Returns: undefined
+      }
       k_anonymity_troskel: { Args: never; Returns: number }
       markera_alla_notiser_lasta: { Args: never; Returns: number }
       markera_notis_last: { Args: { p_notis_id: string }; Returns: undefined }
+      posta_kommentar: {
+        Args: {
+          p_insamling_id: string
+          p_objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          p_parent_id: string
+          p_text: string
+          p_uppdatering_id: string
+        }
+        Returns: string
+      }
       posta_resultat_bevis: {
         Args: { p_insamling_id: string; p_text: string; p_video_url?: string }
         Returns: string
@@ -1870,9 +2160,22 @@ export type Database = {
         Returns: string
       }
       rakna_om_geo_aggregat: { Args: never; Returns: number }
+      rapportera_kommentar: {
+        Args: { p_kommentar_id: string; p_skal: string }
+        Returns: undefined
+      }
       sakerstall_transfer_group: {
         Args: { p_insamling_id: string }
         Returns: string
+      }
+      satt_reaktion: {
+        Args: {
+          p_insamling_id: string
+          p_objekt_typ: Database["public"]["Enums"]["community_objekt_typ"]
+          p_typ: Database["public"]["Enums"]["reaktion_typ"]
+          p_uppdatering_id: string
+        }
+        Returns: boolean
       }
       skicka_insamling_for_granskning: {
         Args: { p_insamling_id: string }
@@ -1900,6 +2203,7 @@ export type Database = {
         | "admin"
       collab_status: "begard" | "godkand" | "avbojd" | "aterkallad"
       collab_typ: "initiativtagare" | "stodjer" | "praktisk_partner"
+      community_objekt_typ: "insamling" | "uppdatering"
       connected_account_status:
         | "pending"
         | "restricted"
@@ -1969,7 +2273,9 @@ export type Database = {
         | "konto_atgard"
         | "sakerhet"
         | "system"
+      ordlista_severity: "hard_block" | "soft_flag"
       payout_status: "pending" | "in_transit" | "paid" | "failed" | "canceled"
+      reaktion_typ: "dua" | "stod"
       refund_anledning:
         | "bedrageri"
         | "fel_donation"
@@ -2108,6 +2414,7 @@ export const Constants = {
       anvandar_roll: ["donator", "insamlare", "forening", "granskare", "admin"],
       collab_status: ["begard", "godkand", "avbojd", "aterkallad"],
       collab_typ: ["initiativtagare", "stodjer", "praktisk_partner"],
+      community_objekt_typ: ["insamling", "uppdatering"],
       connected_account_status: [
         "pending",
         "restricted",
@@ -2184,7 +2491,9 @@ export const Constants = {
         "sakerhet",
         "system",
       ],
+      ordlista_severity: ["hard_block", "soft_flag"],
       payout_status: ["pending", "in_transit", "paid", "failed", "canceled"],
+      reaktion_typ: ["dua", "stod"],
       refund_anledning: [
         "bedrageri",
         "fel_donation",

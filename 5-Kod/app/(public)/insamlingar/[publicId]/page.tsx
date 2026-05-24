@@ -12,6 +12,7 @@ import { dagarKvar, datum } from "@/lib/format";
 import { LiveRaknare } from "./live-raknare";
 import { TransparensTidslinje } from "@/components/transparens-tidslinje";
 import { RelateradeInsamlingar } from "@/components/relaterade-insamlingar";
+import { CommunitySektion } from "./community-section";
 
 type Params = Promise<{ publicId: string }>;
 
@@ -62,7 +63,7 @@ export default async function InsamlingPage({ params }: { params: Params }) {
   const { data: i, error } = await supabase
     .from("insamling")
     .select(
-      "id, public_id, titel, kort_beskrivning, lang_beskrivning, mottagare_typ, mottagare_beskrivning, hjalp_land, hjalp_plats, insamlar_stad, insamlar_region, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamling_deadline, genomforande_datum, overmalsplan, tillat_overmal, status, publicerad_at, deleted_at, profiles!insamling_agare_id_fkey(public_id, visningsnamn, bankid_verifierad, ar_organisation)",
+      "id, public_id, titel, kort_beskrivning, lang_beskrivning, mottagare_typ, mottagare_beskrivning, hjalp_land, hjalp_plats, insamlar_stad, insamlar_region, malbelopp_modell, malbelopp_ore, malbelopp_min_ore, malbelopp_max_ore, insamlat_ore, insamling_deadline, genomforande_datum, overmalsplan, tillat_overmal, status, publicerad_at, deleted_at, agare_id, kommentarer_avstangda, profiles!insamling_agare_id_fkey(public_id, visningsnamn, bankid_verifierad, ar_organisation)",
     )
     .eq("public_id", publicId)
     .single();
@@ -299,7 +300,26 @@ export default async function InsamlingPage({ params }: { params: Params }) {
       {/* Transparens-tidslinjen (M7 Block 5) */}
       <Section tone="cream" spacing="default">
         <Container width="narrow">
-          <TransparensTidslinje insamlingId={i.id} />
+          <TransparensTidslinje
+            insamlingId={i.id}
+            community={{
+              insamlingPublicId: i.public_id,
+              agareId: i.agare_id,
+              kommentarerAvstangda: i.kommentarer_avstangda ?? false,
+            }}
+          />
+        </Container>
+      </Section>
+
+      {/* M13 Community — kommentarer + reaktioner */}
+      <Section tone="paper" spacing="default">
+        <Container width="narrow">
+          <CommunitySektion
+            insamlingId={i.id}
+            insamlingPublicId={i.public_id}
+            agareId={i.agare_id}
+            kommentarerAvstangda={i.kommentarer_avstangda ?? false}
+          />
         </Container>
       </Section>
 
