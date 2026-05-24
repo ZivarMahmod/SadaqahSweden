@@ -21,6 +21,11 @@ export default async function RedigeraFaqPage({ params }: { params: Promise<{ id
     .maybeSingle();
   if (!post) notFound();
 
+  const { data: larda } = await supabase
+    .from("lard_profil")
+    .select("id, namn")
+    .order("namn", { ascending: true });
+
   async function spara(formData: FormData) {
     "use server";
     const r = await uppdateraFaqAction(formData);
@@ -66,7 +71,19 @@ export default async function RedigeraFaqPage({ params }: { params: Promise<{ id
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
         <form action={spara} className="card flex flex-col gap-5">
           <input type="hidden" name="id" value={post.id} />
-          <input type="hidden" name="verifierad_av_lard_id" defaultValue={post.verifierad_av_lard_id ?? ""} />
+          <label className="flex flex-col gap-1">
+            <span className="field-label">Verifierad av (lärd-profil)</span>
+            <select
+              name="verifierad_av_lard_id"
+              className="select"
+              defaultValue={post.verifierad_av_lard_id ?? ""}
+            >
+              <option value="">— Ingen —</option>
+              {(larda ?? []).map((l) => (
+                <option key={l.id} value={l.id}>{l.namn}</option>
+              ))}
+            </select>
+          </label>
 
           <label className="flex flex-col gap-1">
             <span className="field-label field-label-required">Fråga</span>

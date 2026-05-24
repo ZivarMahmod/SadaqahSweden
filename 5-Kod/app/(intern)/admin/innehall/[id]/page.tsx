@@ -21,6 +21,11 @@ export default async function RedigeraSidaPage({ params }: { params: Promise<{ i
     .maybeSingle();
   if (!sida) notFound();
 
+  const { data: larda } = await supabase
+    .from("lard_profil")
+    .select("id, namn")
+    .order("namn", { ascending: true });
+
   async function spara(formData: FormData) {
     "use server";
     const r = await uppdateraSidaAction(formData);
@@ -116,13 +121,23 @@ Du skriver innehållet själv. Code skriver inget."
             </select>
           </label>
 
-          {/* Lärd-koppling: kommer i S5 (lärd-profiler). Verifierad-status kräver
-              en lärd-profil — välj först en lärd att koppla till. */}
-          <input
-            type="hidden"
-            name="verifierad_av_lard_id"
-            defaultValue={sida.verifierad_av_lard_id ?? ""}
-          />
+          <label className="flex flex-col gap-1">
+            <span className="field-label">Verifierad av (lärd-profil)</span>
+            <select
+              name="verifierad_av_lard_id"
+              className="select"
+              defaultValue={sida.verifierad_av_lard_id ?? ""}
+            >
+              <option value="">— Ingen —</option>
+              {(larda ?? []).map((l) => (
+                <option key={l.id} value={l.id}>{l.namn}</option>
+              ))}
+            </select>
+            <span className="field-help">
+              Krävs när verifieringsstatus = Verifierad. Verifierat-märket på publika sidan
+              länkar hit.
+            </span>
+          </label>
 
           {sida.sidtyp === "juridisk" && (
             <label className="flex flex-col gap-1">

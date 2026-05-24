@@ -749,7 +749,15 @@ export type Database = {
           verifierad_datum?: string | null
           verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "faq_post_verifierad_av_lard_fk"
+            columns: ["verifierad_av_lard_id"]
+            isOneToOne: false
+            referencedRelation: "lard_profil"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       geo_aggregat: {
         Row: {
@@ -1097,7 +1105,15 @@ export type Database = {
           verifierad_datum?: string | null
           verifieringsstatus?: Database["public"]["Enums"]["innehall_verifieringsstatus"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "innehallssida_verifierad_av_lard_fk"
+            columns: ["verifierad_av_lard_id"]
+            isOneToOne: false
+            referencedRelation: "lard_profil"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       insamling: {
         Row: {
@@ -1602,6 +1618,60 @@ export type Database = {
             columns: ["uppdatering_id"]
             isOneToOne: false
             referencedRelation: "transparens_uppdatering"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lard_profil: {
+        Row: {
+          id: string
+          kontakt_epost: string | null
+          kontakt_telefon: string | null
+          kopplad_profil_id: string | null
+          namn: string
+          presentation: string
+          senast_andrad_at: string
+          skapad_at: string
+          skapad_av: string | null
+          visa_kontakt: boolean
+        }
+        Insert: {
+          id?: string
+          kontakt_epost?: string | null
+          kontakt_telefon?: string | null
+          kopplad_profil_id?: string | null
+          namn: string
+          presentation?: string
+          senast_andrad_at?: string
+          skapad_at?: string
+          skapad_av?: string | null
+          visa_kontakt?: boolean
+        }
+        Update: {
+          id?: string
+          kontakt_epost?: string | null
+          kontakt_telefon?: string | null
+          kopplad_profil_id?: string | null
+          namn?: string
+          presentation?: string
+          senast_andrad_at?: string
+          skapad_at?: string
+          skapad_av?: string | null
+          visa_kontakt?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lard_profil_kopplad_profil_id_fkey"
+            columns: ["kopplad_profil_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lard_profil_kopplad_profil_id_fkey"
+            columns: ["kopplad_profil_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -3151,6 +3221,30 @@ export type Database = {
       lamna_overklagande: {
         Args: { p_insamling_id: string; p_skal: string }
         Returns: string
+      }
+      lard_radera: { Args: { p_id: string }; Returns: undefined }
+      lard_skapa: {
+        Args: {
+          p_kontakt_epost?: string
+          p_kontakt_telefon?: string
+          p_kopplad_profil_id?: string
+          p_namn: string
+          p_presentation?: string
+          p_visa_kontakt?: boolean
+        }
+        Returns: string
+      }
+      lard_uppdatera: {
+        Args: {
+          p_id: string
+          p_kontakt_epost?: string
+          p_kontakt_telefon?: string
+          p_kopplad_profil_id?: string
+          p_namn: string
+          p_presentation: string
+          p_visa_kontakt: boolean
+        }
+        Returns: undefined
       }
       las_faq: { Args: { p_id: string }; Returns: undefined }
       las_innehallssida: { Args: { p_id: string }; Returns: undefined }
