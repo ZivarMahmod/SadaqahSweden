@@ -1,0 +1,36 @@
+-- =====================================================================
+-- Sadaqah Sweden — Migration 0050
+-- FX6 (bonus) — GRANT USAGE ON SCHEMA private TO authenticated, anon.
+-- Brief: 2-Byggplan/13-Goal-Steg-17-fixar.md §FX6 (upptäckt under
+-- test-skrivning, blockerade både F3/F7/F8- och F10-RPC:erna i
+-- praktiken).
+--
+-- Bakgrund: Public INVOKER-wrappers (lamna_overklagande, markera_jav,
+-- admin_satt_kanslig, antal_publika_donationer, m.fl.) anropar
+-- private.<fn>() under authenticatedens (eller anons) roll. För att
+-- nå funktionen krävs både EXECUTE på funktionen OCH USAGE på
+-- schemat. EXECUTE-grants fanns; schema-USAGE saknades.
+--
+-- Konsekvens: PostgREST-anrop som t.ex. POST /rest/v1/rpc/lamna_overklagande
+-- skulle kasta "permission denied for schema private" så fort en riktig
+-- användare försökte använda F3-överklagande, F7-paus, F8-kanslig eller
+-- F10-public-count. Verifieringspasset körde inte RPC:erna under
+-- authenticated-roll, vilket är varför detta inte fångades.
+--
+-- Migration 0019_grant_usage_private_to_authenticated.sql fanns redan i
+-- repot (skapad efter CP3-verifiering Steg 5–7) men hade aldrig
+-- applicerats — versionsnumret kolliderade och migrationen försvann
+-- ur applicerings-historiken. Vi gör den explicita GRANT-en här under
+-- FX6 så historiken är ren.
+--
+-- Säkerhet: USAGE betyder bara att schemat är synligt. Individuella
+-- REVOKE EXECUTE FROM PUBLIC, anon på känsliga private-funktioner
+-- kvarstår (t.ex. require_superadmin är fortfarande otillgänglig).
+-- Bara explicit GRANT:ade public-wrappers blir nåbara, och de håller
+-- sina egna roll-checks.
+--
+-- Rollback: 0050_fx6_grant_usage_private.rollback.sql.
+-- =====================================================================
+
+GRANT USAGE ON SCHEMA private TO authenticated;
+GRANT USAGE ON SCHEMA private TO anon;
