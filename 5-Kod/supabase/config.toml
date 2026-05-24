@@ -1,0 +1,26 @@
+# Supabase project config.
+# Project ref: dcfrvomfztgkbfoegwge.
+# Per-function override för verify_jwt — överlever framtida deploys
+# så vi inte glömmer --no-verify-jwt-flaggan.
+#
+# Plan: 2-Byggplan/08-Verifiering-pengaflode.md A4, Del D (fällor).
+
+project_id = "dcfrvomfztgkbfoegwge"
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.create-connected-account]
+verify_jwt = true
+
+[functions.create-account-link]
+verify_jwt = true
+
+[functions.create-payment-intent]
+verify_jwt = true
+
+[functions.settle-campaign]
+verify_jwt = true
+
+[functions.skicka-kvitto]
+verify_jwt = true
