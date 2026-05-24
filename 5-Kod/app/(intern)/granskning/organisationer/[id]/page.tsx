@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/icon";
 import { datum } from "@/lib/format";
 import { OrgGranskarPanel } from "./panel";
 import { AktiveraForeningsKontoKnapp } from "./aktivera-knapp";
+import { UppgraderaRegionAdminForm } from "./region-admin-form";
 
 type Params = Promise<{ id: string }>;
 
@@ -17,7 +18,7 @@ export const metadata = { title: "Granska förening — Sadaqah Sweden" };
 
 export default async function GranskaOrg({ params }: { params: Params }) {
   const { id } = await params;
-  await kraver(["granskare", "admin"]);
+  const me = await kraver(["granskare", "admin"]);
   const supabase = await createClient();
 
   const { data: o, error } = await supabase
@@ -27,6 +28,27 @@ export default async function GranskaOrg({ params }: { params: Params }) {
     .single();
 
   if (error || !o) notFound();
+
+  // FX3 — superadmin-only federation-aktivering.
+  const arSuperadmin = me.profil.admin_niva === "superadmin";
+  let foreningsKontoProfil: { admin_niva: string | null; admin_region_kod: string | null } | null = null;
+  let lanList: { kod: string; namn: string }[] = [];
+  if (arSuperadmin && o.forenings_konto_user_id) {
+    const [{ data: fkp }, { data: lan }] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("admin_niva, admin_region_kod")
+        .eq("id", o.forenings_konto_user_id)
+        .single(),
+      supabase
+        .from("plats_taxonomi")
+        .select("kod, namn")
+        .eq("niva", "lan")
+        .order("kod"),
+    ]);
+    foreningsKontoProfil = fkp ?? null;
+    lanList = (lan ?? []).map((l) => ({ kod: l.kod, namn: l.namn }));
+  }
 
   return (
     <Section tone="paper" spacing="default">
@@ -107,6 +129,21 @@ export default async function GranskaOrg({ params }: { params: Params }) {
                   <AktiveraForeningsKontoKnapp
                     orgId={o.id}
                     alreadyActive={!!o.forenings_konto_user_id}
+                  />
+                </div>
+              </Card>
+            )}
+
+            {arSuperadmin && o.forenings_konto_user_id && (
+              <Card variant="tight">
+                <h3 className="h-3">Region-admin (federation)</h3>
+                <div className="mt-3">
+                  <UppgraderaRegionAdminForm
+                    orgId={o.id}
+                    orgNamn={o.namn}
+                    currentAdminNiva={foreningsKontoProfil?.admin_niva ?? null}
+                    currentRegionKod={foreningsKontoProfil?.admin_region_kod ?? null}
+                    lanList={lanList}
                   />
                 </div>
               </Card>
