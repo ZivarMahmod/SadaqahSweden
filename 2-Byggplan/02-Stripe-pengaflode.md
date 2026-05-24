@@ -3,7 +3,7 @@
 **Projekt:** Sadaqa Sweden *(arbetsnamn)*
 **Datum:** 2026-05-23
 **Vad detta är:** Den tekniska byggplanen för **pengarna** — hur Stripe Connect kopplas till Supabase, hur en donation blir en charge, hur webhooks håller databasen i synk, hur utbetalning/refund/chargeback verkställs i kod.
-**Bygger på:** `00-Byggplan-oversikt.md` (teknikvalet), `1-Planering/Modul-05-Pengaflode.md` (pengaflödets beslut — den juridiska och ekonomiska sanningen), `1-Planering/Modul-04-Donator-flodet.md` (donationsflödet), `Modul-01-Insamling-som-objekt.md` Block 2 (mål/refund-villkor).
+**Bygger på:** `00-Byggplan-oversikt.md` (teknikvalet), `1-Planering/Modul-05-Pengaflode.md` (pengaflödets beslut — den juridiska och ekonomiska sanningen), `1-Planering/Modul-04-Donator-flodet.md` (donationsflödet), `Modul-01-Insamling-som-objekt.md` Block 2 (mål/undermåls-policy), `1-Planering/Tillägg-Nya-beslut-2026-05-23.md` A1 (reviderad återbetalningsmodell).
 **Hör ihop med:** Fil **01 Databasplan** (tabellerna nedan ägs där) och fil **03 BankID, auth & donationsflöde** (frontend-checkout + realtidsräknaren).
 
 > **Läs så här.** M5 är *vad* och *varför* pengaflödet ser ut som det gör. Den här filen är *hur det byggs* — riktiga Stripe-objekt, event-namn, Edge Functions. Var beslutsam om **arkitekturen**. Där en aktuell Stripe-API-detalj kan ha ändrats står antagandet **uttryckligt** i texten och i avsnitt 9. Bygg inte runt en osäkerhet tyst — flagga den (byggregel 10, fil 00).
@@ -14,7 +14,7 @@
 
 ```
  Donator (M4 checkout, fil 03)
-    │  belopp + insamlings-id + undermål-val + ev. frivilligt bidrag
+    │  belopp + insamlings-id + ev. frivilligt bidrag
     ▼
  Edge Function: create-payment-intent
     │  skapar PaymentIntent PÅ PLATTFORMSKONTOT (separate charges and transfers)
@@ -31,16 +31,20 @@
  ... insamlingen är AKTIV, medel ackumuleras på PLATTFORMENS Stripe-balans ...
 
  deadline passerar  →  pg_cron-jobb stänger insamlingen  →  Edge Function: settle-campaign
-    │  räknar utfall (mål nått / undermål) per donations undermål-val
-    ├──▶ Transfer till insamlarens connected account   (för "ge ändå" + lyckat mål)
-    └──▶ Refund av charge                              (för "återbetala mig" vid undermål)
+    │  räknar utfall (mål nått / undermål) — pengarna flödar framåt oavsett
+    ├──▶ Transfer till insamlarens connected account   (ALLA donationer)
+    │       undermål → ingen auto-refund: förlängning ELLER medlen används
+    │       som de är för en skalad insats (M7-rapportering)
+    └──▶ Refund av charge   (UNDANTAG — bara vid bedrägeri/fel, ej missat mål)
               │
               ▼  manuell, plattformsstyrd Payout
          insamlarens svenska bankkonto
 ```
 
+> **OBS — återbetalningsmodellen reviderad (Tillägg-Nya-beslut-2026-05-23 A1).** Den ursprungliga modellen (per-donation `undermal_val` `ge_anda`/`aterbetala`, automatisk refund vid undermål) **utgår**. Ny modell: pengarna flödar framåt — `settle-campaign` transfererar **alla** donationer vid stängning, oavsett om exakt mål nåddes. Missat mål utlöser **ingen** auto-refund; insamlingen förlängs en gång eller medlen används som de är. Refund-koden behålls men anropas **bara** som undantag vid bedrägeri (`nedstängd`) eller fel (missad/felaktig donation). `undermal_val` som charge-metadata och beslutspunkt utgår. Avsnitt 2.2, 5.2, 5.3 och beslutsloggen är uppdaterade enligt detta.
+
 **Tre saker att aldrig glömma:**
-1. **Charge görs på plattformskontot, inte direkt mot insamlaren.** Det är det som gör refund vid undermål möjligt (M5 Block 2.2).
+1. **Charge görs på plattformskontot, inte direkt mot insamlaren.** Det är det som ger plattformen kontroll vid stängning och gör refund vid bedrägeri/fel möjlig innan transfer (M5 Block 2.2).
 2. **Webhooks är enda sanningen för betalstatus.** Klienten får aldrig skriva "betald" (byggregel 7, fil 00).
 3. **Stripe är sanningen för pengarörelser. Databasen speglar.** Webhooks synkar. Databasen ljuger aldrig för Stripe.
 
@@ -93,13 +97,13 @@ Föreningen (Sadaqa Sweden själv) har **också** ett connected account — dest
 
 ## 2. Charge-flödet tekniskt — separate charges and transfers
 
-Detta är hela plattformens hemlighet (M5 Block 2). **Vald modell: separate charges and transfers** — charge på plattformskontot, transfer till insamlaren *senare* (vid deadline). *Inte* destination charges (då sitter pengarna hos insamlaren direkt → refund vid undermål omöjligt).
+Detta är hela plattformens hemlighet (M5 Block 2). **Vald modell: separate charges and transfers** — charge på plattformskontot, transfer till insamlaren *senare* (vid deadline). *Inte* destination charges (då sitter pengarna hos insamlaren direkt → plattformen tappar kontroll vid stängning och refund vid bedrägeri/fel före transfer blir omöjlig).
 
 ### 2.1 När en donation görs
 
 Donatorn slutför M4-checkouten (fil 03 detaljerar frontend). Steg:
 
-1. **Edge Function `create-payment-intent`** anropas med: belopp (öre, SEK), `campaign_id`, undermål-val (`ge_anda` / `aterbetala`), ev. frivilligt bidrag (öre), donatorns e-post.
+1. **Edge Function `create-payment-intent`** anropas med: belopp (öre, SEK), `campaign_id`, ev. frivilligt bidrag (öre), donatorns e-post.
 2. Funktionen skapar en **PaymentIntent på plattformskontot** (alltså *utan* `Stripe-Account`-header — anropet körs som plattformen själv):
 
    ```ts
@@ -111,7 +115,6 @@ Donatorn slutför M4-checkouten (fil 03 detaljerar frontend). Steg:
      transfer_group: `campaign_${campaign_id}`,  // binder ihop charges + transfer
      metadata: {
        campaign_id,
-       undermal_val,                             // ge_anda | aterbetala
        gava_ore,                                 // insamlingens del
        frivilligt_bidrag_ore,                    // föreningens del
        donator_email,
@@ -119,6 +122,7 @@ Donatorn slutför M4-checkouten (fil 03 detaljerar frontend). Steg:
      },
    });
    // returnera pi.client_secret till frontend
+   // Obs: inget undermal_val längre — pengarna flödar framåt (Tillägg A1).
    ```
 
    - **`transfer_group`** = ett id per insamling (`campaign_<id>`). Ryggraden i bokföringen (avsnitt 2.3).
@@ -130,18 +134,18 @@ Donatorn slutför M4-checkouten (fil 03 detaljerar frontend). Steg:
 
 ### 2.2 Medlen hålls till deadline — kritiskt
 
-Under hela `aktiv`-fasen ackumuleras charges på plattformsbalansen. **Ingen transfer.** Detta bekräftar M1 Block 2 Fält 4: eftersom ingen transfer skett kan varje charge refunderas → refund vid undermål är tekniskt möjligt.
+Under hela `aktiv`-fasen ackumuleras charges på plattformsbalansen. **Ingen transfer.** Detta bekräftar M1 Block 2 Fält 4: eftersom ingen transfer skett kan varje charge refunderas → refund vid bedrägeri/fel är tekniskt möjlig fram tills medlen transfererats. Det är inte längre en undermåls-mekanik — pengarna flödar framåt vid undermål (Tillägg A1) — men fönstret att stoppa en upptäckt fejk innan utbetalning finns kvar.
 
 **Vid deadline** (pg_cron stänger insamlingen, M1 Block 3):
 
 1. **pg_cron-jobb** kör schemalagt, hittar insamlingar vars `deadline < now()` och status `aktiv` → sätter status `stängd`.
 2. **Edge Function `settle-campaign`** triggas (av cron-jobbet eller en kö):
    - Räknar utfallet: mål nått / undermål (M1 Block 2 — fast: 100 %; intervall: lägstanivå; öppet: ej relevant).
-   - Går igenom insamlingens donationer:
-     - **Mål nått** → alla donationer ska transfereras.
-     - **Undermål** → donationer med `undermal_val = ge_anda` transfereras; `undermal_val = aterbetala` refunderas.
+   - **Pengarna flödar framåt oavsett utfall** (Tillägg A1) — `settle-campaign` transfererar **alla** insamlingens donationer, både vid nått mål och vid undermål.
+   - **Vid undermål görs ingen auto-refund.** Insamlingen kan i stället förlängas en gång (M1 Block 2 Fält 5 — kort förlängning auto-godkänns, längre kräver granskare) eller använda medlen som de är för en skalad insats. `settle-campaign` skiljer alltså på två fall: (a) insamlingen ska **förlängas** → skjut stängningen, ingen settlement än; (b) insamlingen ska **avräknas som den är** (mål nått ELLER undermål utan förlängning) → transferera alla donationer.
+   - Utfallet rapporteras via transparens-loopen (M7).
    - För donationer som ska transfereras: skapar **Transfer** (avsnitt 5.1).
-   - För donationer som ska refunderas: skapar **Refund** (avsnitt 5.2).
+   - **Refund anropas inte här som rutin.** Refund-koden (avsnitt 5.2) körs bara som undantag — vid bedrägeri (`nedstängd`, admin) eller fel.
 3. Efter transfers → **manuell, plattformsstyrd Payout** (avsnitt 5.1).
 
 > **Antagande → öppen fråga 2.** "Separate charges and transfers" är en etablerad Stripe Connect-mekanik. Exakt API-form (PaymentIntent på plattformskontot + senare `transfers.create` med `destination` och `transfer_group`) verifieras mot Stripes aktuella Connect-dokumentation vid byggstart. Arkitekturen — "charge på plattformen, transfer senare" — håller oavsett API-detaljer.
@@ -307,32 +311,32 @@ const transfer = await stripe.transfers.create({
 
 **Kantfall (M5 Block 3.5):** stängt bankkonto → `payout.failed` → admin-flagga, insamlaren uppdaterar bankuppgifter via Stripe Express, payout görs om. Insamlaren avlider/försvinner → pengarna är intakta på Stripe, admin-ärende. Inget förloras.
 
-### 5.2 Refund
+### 5.2 Refund — undantaget
 
-Tre situationer (M5 Block 4.1):
+**Refund är ett undantag, inte en rutin** (M5 Block 4, reviderad enligt Tillägg A1). Ett **missat mål utlöser ingen refund** — pengarna flödar framåt. Refund-koden behålls men anropas bara i två fall:
 
 | Situation | Vilka donationer | Triggas av |
 |---|---|---|
-| **Undermål** | Bara `undermal_val = aterbetala` | `settle-campaign`, automatiskt vid stängning |
-| **Fejk / nedstängning** | **Alla** donationer | Admin (M16), vid `nedstängd` |
-| **Insamlaren avbryter / mottagare faller bort** | Alla eller delar | Granskare/admin, manuellt |
+| **Bedrägeri** | **Alla** donationer på insamlingen. Upptäckt i valfritt skede | Admin (M16), vid `nedstängd` |
+| **Fel** | En enskild missad/felaktig donation (t.ex. dubbeldebitering) | System/admin, manuellt vid behov |
+
+`settle-campaign` anropar alltså **inte** refund som del av normal stängning — den transfererar alla donationer (avsnitt 2.2).
 
 **Refund i kod:**
 
 ```ts
 const refund = await stripe.refunds.create({
   payment_intent: stripe_payment_intent_id,   // hela gåvan; v1 refunderar inte delar
-  metadata: { campaign_id, refund_reason },
+  metadata: { campaign_id, refund_reason },   // refund_reason: bedrageri | fel
 });
 ```
 
-- Eftersom ingen transfer gjorts (medlen ligger på plattformsbalansen) är detta okomplicerat — charge refunderas direkt.
+- Så länge ingen transfer gjorts (medlen ligger på plattformsbalansen) är detta okomplicerat — charge refunderas direkt.
 - Webhook `charge.refunded` skriver `refunds.status` + `donations.status = refunded` och minskar `insamlat_belopp`.
-- **Undermåls-refund är systemtriggad och självgående** — ingen människa rör den (M5 Block 4.2, 95 %-principen).
 - Donatorn notifieras (M15 — pengar-relaterad notis, går alltid fram).
 - **v1 refunderar hela gåvor, inte delar** (M5 Block 4.6).
 
-**Fejk efter payout** (det dyra scenariot, M5 Block 4.3): pengarna är redan hos insamlaren → refund från plattformsbalansen går inte → återkrav, ev. polisanmälan. Arkitekturen minimerar fönstret (medel hålls till deadline + granskning före publicering) men eliminerar det inte.
+**Bedrägeri efter payout** (det dyra scenariot, M5 Block 4.3): pengarna är redan hos insamlaren → refund från plattformsbalansen går inte → pengarna återkallas i den mån det går med juridiska medel (återkrav, ev. polisanmälan). Arkitekturen minimerar fönstret (medel hålls till deadline + granskning före publicering) men eliminerar det inte.
 
 ### 5.3 Vem bär refund-avgiften (M5 Block 4.4)
 
@@ -436,6 +440,8 @@ Det som ska bekräftas, konkret:
 | Onboarding via **Account Links** (hostad Stripe-flow) | Avsnitt 1.2 |
 | **Separate charges and transfers** — charge på plattformskontot, transfer senare | Avsnitt 2 |
 | Medlen hålls på plattformens Stripe-balans **till deadline** | Avsnitt 2.2 |
+| **Pengarna flödar framåt — missat mål ger ingen auto-refund** (Tillägg A1) | Avsnitt 0, 2.2 |
+| **`settle-campaign` transfererar alla donationer; refund bara vid bedrägeri/fel** (Tillägg A1) | Avsnitt 2.2, 5.2 |
 | `transfer_group` per insamling som bokföringsryggrad | Avsnitt 2.3 |
 | Webhooks är **enda sanningen** för betalstatus | Avsnitt 3, 6, 7 |
 | Signaturverifiering + idempotens via `webhook_events`-tabell | Avsnitt 3.3, 3.4 |
@@ -470,3 +476,4 @@ Det som ska bekräftas, konkret:
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Första tekniska planen för Stripe & pengaflöde. Stripe Connect-arkitektur (Express, Account Links), charge-flödet (separate charges and transfers, medel hålls till deadline), webhooks (Edge Function, signaturverifiering, idempotens via `webhook_events`), databas↔Stripe-spegling, utbetalning/refund/chargebacks, realtidsräknarens pengadel, säkerhet. Swish-osäkerheten flaggad som hård öppen fråga före byggstart. Verkställer besluten i M5. |
+| 1.1 | 2026-05-24 | Återbetalningsmodell reviderad enligt Tillägg-Nya-beslut-2026-05-23 A1 — framåt-flöde, refund bara vid bedrägeri/fel. `settle-campaign` auto-refunderar inte längre vid undermål — den transfererar alla donationer och hanterar förlängning/medlen-används-framåt; refund-koden behålls men anropas bara vid bedrägeri/fel. `undermal_val` borttaget ur `create-payment-intent`-metadata. Avsnitt 0 (snabböversikt + OBS-not), 2.1, 2.2, 5.2 och beslutsloggen 9.1 uppdaterade. |

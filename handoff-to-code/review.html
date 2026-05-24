@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Granskning — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper-deep); }
+
+  /* Shell — 3 columns: queue, ärende, principles */
+  .rev-shell {
+    display: grid;
+    grid-template-columns: 320px 1fr 360px;
+    min-height: 100vh;
+    background: var(--paper-deep);
+  }
+
+  /* App-style left sidebar */
+  .rev-side {
+    background: var(--forest-deep);
+    color: var(--paper);
+    padding: 20px 0;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .rev-side-head {
+    padding: 4px 24px 20px;
+    border-bottom: 1px solid rgba(245, 240, 228, 0.08);
+  }
+  .rev-side-head .who {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .rev-side-head .who .av {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--copper);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+  }
+  .rev-side-head .who .name { font-weight: 600; }
+  .rev-side-head .who .role { font-size: 11px; color: rgba(245, 240, 228, 0.55); display: block; }
+
+  .rev-queue-head {
+    padding: 16px 24px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--copper-warm);
+    font-weight: 600;
+  }
+  .rev-queue {
+    flex: 1; overflow-y: auto;
+    padding: 0 12px 12px;
+  }
+
+  .q-item {
+    background: rgba(245, 240, 228, 0.03);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 150ms ease;
+  }
+  .q-item:hover { background: rgba(245, 240, 228, 0.08); }
+  .q-item.active {
+    background: rgba(245, 240, 228, 0.10);
+    border-left-color: var(--copper);
+  }
+  .q-item .top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .q-item .id { font-family: var(--font-mono); font-size: 10px; color: rgba(245, 240, 228, 0.5); }
+  .q-item .age { font-size: 10px; color: rgba(245, 240, 228, 0.5); margin-left: auto; }
+  .q-item .age.warn { color: var(--copper-warm); }
+  .q-item .age.danger { color: #E08A7B; }
+  .q-item .title {
+    font-size: 13px;
+    color: var(--paper);
+    line-height: 1.3;
+    margin-bottom: 8px;
+    font-weight: 500;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .q-item .meta {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px;
+    color: rgba(245, 240, 228, 0.55);
+  }
+  .q-status {
+    height: 18px; padding: 0 8px;
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(245, 240, 228, 0.10);
+    color: rgba(245, 240, 228, 0.8);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .q-status.new { background: rgba(184, 132, 62, 0.20); color: var(--copper-warm); }
+  .q-status.iter { background: rgba(245, 240, 228, 0.10); color: rgba(245, 240, 228, 0.85); }
+
+  /* Filter pills */
+  .filter-row {
+    padding: 0 24px 16px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .filter-pill {
+    padding: 5px 10px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    color: rgba(245, 240, 228, 0.7);
+    background: rgba(245, 240, 228, 0.06);
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .filter-pill.active {
+    background: rgba(184, 132, 62, 0.18);
+    color: var(--copper-warm);
+  }
+  .filter-pill .n {
+    font-family: var(--font-mono);
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+
+  /* MAIN — ärende */
+  .rev-main {
+    background: var(--paper);
+    padding: 32px 48px 64px;
+    overflow-y: auto;
+    border-left: 1px solid var(--ink-line);
+    border-right: 1px solid var(--ink-line);
+  }
+  .rev-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .rev-toolbar .left { display: flex; align-items: center; gap: 12px; }
+  .rev-id {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+  }
+  .rev-age {
+    font-size: 11px;
+    color: var(--copper-deep);
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: var(--copper-soft);
+    border-radius: var(--r-pill);
+    font-weight: 600;
+  }
+
+  .case-head {
+    margin-bottom: 32px;
+  }
+  .case-cat {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--copper-deep); font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .case-title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    line-height: 1.1;
+    letter-spacing: -0.012em;
+    margin: 0 0 16px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .case-byline {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .case-byline .av {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--forest-mid), var(--forest));
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 14px; font-weight: 500;
+  }
+  .case-byline .info { flex: 1; }
+  .case-byline .name { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .case-byline .meta { font-size: 12px; color: var(--ink-3); }
+  .case-byline .ts { font-size: 11px; color: var(--ink-3); }
+
+  /* Tabs */
+  .case-tabs {
+    display: flex; gap: 4px;
+    margin: 24px 0 20px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 4px;
+  }
+  .case-tab {
+    padding: 8px 14px;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .case-tab.active { background: var(--paper); color: var(--forest); box-shadow: var(--shadow-1); }
+  .case-tab .badge {
+    background: var(--copper-soft); color: var(--copper-deep);
+    font-size: 10px; padding: 1px 6px; border-radius: var(--r-pill); font-weight: 600;
+  }
+
+  /* Content blocks */
+  .block {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .block-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .block-head h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .kv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+  }
+  .kv .k {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+  }
+  .kv .v {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .kv .vsub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+
+  /* Story display */
+  .story {
+    font-size: 15px;
+    color: var(--ink-1);
+    line-height: 1.7;
+  }
+  .story p { margin: 0 0 16px; }
+
+  /* Image grid */
+  .img-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .img-grid .img {
+    aspect-ratio: 1;
+    border-radius: var(--r-sm);
+    overflow: hidden;
+    border: 1px solid var(--ink-line);
+  }
+  .img-grid .img .ph { width: 100%; height: 100%; }
+  .img-grid .img .ph-label { font-size: 10px; }
+
+  /* Doc rows */
+  .doc-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .doc-row .icn { color: var(--ink-3); }
+  .doc-row .name { flex: 1; font-family: var(--font-mono); font-size: 12px; color: var(--ink-1); }
+  .doc-row .meta { font-size: 11px; color: var(--ink-3); }
+
+  /* Conversation */
+  .conv-msg {
+    display: flex; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .conv-msg:last-child { border-bottom: 0; }
+  .conv-msg .av {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex: 0 0 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .conv-msg.them .av { background: var(--forest-soft); color: var(--forest); }
+  .conv-msg.us .av { background: var(--copper-soft); color: var(--copper-deep); }
+  .conv-msg .body { flex: 1; }
+  .conv-msg .head { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+  .conv-msg .head strong { color: var(--ink-1); font-weight: 600; }
+  .conv-msg .text { font-size: 14px; color: var(--ink-1); line-height: 1.55; }
+  .conv-msg .text.note { font-style: italic; color: var(--ink-2); }
+
+  /* RIGHT side — checklist & actions */
+  .rev-actions {
+    background: var(--paper-soft);
+    padding: 24px 28px;
+    position: sticky; top: 0; height: 100vh;
+    overflow-y: auto;
+    border-left: 1px solid var(--ink-line);
+  }
+  .rev-actions h4 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  /* Principles checklist */
+  .principle {
+    display: flex; gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .principle:last-child { border-bottom: 0; }
+  .principle-mark {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+    flex: 0 0 28px;
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .principle.ok .principle-mark { background: var(--success-soft); border-color: var(--success); color: var(--success); }
+  .principle.flag .principle-mark { background: var(--copper-soft); border-color: var(--copper); color: var(--copper-deep); }
+  .principle.no .principle-mark { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+  .principle .body { flex: 1; }
+  .principle .name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-1);
+    margin-bottom: 2px;
+  }
+  .principle .ref {
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+  }
+  .principle .note {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--ink-2);
+    font-style: italic;
+  }
+
+  .decision-buttons {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-top: 24px;
+  }
+  .decision-btn {
+    text-align: left;
+    padding: 16px 18px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--ink-line);
+    background: var(--paper);
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .decision-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+  .decision-btn .top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .decision-btn .top strong { font-size: 14px; }
+  .decision-btn .sub { font-size: 11px; color: var(--ink-3); }
+  .decision-btn.approve { border-color: var(--success); background: var(--success-soft); }
+  .decision-btn.approve strong { color: var(--success); }
+  .decision-btn.iter { border-color: var(--copper); background: var(--copper-soft); }
+  .decision-btn.iter strong { color: var(--copper-deep); }
+  .decision-btn.reject { border-color: var(--danger); background: var(--danger-soft); }
+  .decision-btn.reject strong { color: var(--danger); }
+
+  /* Trust score visual */
+  .trust-score {
+    background: var(--forest);
+    color: var(--paper);
+    border-radius: var(--r-md);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .trust-score .num {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.012em;
+  }
+  .trust-score .lbl {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(245, 240, 228, 0.7);
+    margin-bottom: 6px;
+  }
+  .trust-score .sub { font-size: 11px; color: rgba(245, 240, 228, 0.65); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="rev-shell">
+  <!-- LEFT — queue -->
+  <aside class="rev-side">
+    <div class="rev-side-head">
+      <span id="wordmark-slot"></span>
+      <div class="who">
+        <div class="av">ZM</div>
+        <div>
+          <span class="name">Zivar M.</span>
+          <span class="role">Granskare · skift 14:00–18:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rev-queue-head">
+      <span>Granskningskö</span>
+      <span style="color: rgba(245, 240, 228, 0.55); font-family: var(--font-mono); font-size: 11px;">14</span>
+    </div>
+
+    <div class="filter-row">
+      <span class="filter-pill active">Alla<span class="n">14</span></span>
+      <span class="filter-pill">Nya<span class="n">5</span></span>
+      <span class="filter-pill">Pågående<span class="n">7</span></span>
+      <span class="filter-pill">Tilldelade mig<span class="n">3</span></span>
+    </div>
+
+    <div class="rev-queue">
+      <div class="q-item active">
+        <div class="top">
+          <span class="q-status iter">Iteration</span>
+          <span class="id">#SAD-2841</span>
+          <span class="age danger">8 t kvar</span>
+        </div>
+        <div class="title">En brunn för byn Diabaly — 280 personer får rent vatten</div>
+        <div class="meta">Vatten · Mali · 200 000 kr · Yasmin A.</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status new">Ny</span>
+          <span class="id">#SAD-2842</span>
+          <span class="age warn">36 t kvar</span>
+        </div>
+        <div class="title">Iftar-paket för 200 syrier-flyktingar i Berlin</div>
+        <div class="meta">Mat · Tyskland · 60 000 kr · Omar B.</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status new">Ny</span>
+          <span class="id">#SAD-2843</span>
+          <span class="age">62 t kvar</span>
+        </div>
+        <div class="title">Renovering av damernas bönerum — Husby moské</div>
+        <div class="meta">Moské · Stockholm · 145 000 kr · Husby Moské</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status">Pågående</span>
+          <span class="id">#SAD-2840</span>
+          <span class="age">14 t</span>
+        </div>
+        <div class="title">Operation för Aishas dotter — hjärtmissbildning</div>
+        <div class="meta">Sjukvård · Sverige · 480 000 kr · Aisha M.</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status">Pågående</span>
+          <span class="id">#SAD-2839</span>
+          <span class="age">18 t</span>
+        </div>
+        <div class="title">Skolböcker till 120 barn i Idlib innan terminen</div>
+        <div class="meta">Utbildning · Syrien · 48 000 kr · Yasmin A.</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status">Pågående</span>
+          <span class="id">#SAD-2838</span>
+          <span class="age">22 t</span>
+        </div>
+        <div class="title">Vinterstövlar till hemlösa i Stockholm city</div>
+        <div class="meta">Bistånd · Sverige · 24 000 kr · Khalid R.</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status iter">Iteration</span>
+          <span class="id">#SAD-2837</span>
+          <span class="age warn">38 t</span>
+        </div>
+        <div class="title">Begravningshjälp för familjen Hassan</div>
+        <div class="meta">Begravning · Göteborg · 35 000 kr · Hisingens Moské</div>
+      </div>
+
+      <div class="q-item">
+        <div class="top">
+          <span class="q-status">Pågående</span>
+          <span class="id">#SAD-2836</span>
+          <span class="age">52 t</span>
+        </div>
+        <div class="title">Föräldralösa barn — fadderskap-program i Gaza</div>
+        <div class="meta">Barn · Palestina · 300 000 kr · Hjälpkraft Sverige</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN — ärende -->
+  <main class="rev-main">
+    <div class="rev-toolbar">
+      <div class="left">
+        <span class="rev-id">Ärende #SAD-2841</span>
+        <span class="pill pill-paper">Iteration · 2 svar</span>
+        <span class="rev-age">
+          <span id="clock-icon"></span>
+          8 timmar kvar av 72 h SLA
+        </span>
+      </div>
+      <div class="row gap-8">
+        <button class="btn btn-ghost btn-sm" id="prev-case">
+          <span id="prev-arrow"></span> Föregående
+        </button>
+        <button class="btn btn-ghost btn-sm" id="next-case">
+          Nästa <span id="next-arrow"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="case-head">
+      <div class="case-cat">Vatten · Mali · Diabaly-byn</div>
+      <h1 class="case-title">En brunn för byn Diabaly — 280 personer får rent vatten</h1>
+      <div class="case-byline">
+        <div class="av">YA</div>
+        <div class="info">
+          <div class="name">Yasmin Adan <span style="color: var(--copper-deep); font-weight: 500;">· BankID-verifierad · Trust-poäng 92</span></div>
+          <div class="meta">Stockholm · 8 tidigare insamlingar · 8/8 bevis komplett · Inga flaggningar</div>
+        </div>
+        <div class="ts">
+          Skickad in: 25 maj 14:22<br>
+          Iteration: 26 maj 09:05
+        </div>
+      </div>
+    </div>
+
+    <div class="case-tabs">
+      <div class="case-tab active"><span id="ct-1"></span> Storyn</div>
+      <div class="case-tab"><span id="ct-2"></span> Mottagare &amp; pengar</div>
+      <div class="case-tab"><span id="ct-3"></span> Dokument <span class="badge">5</span></div>
+      <div class="case-tab"><span id="ct-4"></span> Bilder <span class="badge">3</span></div>
+      <div class="case-tab"><span id="ct-5"></span> Konversation <span class="badge">3</span></div>
+      <div class="case-tab"><span id="ct-6"></span> Historik</div>
+    </div>
+
+    <!-- BLOCK — Title & description -->
+    <div class="block">
+      <div class="block-head">
+        <h3>Beskrivning &amp; storyn</h3>
+        <span class="xs">487 tecken</span>
+      </div>
+      <div class="story">
+        <p>
+          Byn Diabaly i centrala Mali har 280 invånare, varav 140 är barn under 12 år. Närmaste rena vattenkälla ligger fyra kilometer bort — barnen som hämtar vatten missar skolan, kvinnorna går två gånger om dagen, och under torrperioden räcker det inte. Förra året var nio barn allvarligt sjuka i diarré som följd.
+        </p>
+        <p>
+          En djupbrunn med handpump kostar i Mali cirka 180 000 kr inklusive borrning, betongring, pumpinstallation och utbildning av två lokala underhållstekniker. Jag har räknat fram budgeten tillsammans med Wells of Hope Mali, en lokal organisation som har byggt 14 brunnar i regionen sedan 2019 och vars dokumentation jag har granskat.
+        </p>
+      </div>
+    </div>
+
+    <!-- BLOCK — Key facts -->
+    <div class="block">
+      <div class="block-head">
+        <h3>Nyckelfakta</h3>
+      </div>
+      <div class="kv-grid">
+        <div class="kv">
+          <div class="k">Kategori</div>
+          <div class="v">Vatten</div>
+          <div class="vsub">Auto-godkänd (ej känsligt fiqh-område)</div>
+        </div>
+        <div class="kv">
+          <div class="k">Mål</div>
+          <div class="v">200 000 kr</div>
+          <div class="vsub">180 000 borrning + 18 000 buffert + 2 000 buffert</div>
+        </div>
+        <div class="kv">
+          <div class="k">Mottagare</div>
+          <div class="v">Wells of Hope Mali</div>
+          <div class="vsub">Lokal NGO · MA-NGO-2019-0341 · 14 referensprojekt</div>
+        </div>
+        <div class="kv">
+          <div class="k">Pengaflöde</div>
+          <div class="v">Stripe Connect direkt till mottagare</div>
+          <div class="vsub">Insamlaren tar inte emot själv. Bra.</div>
+        </div>
+        <div class="kv">
+          <div class="k">Tidplan</div>
+          <div class="v">18 dagar insamling</div>
+          <div class="vsub">14 jun deadline · resultat-bevis sep 2026</div>
+        </div>
+        <div class="kv">
+          <div class="k">Över-mål-policy</div>
+          <div class="v">Pump till grannbyn Massala</div>
+          <div class="vsub">Rimligt. Inget vagt "andra liknande projekt".</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOCK — Documents -->
+    <div class="block">
+      <div class="block-head">
+        <h3>Dokument (privat — bara granskning)</h3>
+        <button class="btn btn-secondary btn-sm">Ladda ner alla</button>
+      </div>
+      <div class="doc-row">
+        <span class="icn" id="d-1"></span>
+        <span class="name">Registreringsbevis_WellsOfHope_2024.pdf</span>
+        <span class="meta">312 KB</span>
+        <span class="pill pill-success" style="height: 22px; font-size: 10px;">Verifierad</span>
+      </div>
+      <div class="doc-row">
+        <span class="icn" id="d-2"></span>
+        <span class="name">Offert_borrning_Diabaly_2026-05.pdf</span>
+        <span class="meta">218 KB</span>
+        <span class="pill pill-success" style="height: 22px; font-size: 10px;">Verifierad</span>
+      </div>
+      <div class="doc-row">
+        <span class="icn" id="d-3"></span>
+        <span class="name">Referensprojekt_3-brunnar_2023.pdf</span>
+        <span class="meta">1.2 MB</span>
+        <span class="pill pill-paper" style="height: 22px; font-size: 10px;">Granska</span>
+      </div>
+      <div class="doc-row">
+        <span class="icn" id="d-4"></span>
+        <span class="name">Kontoutdrag_WellsOfHope_2025-Q4.pdf</span>
+        <span class="meta">644 KB</span>
+        <span class="pill pill-paper" style="height: 22px; font-size: 10px;">Granska</span>
+      </div>
+      <div class="doc-row">
+        <span class="icn" id="d-5"></span>
+        <span class="name">Tillstånd_lokala-myndigheten_2026-05.pdf</span>
+        <span class="meta">88 KB</span>
+        <span class="pill pill-success" style="height: 22px; font-size: 10px;">Verifierad</span>
+      </div>
+    </div>
+
+    <!-- BLOCK — Images -->
+    <div class="block">
+      <div class="block-head">
+        <h3>Bilder (publika)</h3>
+        <span class="xs">3 av max 8</span>
+      </div>
+      <div class="img-grid">
+        <div class="img"><div class="ph"><span class="ph-label">brunn-1.jpg</span></div></div>
+        <div class="img"><div class="ph" style="background: linear-gradient(135deg, #5C7A6B, #2D5947);"><span class="ph-label">brunn-2.jpg</span></div></div>
+        <div class="img"><div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">karta.jpg</span></div></div>
+        <div class="img" style="background: var(--paper-deep); border-style: dashed; display: flex; align-items: center; justify-content: center; color: var(--ink-4); font-size: 11px;">tomt</div>
+      </div>
+      <div class="row aic gap-8 mt-12">
+        <span class="pill pill-success">EXIF kollat · 0 stulna</span>
+        <span class="pill pill-paper">Omvänd bildsök · OK</span>
+      </div>
+    </div>
+
+    <!-- BLOCK — Conversation -->
+    <div class="block">
+      <div class="block-head">
+        <h3>Konversation med insamlaren</h3>
+        <span class="xs">3 meddelanden · senaste 26 maj 09:05</span>
+      </div>
+
+      <div class="conv-msg us">
+        <div class="av">Z</div>
+        <div class="body">
+          <div class="head"><strong>Zivar M.</strong> · granskare · 25 maj 16:14</div>
+          <div class="text">
+            Tack för en välskriven ansökan. Två frågor innan jag kan godkänna:
+            <br>1. Har Wells of Hope ett eget Stripe-konto eller behöver vi gå via en svensk partner-organisation?
+            <br>2. Kan du visa hur 18 000 kr "buffert för transport" bryts ner?
+          </div>
+        </div>
+      </div>
+
+      <div class="conv-msg them">
+        <div class="av">YA</div>
+        <div class="body">
+          <div class="head"><strong>Yasmin A.</strong> · insamlare · 26 maj 08:32</div>
+          <div class="text">
+            Hej Zivar,
+            <br><br>1. Wells of Hope har Stripe-konto sedan november 2024. Jag bifogar deras Stripe-id i en separat säkerhets-bilaga.
+            <br><br>2. Bufferten: 8 000 kr transport av borr-utrustning från Bamako (650 km), 5 000 kr boende för två tekniker i 2 veckor, 5 000 kr för oförutsedda kostnader (reservdelar, lokala avgifter). Jag har lagt till Wells of Hopes egen kostnadsuppskattning som dokument.
+          </div>
+        </div>
+      </div>
+
+      <div class="conv-msg them">
+        <div class="av">YA</div>
+        <div class="body">
+          <div class="head"><strong>Yasmin A.</strong> · insamlare · 26 maj 09:05</div>
+          <div class="text note">
+            Lade till "Kontoutdrag_WellsOfHope_2025-Q4.pdf" som bevis på aktivt Stripe-konto.
+          </div>
+        </div>
+      </div>
+
+      <textarea class="textarea mt-16" placeholder="Skriv svar till insamlaren — eller välj ett beslut till höger." style="min-height: 100px;"></textarea>
+      <div class="row jcs aic mt-12">
+        <span class="xs">Markdown stöds · privat-tagg för interna anteckningar</span>
+        <div class="row gap-8">
+          <button class="btn btn-ghost btn-sm">Privat anteckning</button>
+          <button class="btn btn-secondary btn-sm">Skicka svar</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT — actions -->
+  <aside class="rev-actions">
+    <!-- Trust score -->
+    <div class="trust-score">
+      <div class="lbl">Insamlarens trust-poäng</div>
+      <div class="num">92<span style="font-size: 18px; color: rgba(245, 240, 228, 0.55);">/100</span></div>
+      <div class="sub">8/8 bevis komplett · 0 sena · 0 flaggor</div>
+    </div>
+
+    <h4 style="margin-top: 24px;">Granskningsprinciper · M8</h4>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-1"></span>
+      <div class="body">
+        <div class="name">Identitet verifierad</div>
+        <div class="ref">M6 · BankID + KYC</div>
+      </div>
+    </div>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-2"></span>
+      <div class="body">
+        <div class="name">Projektet är islamiskt godtagbart</div>
+        <div class="ref">M8 §2 · vatten — auto-OK</div>
+      </div>
+    </div>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-3"></span>
+      <div class="body">
+        <div class="name">Mottagare existerar &amp; tar emot direkt</div>
+        <div class="ref">M8 §4 · Wells of Hope verifierad</div>
+      </div>
+    </div>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-4"></span>
+      <div class="body">
+        <div class="name">Beloppet är rimligt för projektet</div>
+        <div class="ref">M8 §5 · 180k för 1 brunn = i nivå</div>
+        <div class="note">Inom region-median (165k–210k för 280-pers brunn)</div>
+      </div>
+    </div>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-5"></span>
+      <div class="body">
+        <div class="name">Inga diskriminerande formuleringar</div>
+        <div class="ref">M8 §7 · neutral text</div>
+      </div>
+    </div>
+    <div class="principle ok">
+      <span class="principle-mark" id="p-6"></span>
+      <div class="body">
+        <div class="name">Bilder äkta &amp; rättighetsklarerade</div>
+        <div class="ref">M8 §8 · EXIF + omvänd sök</div>
+      </div>
+    </div>
+    <div class="principle flag">
+      <span class="principle-mark" id="p-7"></span>
+      <div class="body">
+        <div class="name">Stora belopp &gt;100k — andra granskare</div>
+        <div class="ref">M3 §3.4 · eskalering</div>
+        <div class="note">Andra granskare har sett: Ahmed N. ✓ · Salma K. inväntas</div>
+      </div>
+    </div>
+
+    <h4 style="margin-top: 32px;">Beslut</h4>
+    <div class="decision-buttons">
+      <button class="decision-btn approve">
+        <div class="top">
+          <span id="dec-1"></span>
+          <strong>Godkänn &amp; publicera</strong>
+        </div>
+        <div class="sub">Insamlingen går live direkt. Stripe-utbetalningar aktiveras.</div>
+      </button>
+      <button class="decision-btn iter">
+        <div class="top">
+          <span id="dec-2"></span>
+          <strong>Be om komplettering</strong>
+        </div>
+        <div class="sub">Skicka tillbaka med specifika frågor. SLA pausas.</div>
+      </button>
+      <button class="decision-btn reject">
+        <div class="top">
+          <span id="dec-3"></span>
+          <strong>Avslå</strong>
+        </div>
+        <div class="sub">Med motivering. Insamlaren kan överklaga inom 14 dgr.</div>
+      </button>
+    </div>
+
+    <div class="card mt-24" style="background: var(--paper); padding: 16px;">
+      <div class="row aic gap-10 mb-8">
+        <span id="info-i" style="color: var(--copper-deep);"></span>
+        <span class="xs" style="font-weight: 600; color: var(--copper-deep); letter-spacing: 0.12em; text-transform: uppercase;">Eskalering aktiv</span>
+      </div>
+      <div class="xs" style="line-height: 1.5;">
+        Belopp över 100&nbsp;000 kr kräver 2 granskare. Du är granskare 1. Ahmed N. har sett ärendet och nickat. Salma K. inväntas (väntar i hennes kö sedan 04:22).
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ light: true, size: 17 });
+  document.getElementById('clock-icon').innerHTML = SADAQA.icon('clock', 12);
+  document.getElementById('prev-arrow').innerHTML = SADAQA.icon('arrow-left', 12);
+  document.getElementById('next-arrow').innerHTML = SADAQA.icon('arrow-right', 12);
+  document.getElementById('ct-1').innerHTML = SADAQA.icon('document', 14);
+  document.getElementById('ct-2').innerHTML = SADAQA.icon('wallet', 14);
+  document.getElementById('ct-3').innerHTML = SADAQA.icon('file-check', 14);
+  document.getElementById('ct-4').innerHTML = SADAQA.icon('grid', 14);
+  document.getElementById('ct-5').innerHTML = SADAQA.icon('message', 14);
+  document.getElementById('ct-6').innerHTML = SADAQA.icon('clock', 14);
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('d-' + i).innerHTML = SADAQA.icon('document', 14);
+  }
+  document.getElementById('p-1').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-2').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-3').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-4').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-5').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-6').innerHTML = SADAQA.icon('check', 14);
+  document.getElementById('p-7').innerHTML = SADAQA.icon('alert', 14);
+  document.getElementById('dec-1').innerHTML = SADAQA.icon('check-circle', 16);
+  document.getElementById('dec-2').innerHTML = SADAQA.icon('message', 16);
+  document.getElementById('dec-3').innerHTML = SADAQA.icon('x', 16);
+  document.getElementById('info-i').innerHTML = SADAQA.icon('info', 14);
+
+  // Queue interactions
+  document.querySelectorAll('.q-item').forEach(q => {
+    q.addEventListener('click', () => {
+      document.querySelectorAll('.q-item').forEach(x => x.classList.remove('active'));
+      q.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.case-tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.case-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.principle').forEach(p => {
+    p.addEventListener('click', () => {
+      // cycle ok -> flag -> no -> ok
+      if (p.classList.contains('ok')) { p.classList.remove('ok'); p.classList.add('flag'); }
+      else if (p.classList.contains('flag')) { p.classList.remove('flag'); p.classList.add('no'); }
+      else if (p.classList.contains('no')) { p.classList.remove('no'); p.classList.add('ok'); }
+      else p.classList.add('ok');
+    });
+  });
+</script>
+
+</body>
+</html>

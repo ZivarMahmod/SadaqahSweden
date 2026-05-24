@@ -13,7 +13,9 @@
 
 Modul 5 definierar **hur pengarna rör sig** — från donatorns kort/Swish, genom Stripe, till insamlarens konto. Och lika viktigt: hur de **inte** rör sig — varför de aldrig juridiskt passerar genom plattformen.
 
-**Den löser:** M1 antog (Block 2) att "Stripe håller medlen till insamlingsdeadline" — utan det fungerar inte refund vid undermål. M4 antog att betalning, kvitto och refund är möjliga. **M5 bevisar att de antagandena håller**, eller säger rakt ut var de inte gör det. M5 sätter ramarna uppåt: pengaflödet är inte fri konst — det avgör vad resten av plattformen får lova.
+**Den löser:** M1 antog (Block 2) att "Stripe håller medlen till insamlingsdeadline" — utan det fungerar inte refund vid bedrägeri/fel innan utbetalning. M4 antog att betalning, kvitto och refund är möjliga. **M5 bevisar att de antagandena håller**, eller säger rakt ut var de inte gör det. M5 sätter ramarna uppåt: pengaflödet är inte fri konst — det avgör vad resten av plattformen får lova.
+
+> **OBS — återbetalningsmodellen reviderad (Tillägg-Nya-beslut-2026-05-23 A1).** Den modell som ursprungligen skrevs i M5 (per-donation-val "ge ändå / återbetala mig", automatisk refund vid undermål) **utgår**. Ny modell: pengar **flödar framåt** — de används för saken oavsett om exakt mål nås. Missat mål utlöser **ingen** automatisk återbetalning; insamlingen kan i stället förlängas en gång eller använda medlen som de är för en skalad insats (rapporteras via M7). **Återbetalning är ett undantag**, inte rutin — sker bara vid bedrägeri (upptäckt i valfritt skede, pengar återkallas i den mån det går med juridiska medel) eller fel (missad/felaktig donation). Donatorn ska **vid gåvotillfället** tydligt veta att gåvan används för saken oavsett om exakt mål nås. Texten nedan är uppdaterad enligt detta.
 
 ---
 
@@ -21,7 +23,7 @@ Modul 5 definierar **hur pengarna rör sig** — från donatorns kort/Swish, gen
 
 Tre skäl till att pengaflödet måste spikas i detalj — och tidigt:
 
-- **M1 Block 2 vilar på ett antagande som bara M5 kan bekräfta.** "Stripe håller medlen till deadline" är förutsättningen för refund vid undermål. Är den fel, faller M1 Block 2 Fält 4. Den måste verifieras, inte hoppas på.
+- **M1 Block 2 vilar på ett antagande som bara M5 kan bekräfta.** "Stripe håller medlen till deadline" är förutsättningen för att refund vid bedrägeri/fel ska kunna ske innan pengarna lämnat plattformsbalansen, och för att medlen ska kunna styras kontrollerat vid stängning. Är den fel, faller M1 Block 2 Fält 4. Den måste verifieras, inte hoppas på.
 - **Juridiken är avgörande.** Om pengar juridiskt passerar genom plattformen blir plattformen en **betaltjänst** — och då krävs tillstånd från Finansinspektionen. Det är en oöverstiglig tröskel för ett föreningsprojekt. Hela arkitekturen är byggd för att undvika det. Det måste vara *medvetet* designat, inte en lycklig slump.
 - **Avgifterna formar löftet.** "0 kr plattformsavgift" (princip 1) är ett kärnlöfte. M5 måste visa exakt hur det går ihop ekonomiskt — annars är det en tom slogan.
 
@@ -34,7 +36,7 @@ Tre skäl till att pengaflödet måste spikas i detalj — och tidigt:
 | 1 | Stripe Connect-arkitektur — connected accounts, onboarding | ✅ Spikad |
 | 2 | Charge-flödet — hur en donation blir en charge, hur medel hålls | ✅ Spikad |
 | 3 | Utbetalning — när och hur pengar når insamlaren | ✅ Spikad |
-| 4 | Refund — vid undermål, vid fejk/nedstängning, vem bär avgiften | ✅ Spikad |
+| 4 | Refund — undantaget: vid bedrägeri/fel, vem bär avgiften | ✅ Spikad |
 | 5 | Avgifter — 0 kr plattformsavgift, Stripe-avgift, Swish, frivilligt bidrag | ✅ Spikad |
 | 6 | Juridiken — varför pengarna aldrig passerar plattformen | ✅ Spikad |
 
@@ -176,18 +178,18 @@ Stripe Connect erbjuder flera sätt att flytta pengar till ett connected account
 
 | Metod | Hur det fungerar | Lämplig för oss? |
 |---|---|---|
-| **Destination charges** | Vid betalningstillfället går pengarna *direkt* mot det connected account som är destination. Pengen "landar" hos insamlaren med en gång. | **Nej.** Då sitter pengarna hos insamlaren redan vid donationen — refund vid undermål blir krångligt eller omöjligt, för pengarna kan redan vara utbetalda. |
+| **Destination charges** | Vid betalningstillfället går pengarna *direkt* mot det connected account som är destination. Pengen "landar" hos insamlaren med en gång. | **Nej.** Då sitter pengarna hos insamlaren redan vid donationen — plattformen tappar kontroll vid stängning, och refund vid bedrägeri/fel före transfer blir krångligt eller omöjligt, för pengarna kan redan vara utbetalda. |
 | **Separate charges and transfers** | Charge skapas **på plattformskontot**. Pengarna ligger på plattformens Stripe-balans. En **separat transfer** till insamlarens connected account görs *senare* — när plattformen bestämmer (dvs. vid deadline). | **JA — vald.** Plattformen kontrollerar tajmingen. Pengarna kan hållas tills deadline, och refund är fullt möjligt fram tills transfern gjorts. |
 
 **Så här fungerar det konkret:**
 
 1. **Under insamlingens `aktiv`-fas:** varje donation blir en charge **på plattformens Stripe-konto**. Pengarna ackumuleras på plattformens Stripe-balans, bokförda mot rätt insamling via metadata. **Ingen transfer görs ännu.**
 2. **Insamlingen är `aktiv` → `stängd`** när deadline passerar (M1 Block 3, systemtriggat).
-3. **Vid stängning** avgör plattformen utfallet (mål nått / undermål) och vad varje donations undermål-val innebär.
-4. **Sedan** görs transfers till insamlarens connected account — för de donationer som ska gå dit. Donationer märkta "återbetala mig" vid undermål transfereras **inte** — de refunderas i stället (Block 4).
+3. **Vid stängning** avgör plattformen utfallet (mål nått / undermål). **Pengarna flödar framåt oavsett utfall** — ett missat mål utlöser ingen automatisk återbetalning. Vid undermål kan insamlingen i stället förlängas en gång eller använda medlen som de är för en skalad insats (Block 4).
+4. **Sedan** görs transfers till insamlarens connected account — för **alla** insamlingens donationer. Återbetalning är ett undantag som bara aktiveras vid bedrägeri eller fel (Block 4) och berör då inte det normala flödet.
 5. Därefter sker payout från connected account till insamlarens bankkonto (Block 3).
 
-**Detta bekräftar M1 Block 2 Fält 4:** Eftersom pengarna ligger på **plattformens Stripe-balans** ända tills transfern görs, och transfern görs **först vid deadline**, är **refund vid undermål fullt tekniskt möjligt**. En charge kan refunderas så länge den inte är en del av en redan genomförd transfer/payout-kedja. M1:s antagande **håller**.
+**Detta bekräftar M1 Block 2 Fält 4:** Eftersom pengarna ligger på **plattformens Stripe-balans** ända tills transfern görs, och transfern görs **först vid deadline**, är **refund vid bedrägeri/fel fullt tekniskt möjligt så länge medlen ännu inte transfererats**. En charge kan refunderas så länge den inte är en del av en redan genomförd transfer/payout-kedja. M1:s antagande **håller** — fönstret där en upptäckt fejk kan stoppas innan pengarna lämnar plattformen finns kvar.
 
 > **Antagande (→ Öppna frågor):** "Separate charges and transfers" är en etablerad Stripe Connect-mekanik. Det finns en alternativ väg — **manual payouts** på destination charges — men den är klumpigare för vårt fall. Beslutet är *separate charges and transfers*. Exakt API-form (PaymentIntent på plattformskontot + senare Transfer med rätt `destination` och `transfer_group`) ska verifieras mot Stripes aktuella Connect-dokumentation vid byggstart. Arkitekturen — "charge på plattformen, transfer senare" — är robust oavsett API-detaljer.
 
@@ -196,7 +198,7 @@ Stripe Connect erbjuder flera sätt att flytta pengar till ett connected account
 Varje insamlings charges och kommande transfers binds samman med ett gemensamt **`transfer_group`** (ett ID per insamling). Det gör att vi vid deadline kan:
 
 - Summera exakt vad en insamling fått in.
-- Veta vilka charges som ska transfereras och vilka som ska refunderas.
+- Transferera alla insamlingens charges samlat till rätt connected account (och, vid undantaget bedrägeri/fel, plocka ut just de charges som ska refunderas).
 - Hålla bokföringen ren — varje krona spårbar till rätt insamling.
 
 Detta är också ryggraden i transparensen (M7): vi kan visa exakt vad som kom in och vad som hände med det.
@@ -230,14 +232,17 @@ Båda måste ske för att pengarna ska nå insamlaren på riktigt.
         │  deadline passerar (system, M1 Block 3)
         ▼
  Insamlingen STÄNGD
-        │  system räknar: mål nått? undermål? per-donation undermål-val?
+        │  system räknar: mål nått? undermål?
         ▼
  ┌──────────────────────────────────────────────┐
- │ För donationer som ska gå till insamlaren:    │
- │   → TRANSFER till connected account           │
- │ För donationer märkta "återbetala mig" vid    │
- │   undermål:                                   │
- │   → REFUND (Block 4), ingen transfer          │
+ │ Pengarna flödar framåt — oavsett utfall:      │
+ │   → TRANSFER av alla donationer till          │
+ │     connected account                        │
+ │ Undermål → ingen auto-refund; insamlingen     │
+ │   förlängs en gång ELLER medlen används som   │
+ │   de är för en skalad insats (Block 4, M7)    │
+ │ REFUND sker bara som undantag vid             │
+ │   bedrägeri/fel (Block 4)                     │
  └──────────────────────────────────────────────┘
         │
         ▼
@@ -250,8 +255,8 @@ Båda måste ske för att pengarna ska nå insamlaren på riktigt.
 **Steg för steg:**
 
 1. **Deadline passerar** → insamlingen `stängd` (systemtriggat, M1 Block 3).
-2. **Systemet räknar utfallet.** Mål nått eller undermål. För varje donation: ska den till insamlaren eller refunderas (Block 4)?
-3. **Transfers görs** till insamlarens connected account för alla donationer som ska dit.
+2. **Systemet räknar utfallet.** Mål nått eller undermål. Vid undermål: ingen automatisk återbetalning — insamlingen kan förlängas en gång eller använda medlen som de är (Block 4). Utfallet rapporteras via transparens-loopen (M7).
+3. **Transfers görs** till insamlarens connected account för **alla** insamlingens donationer.
 4. **Payout till bankkontot.** Här finns ett designval — se 3.3.
 5. **Insamlaren bekräftar** (M1 Block 3.3: "stängd → utbetald" triggas av "system + insamlaren"). Insamlaren får en notis (M15), ser i sin Express-dashboard / på plattformen att utbetalningen är på väg, och kontrollerar att bankkontot stämmer.
 6. Insamlingen → `utbetald` (M1 Block 3). Detta triggar **utbetalningsbeviset** i transparens-loopen (M7).
@@ -287,31 +292,38 @@ Båda måste ske för att pengarna ska nå insamlaren på riktigt.
 
 När pengar går tillbaka till donatorn. Detta block besvarar också **M1:s öppna fråga nr 4**: vem bär den icke-återbetalbara Stripe-avgiften vid refund.
 
-## 4.1 När refund sker
+> **Reviderad enligt Tillägg A1.** Refund är **inte längre en rutin** vid undermål. Pengarna flödar framåt — de används för saken oavsett om exakt mål nås. Återbetalning är ett **undantag** som bara sker vid bedrägeri eller fel. Donatorns per-donation-val "ge ändå / återbetala mig" **utgår**.
 
-Tre situationer:
+## 4.1 Grundprincipen — pengarna flödar framåt
+
+Sadaqah som getts är Islamiskt oåterkallelig; givaren vill att saken hjälps oavsett slutsumma. Därför:
+
+- **Missat mål utlöser ingen automatisk återbetalning.** Missar en insamling 50 000 med 49 998 återbetalas ingenting per automatik. Medlen används för saken.
+- **Vid missat mål** kan insamlingen **förlängas en gång** (M1 Block 2 Fält 5), eller så **används medlen som de är** för en skalad insats. Insamlaren rapporterar utfallet via transparens-loopen (M7) — bevistrycket justeras mot vad som faktiskt samlades in.
+- **Icke-förhandlingsbart krav:** donatorn ska **vid gåvotillfället** tydligt veta att gåvan används för saken oavsett om exakt mål nås (M4 Block 2). Transparens vid gåvotillfället ersätter det tidigare valet — utan det är det ett förtroendebrott.
+
+## 4.2 När refund sker — undantaget
+
+Refund är ett **undantag**, inte en rutin. Den sker bara i två fall:
 
 | Situation | Vilka donationer refunderas | Triggas av |
 |---|---|---|
-| **Undermål** | Bara donationer märkta "återbetala mig" (M4 Block 2.1) | System, automatiskt vid stängning |
-| **Fejk / nedstängning** | **Alla** donationer på insamlingen | Admin, vid `nedstängd` |
-| **Insamlaren avbryter / mottagaren faller bort** | Beror på fallet — alla eller delar | Granskare/admin, manuellt |
+| **Bedrägeri** | **Alla** donationer på insamlingen. Upptäckt i valfritt skede (tidigt eller sent) | Admin, vid `nedstängd` |
+| **Fel** | En enskild missad eller felaktig donation (t.ex. dubbeldebitering) | System/admin, vid behov |
 
-## 4.2 Refund vid undermål
+Ett missat mål är **inget** av dessa — det leder aldrig till refund. Se 4.1.
 
-- Insamlingen `stängd`, målet ej nått.
-- För varje donation märkt **"återbetala mig"** (M4 Block 2.1) → automatisk refund av den charge som ligger på plattformsbalansen. Eftersom ingen transfer gjorts (Block 2.2) är detta okomplicerat — charge refunderas direkt.
-- Donationer märkta **"ge ändå"** transfereras normalt till insamlaren (Block 3).
-- Donatorn notifieras (M4 Block 5.2 — pengar-relaterad notis, går alltid fram).
-- Detta är **systemtriggat och självgående** — ingen människa rör en undermåls-refund. Det är 95 %-principen.
+## 4.3 Refund vid bedrägeri — `nedstängd`
 
-## 4.3 Refund vid fejk / nedstängning
-
-- Insamlingen blir `nedstängd` (M1 Block 5.2, beslut i M8).
-- **Alla** donationer refunderas — oavsett vad donatorn valde om undermål. Vid fejk finns inget legitimt projekt att "ge ändå" till.
+- Bedrägeri kan upptäckas **i valfritt skede** — tidigt eller sent. Insamlingen blir `nedstängd` (M1 Block 5.2, beslut i M8).
+- **Alla** donationer refunderas. Vid bedrägeri finns inget legitimt projekt pengarna ska gå till.
 - Om transfer/payout **ännu inte skett** (vanligast, eftersom pengar hålls till deadline) → refunds görs från plattformsbalansen, enkelt.
-- Om pengar **redan betalats ut** (fejk upptäckt sent) → svårare. Pengarna är hos insamlaren. Då krävs återkrav, ev. polisanmälan. Detta är det dyra scenariot — och själva skälet till att **granska före publicering** (princip 7) och att hålla medlen till deadline. Arkitekturen minimerar fönstret där detta kan hända, men kan inte eliminera det helt ("vårt fel men inte dödligt").
+- Om pengar **redan betalats ut** (bedrägeri upptäckt sent) → svårare. Pengarna är hos insamlaren. Då **återkallas pengarna i den mån det går, med juridiska medel** — återkrav, ev. polisanmälan. Detta är det dyra scenariot — och själva skälet till att **granska före publicering** (princip 7) och att hålla medlen till deadline. Arkitekturen minimerar fönstret där detta kan hända, men kan inte eliminera det helt ("vårt fel men inte dödligt").
 - Donatorerna notifieras (M4 Block 5.2).
+
+## 4.3b Refund vid fel
+
+En **missad eller felaktig donation** — t.ex. dubbeldebitering eller ett tekniskt fel — refunderas alltid, oavsett insamlingens utfall. Det är inte en utfallsfråga utan en korrigering. Hanteras från fall till fall; om medlen ännu inte transfererats görs refunden från plattformsbalansen.
 
 ## 4.4 Vem bär Stripe-avgiften vid refund — BESLUT (M1 öppen fråga nr 4)
 
@@ -324,11 +336,11 @@ Frågan: vem bär den kostnaden?
 **Motivering — punkt för punkt:**
 
 - **Donatorn ska aldrig straffas för att ha gett.** Att ge tillbaka 98,5 % av en gåva med förklaringen "Stripe tog resten" är ett trovärdighetsmord. En donator som får tillbaka mindre än hen gav kommer aldrig ge igen. Princip 6 (premium genom omsorg), princip 9 (transparens som styrka).
-- **Att lägga det på insamlaren är fel.** Vid **undermål** har insamlaren inte gjort något fel — projektet nådde bara inte ända fram. Att då också debitera hen refund-avgifter för pengar hen aldrig fick vore orättvist. Vid **fejk** finns ingen ärlig insamlare att debitera.
+- **Att lägga det på insamlaren är fel.** Vid **fel** (dubbeldebitering o.d.) har insamlaren inte gjort något — att debitera hen refund-avgifter för en korrigering vore orättvist. Vid **bedrägeri** finns ingen ärlig insamlare att debitera.
 - **Att lägga det på donatorn är värst.** Se första punkten.
-- **Plattformen är den enda kvar — och den har en buffert.** Det **frivilliga bidraget** (Block 5) finns just för att täcka plattformens kostnader. Refund-avgifter vid undermål och fejk är en sådan kostnad. Det är en hanterbar, ovanlig utgift — undermål med många "återbetala mig"-väljare är inte normalfallet, eftersom default är "ge ändå" (M4 Block 2.1).
+- **Plattformen är den enda kvar — och den har en buffert.** Det **frivilliga bidraget** (Block 5) finns just för att täcka plattformens kostnader. Refund-avgifter vid bedrägeri och fel är en sådan kostnad. Det är en hanterbar, ovanlig utgift — refund är ett undantag, inte en rutin (4.1–4.2), så volymen är låg.
 
-**Konsekvens att vara medveten om:** detta är en **reell kostnad** för föreningen. Den är liten per refund (en charge-avgift) men kan summera vid en stor nedstängd fejk-insamling. Det är priset för att hålla löftet "din gåva är trygg". Det priset är värt att betala — och det är ännu ett skäl till att granska hårt före publicering så att fejk-nedstängningar är sällsynta.
+**Konsekvens att vara medveten om:** detta är en **reell kostnad** för föreningen. Den är liten per refund (en charge-avgift) men kan summera vid en stor nedstängd bedrägeri-insamling. Det är priset för att hålla löftet "din gåva är trygg". Det priset är värt att betala — och det är ännu ett skäl till att granska hårt före publicering så att bedrägeri-nedstängningar är sällsynta.
 
 > **Antagande (→ Öppna frågor):** Stripes exakta behandling av avgifter vid refund kan variera (i vissa fall/regioner/produkter återförs delar av avgiften, i andra inte; Swish-återbetalningar kan behandlas annorlunda än kort). Beslutet — **donatorn hålls skadeslös, plattformen bär mellanskillnaden** — gäller oavsett. Exakt belopp att budgetera ska verifieras mot Stripes aktuella avgiftsvillkor och mot Swish-villkoren.
 
@@ -336,7 +348,7 @@ Frågan: vem bär den kostnaden?
 
 Refund (4.1–4.4) är när **plattformen eller systemet** lämnar tillbaka en gåva. En **chargeback** är något annat: det är när en donator **bestrider sin egen betalning via sin bank eller kortutgivare** — utanför plattformen. Banken driver in pengarna och plattformen/insamlaren får ingen valmöjlighet i samma mening. Det är ett block M5 tidigare inte täckte — refund ja, chargeback nej. Här spikas det.
 
-**Vad en chargeback kostar:** en chargeback drar **beloppet + en avgift** från insamlarens Stripe-saldo. Riktmärke för avgiften: **~150 kr per chargeback** (verifieras mot Stripes aktuella villkor — se Öppna frågor). Till skillnad från en vanlig refund är det donatorns bank, inte plattformen, som styr förloppet.
+**Vad en chargeback kostar:** en chargeback drar **beloppet + en avgift** från insamlarens Stripe-saldo. Riktmärke för avgiften: **~150 kr per chargeback** (verifieras mot Stripes aktuella villkor — se Öppna frågor). Till skillnad från en refund (som plattformen själv utlöser vid bedrägeri/fel) är det donatorns bank, inte plattformen, som styr förloppet.
 
 **Principbeslut — vem bär en chargeback, beror på *när* den sker:**
 
@@ -356,7 +368,7 @@ Refund (4.1–4.4) är när **plattformen eller systemet** lämnar tillbaka en g
 - **Donatorn har bytt kort / Swish-nummer sedan gåvan** → refund går normalt tillbaka till den ursprungliga betalkällan via Stripe; om den källan inte längre fungerar hanterar Stripe det enligt sina rutiner. I sällsynta fall krävs manuell hantering.
 - **Gästdonator** → refund går till betalkällan; donatorn aviseras på sin e-post. Ingen inloggning behövs.
 - **Partiell refund** → tekniskt möjligt, men i v1 refunderar vi **hela** gåvor, inte delar. Enklare, tydligare, färre kantfall.
-- **Donatorn vill ha refund "för att hen ångrar sig"** efter att ha gett till en frisk, aktiv insamling → **nej.** En genomförd sadaqah återköps inte på begäran. Refund finns för undermål och fejk — inte som ångerrätt. (Undantag: tekniskt fel, dubbeldebitering — då självklart.) Detta hör delvis till M8 (villkor).
+- **Donatorn vill ha refund "för att hen ångrar sig"** efter att ha gett till en frisk, aktiv insamling → **nej.** En genomförd sadaqah återköps inte på begäran. Refund finns för bedrägeri och fel — inte som ångerrätt, och inte för att ett mål missades (då flödar pengarna framåt, 4.1). (Undantag inom "fel": tekniskt fel, dubbeldebitering — då självklart.) Detta hör delvis till M8 (villkor).
 
 ---
 
@@ -430,9 +442,9 @@ Detta är **kritiskt** att få rätt. Det finns två helt olika sorters pengar o
 
 | Part | Betalar | Får |
 |---|---|---|
-| **Donatorn** | Sin gåva (+ ev. frivilligt bidrag, oförbockat) | Kvitto. Vid undermål med "återbetala mig" / vid fejk: 100 % tillbaka |
+| **Donatorn** | Sin gåva (+ ev. frivilligt bidrag, oförbockat) | Kvitto. Gåvan används för saken oavsett om exakt mål nås. Vid bedrägeri/fel: 100 % tillbaka |
 | **Insamlaren** | Stripe-avgiften (~1,4 % + 1,80 kr/donation), dras från insamlingens medel | Nettobeloppet av alla gåvor, utbetalt till bankkontot |
-| **Plattformen (föreningen)** | 0 kr av insamlingen. Bär refund-avgifter vid undermål/fejk | Det frivilliga bidraget — driftens finansiering |
+| **Plattformen (föreningen)** | 0 kr av insamlingen. Bär refund-avgifter vid bedrägeri/fel | Det frivilliga bidraget — driftens finansiering |
 
 ---
 
@@ -492,14 +504,16 @@ För att hålla sig på rätt sida:
 | Stripe Connect som hela pengaflödets grund | Stripe har licensen, KYC:n, regelefterlevnaden. Princip 13 — vi bygger inte om en betaltjänst. |
 | Stripe Connect **Express** som kontotyp | Rätt balans: låg onboarding-friktion för insamlaren, Stripe bär KYC-bördan, plattformen behåller payout-kontroll. Standard är för tungt, Custom är onödigt utvecklingsarbete. |
 | **Separate charges and transfers** — inte destination charges | Charge på plattformskontot + senare transfer = plattformen styr tajmingen. Pengarna kan hållas till deadline. Detta är vad som gör M1 Block 2:s refund-löfte tekniskt sant. |
-| Medlen hålls hos Stripe till insamlingsdeadline | Förutsättningen M1 Block 2 byggde på. Bekräftad: refund vid undermål är möjligt eftersom ingen transfer skett. |
+| Medlen hålls hos Stripe till insamlingsdeadline | Förutsättningen M1 Block 2 byggde på. Bekräftad: refund vid bedrägeri/fel är möjligt så länge ingen transfer skett — fönstret att stoppa en upptäckt fejk finns kvar. |
+| **Pengarna flödar framåt — missat mål ger ingen auto-refund** (Tillägg A1) | Sadaqah som getts är Islamiskt oåterkallelig; givaren vill att saken hjälps oavsett slutsumma. Missat mål → insamlingen förlängs en gång eller medlen används för en skalad insats (M7). Donatorn vet vid gåvotillfället att gåvan används oavsett utfall. |
+| **Refund är ett undantag — bara vid bedrägeri/fel** (Tillägg A1) | Donatorns per-donation-val "ge ändå / återbetala mig" utgår som rutin. Enklare flöde, färre tillstånd. Transparens vid gåvotillfället ersätter valet. |
 | Manuell, plattformsstyrd payout efter deadline | Plattformen ska avgöra payout-tajming, inte ett auto-schema. Ger marginal att fånga fel innan pengar lämnar Stripe. |
-| **Plattformen bär refund-avgiften** (M1 öppen fråga 4) | Donatorn får alltid 100 % tillbaka — att straffa en givare är trovärdighetsmord. Insamlaren har inte felat vid undermål. Det frivilliga bidraget finns för att täcka sådana kostnader. |
+| **Plattformen bär refund-avgiften** (M1 öppen fråga 4) | Donatorn får alltid 100 % tillbaka — att straffa en givare är trovärdighetsmord. Vid fel har insamlaren inte felat; vid bedrägeri finns ingen ärlig insamlare. Det frivilliga bidraget finns för att täcka sådana kostnader. |
 | 0 kr plattformsavgift | Princip 1. Forskning: 0 % + frivilligt tips är en förtroendesignal. |
 | Insamlaren bär Stripe-avgiften, transparent | Plattformen kan inte subventionera varje transaktion. Mottagaren bär kostnaden för att ta emot — logiskt och standard. Visas öppet i M2. |
 | Frivilligt bidrag strikt åtskilt från insamlingspengar | En krona avsedd för bönemattor får aldrig hamna i föreningens drift. `transfer_group` + separat bidragshantering. Förtroende + redovisning. |
 | Hela gåvor refunderas, inte delar (v1) | Enklare, tydligare, färre kantfall. |
-| Refund är inte ångerrätt | En genomförd sadaqah återköps inte på begäran. Refund finns för undermål och fejk. |
+| Refund är inte ångerrätt | En genomförd sadaqah återköps inte på begäran. Refund finns för bedrägeri och fel — inte för missat mål (då flödar pengarna framåt). |
 | Chargeback: före utbetalning = ren, efter = insamlarens ansvar | Före payout finns medlen kvar hos Stripe — ingen drabbas. Efter payout har insamlaren fått pengarna och bär återkravet. Plattformen bär bara i sista hand vid insolvens — sällsynt, litet belopp ("vårt fel men inte dödligt"). En chargeback matar dessutom M16:s bedrägerilarm. |
 | Stripe-beroendet erkänns; reservväg hålls känd, ej byggd | Stripe har stängt konton för muslimska organisationer förr — en enskild felpunkt. Alternativ (Adyen, Klarna Payments, Wise Business) och en grov migrationsväg hålls på ritbordet; full operativ plan i `Beredskapsplan.md`. |
 | Pengarna passerar aldrig föreningens bankkonto | Det är det som håller plattformen utanför betaltjänstlagen / Finansinspektionen. Stripe är betaltjänsten. |
@@ -510,7 +524,7 @@ För att hålla sig på rätt sida:
 
 **Modul 5 tar in:**
 
-- Mål, modell, deadline, övermåls-/undermålspolicy från **M1 Block 2** — avgör utfallsberäkning vid stängning.
+- Mål, modell, deadline, övermåls-/undermålspolicy (framåt-flöde, förlängning) från **M1 Block 2** — avgör utfallsberäkning vid stängning.
 - Insamlingens tillstånd från **M1 Block 3** — `stängd` triggar transfer/payout, `nedstängd` triggar full refund.
 - Donationen med belopp, undermål-val och frivilligt bidrag från **M4** — råmaterialet för varje charge.
 - Insamlarens/föreningens identitet från **M6** — vem som ska onboardas till ett connected account.
@@ -518,7 +532,7 @@ För att hålla sig på rätt sida:
 **Modul 5 lämnar ut:**
 
 - Charge-flödet som **M4 Block 3** bygger sin betalningsupplevelse på.
-- Bekräftelse att refund vid undermål är möjlig — uppfyller **M1 Block 2 Fält 4**.
+- Bekräftelse att refund vid bedrägeri/fel är tekniskt möjlig så länge medlen ej transfererats — uppfyller **M1 Block 2 Fält 4**.
 - Transfer- och payout-händelser som triggar tillståndsbyte `stängd → utbetald` i **M1 Block 3**.
 - Utbetalningshändelsen som triggar **utbetalningsbeviset** i **M7** (transparens-loopen).
 - Netto/brutto-data (gåvor minus Stripe-avgift) som **M7** visar ärligt.
@@ -534,7 +548,7 @@ För att hålla sig på rätt sida:
 
 - **Plattformen rör aldrig kortdata** — Stripe hanterar all känslig betaldata. PCI-ansvaret ligger hos Stripe.
 - **Pengarna passerar aldrig föreningens bankkonto** — håller plattformen utanför betaltjänstlagen (Block 6).
-- **Medlen hålls till deadline** — minimerar fönstret där en fejk-insamling kan komma undan med pengar. Tillsammans med granskning-före-publicering (princip 7) är detta huvudskyddet mot bedrägeri.
+- **Medlen hålls till deadline** — minimerar fönstret där en bedrägeri-insamling kan komma undan med pengar, och håller refund vid bedrägeri/fel möjlig innan transfer. Tillsammans med granskning-före-publicering (princip 7) är detta huvudskyddet mot bedrägeri.
 - **`transfer_group` per insamling** — varje krona spårbar till rätt insamling; ingen sammanblandning.
 - **Frivilligt bidrag strikt separerat** — projektpengar och driftspengar kan aldrig blandas.
 - **Manuell payout efter deadline** — sista chansen att fånga ett fel innan pengar lämnar Stripe.
@@ -550,7 +564,7 @@ För att hålla sig på rätt sida:
 
 - Charge skapas vid varje donation.
 - Medel ackumuleras på plattformsbalansen mot rätt insamling.
-- Vid deadline: utfallsberäkning, transfers, undermåls-refunds — automatiskt.
+- Vid deadline: utfallsberäkning och transfers — automatiskt. Missat mål utlöser ingen refund; medlen flödar framåt (förlängning eller skalad insats enligt M1 Block 2).
 - Payout initieras enligt plattformens regel.
 - Stripe-avgiften dras automatiskt; netto beräknas automatiskt.
 - Frivilligt bidrag separeras och styrs till föreningens konto automatiskt.
@@ -558,8 +572,10 @@ För att hålla sig på rätt sida:
 
 **Kräver människa:**
 
-- Refund vid **fejk/nedstängning** — beslutet att stänga ner (M8), själva refund-körningen kan vara halvautomatisk.
-- Återkrav när pengar redan betalats ut till en fejk-insamlare.
+- Refund vid **bedrägeri/nedstängning** — beslutet att stänga ner (M8), själva refund-körningen kan vara halvautomatisk.
+- Refund vid **fel** — bedöms och utlöses från fall till fall.
+- Beslut om **förlängning** vid missat mål (M1 Block 2 Fält 5 — kort förlängning auto-godkänns, längre kräver granskare).
+- Återkrav när pengar redan betalats ut till en bedrägeri-insamlare.
 - Insamlare som Stripe nekar verifiering.
 - Insamlaren avlider / försvinner — admin-ärende.
 - Avstämning av föreningens egen ekonomi (M16).
@@ -580,7 +596,7 @@ Riktmärke: ett **lyckat** pengaflöde — donation → hållna medel → transf
 
 ## 10. Beslutslogg
 
-Se avsnitt 5 (Designval & motivering) — det är Modul 5:s fullständiga beslutslogg. Den besvarar bland annat **M1 öppen fråga nr 4** (vem bär Stripe-avgiften vid refund: plattformen) och bekräftar **M1 Block 2:s antagande** (medlen hålls hos Stripe till deadline — refund vid undermål är tekniskt möjligt).
+Se avsnitt 5 (Designval & motivering) — det är Modul 5:s fullständiga beslutslogg. Den besvarar bland annat **M1 öppen fråga nr 4** (vem bär Stripe-avgiften vid refund: plattformen) och bekräftar **M1 Block 2:s antagande** (medlen hålls hos Stripe till deadline — refund vid bedrägeri/fel är tekniskt möjlig fram tills transfer; vid undermål flödar pengarna framåt, Tillägg A1).
 
 ---
 
@@ -590,3 +606,4 @@ Se avsnitt 5 (Designval & motivering) — det är Modul 5:s fullständiga beslut
 |---|---|---|
 | 1.0 | 2026-05-23 | Full djup. Block 1 (Stripe Connect-arkitektur, Express valt), Block 2 (charge-flödet, separate charges and transfers, medel hålls till deadline), Block 3 (utbetalning), Block 4 (refund — M1 öppen fråga 4 besvarad), Block 5 (avgifter, frivilligt bidrag), Block 6 (juridiken) nyskrivna. Bekräftar förutsättningen som M1 Block 2 byggde på. |
 | 1.1 | 2026-05-23 | Kirurgiska tillägg efter extern granskning. Block 1: nytt avsnitt 1.5 — betalprocessor-beroende & reservväg (Stripe som enskild felpunkt, alternativ Adyen/Klarna Payments/Wise Business, grov migrationsväg, hänvisning till `Beredskapsplan.md`). Block 4: nytt avsnitt 4.5 — chargebacks (princip: före utbetalning ren, efter utbetalning insamlarens ansvar, plattformen i sista hand; matar M16:s larm); tidigare 4.5 Kantfall blev 4.6. Beslutslogg utökad med två rader. |
+| 1.2 | 2026-05-24 | Återbetalningsmodell reviderad enligt Tillägg-Nya-beslut-2026-05-23 A1 — framåt-flöde, refund bara vid bedrägeri/fel. Block 4 omarbetat: undermåls-refund och per-donation-valet "ge ändå / återbetala mig" utgår; nytt 4.1 (pengarna flödar framåt), 4.2 (refund-undantaget), 4.3 (bedrägeri), 4.3b (fel). Block 2.2, Block 3.2/3.3-diagram, Block 5.5, designval, kopplingar, säkerhet och automatisering uppdaterade. OBS-not tillagd i avsnitt 1. |

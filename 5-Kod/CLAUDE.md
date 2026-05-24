@@ -87,7 +87,7 @@ Repot innehåller en **scaffold**: en vanlig Next.js-app med en färdig, publik 
 
 **Nästa steg:** Steg 0 i byggsekvensen — verifiera bygget, koppla in Cloudflare-adaptern (OpenNext) och få landningssidan live på Cloudflare Pages. Därefter Steg 1 — databasens grund (`../2-Byggplan/01-Databasplan.md`).
 
-Kodens fulla mappstruktur (mapp per modul m.m.) definieras i `../2-Byggplan/04-Repo-och-kodstruktur.md` — bygg ut den i takt med stegen.
+Kodens fulla mappstruktur (kolokerad modulkod, route-grupper, modul-stämpel — ingen `modules/`-mapp) definieras i `../2-Byggplan/04-Repo-och-kodstruktur.md` — bygg ut den i takt med stegen.
 
 ---
 

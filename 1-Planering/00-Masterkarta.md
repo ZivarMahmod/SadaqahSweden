@@ -2,7 +2,7 @@
 
 **Plattform:** Sadaqa Sweden *(arbetsnamn — bekräfta eller byt)*
 **Datum:** 2026-05-23
-**Status:** Hela plattformen planerad — 17 moduler + Beredskapsplan. Extern granskning genomförd (se `FORGE-genomgang.md`).
+**Status:** Hela plattformen planerad — 19 moduler + Beredskapsplan. Extern granskning genomförd (se `FORGE-genomgang.md`). M18–M19 tillagda 2026-05-24 (se `Tillägg-Nya-beslut-2026-05-23.md`).
 
 ---
 
@@ -30,7 +30,7 @@ Det är norrstjärnan. När ett beslut är oklart: vilket val tjänar den mening
 
 ## 2. De två lagren
 
-Plattformen har **17 moduler i två lager**. Lagren är till för att du ska kunna tänka klart — inte en teknisk indelning.
+Plattformen har **19 moduler i två lager**. Lagren är till för att du ska kunna tänka klart — inte en teknisk indelning.
 
 ### 🟢 KÄRNAN — insamlingsmotorn (Modul 1–8)
 
@@ -38,7 +38,7 @@ Det som *måste* funka för att det här ska vara en insamlingsplattform över h
 
 > **Om bara Kärnan fanns:** du har en fungerande, trygg insamlingsplattform. Tråkig, men den fungerar och den är säker.
 
-### 🔵 VÄRLDEN RUNTOM — det som får folk att komma tillbaka (Modul 9–17)
+### 🔵 VÄRLDEN RUNTOM — det som får folk att komma tillbaka (Modul 9–19)
 
 Profiler, kartan över Sverige, föreningskatalogen, communityn, events, notiser, statistik. Det här är skillnaden mellan "en sajt jag besöker när jag ska donera" och "en plats jag går in på för att se vad som händer".
 
@@ -48,7 +48,7 @@ Profiler, kartan över Sverige, föreningskatalogen, communityn, events, notiser
 
 ## 3. Hela modulkartan
 
-De 17 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.md`** (operativ beredskap — bank, betalning, incident, kontinuitet, ekonomi) och **`FORGE-genomgang.md`** (logg över den externa granskningen och vad den ledde till).
+De 19 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.md`** (operativ beredskap — bank, betalning, incident, kontinuitet, ekonomi) och **`FORGE-genomgang.md`** (logg över den externa granskningen och vad den ledde till).
 
 | # | Modul | Lager | Vad den ansvarar för | Status |
 |---|---|---|---|---|
@@ -69,6 +69,8 @@ De 17 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.m
 | 15 | Notiser & kommunikation | 🔵 Världen | Hur plattformen når användaren — kanaler, opt-in | ✅ Klar |
 | 16 | Admin & dashboard | 🔵 Världen | Drift, statistik, larm, det som håller plattformen självgående | ✅ Klar |
 | 17 | Team & intern arbetsyta | 🔵 Världen | Teamets konton, roller, vem-gör-vad, samlad inloggning — internt verktyg | ✅ Klar |
+| 18 | Plattformsstyrning & federation | 🔵 Världen | Superadmin/admin-federation, regionala admins, distribuerad granskning | ✅ Klar |
+| 19 | Innehåll & FAQ | 🔵 Världen | Publikt innehåll, FAQ, superadmin-redigerbart, juridiska sidor | ✅ Klar |
 
 ---
 
@@ -111,6 +113,10 @@ De 17 modulerna nedan. Två följedokument kompletterar dem: **`Beredskapsplan.m
 **Modul 16 — Admin & dashboard.** Maskinrummet. Driftövervakning, statistik, larm när något kräver en människa, verktygen som gör att plattformen sköter sig själv 95 % av tiden.
 
 **Modul 17 — Team & intern arbetsyta.** Den interna sidan. Hur Zivar och vännerna som hjälper till får konton, roller och en samlad arbetsyta att logga in på — och hur man ser vem som gör vad. Databasen rörs aldrig direkt; arbetsytan är verktyget.
+
+**Modul 18 — Plattformsstyrning & federation.** Hur plattformen styrs när den växer. Tre admin-nivåer: superadmin (Zivar, ser allt), region-admins (en betrodd moské per region som sköter regionens granskning + support), medhjälpare. Distribuerad granskning så ingen flaskhals uppstår, med skydd mot missbruk av delegerad makt. Egna subdomäner. Byggs i Bygg-grupp C.
+
+**Modul 19 — Innehåll & FAQ.** Det publika informationsinnehållet — hur det fungerar, granskningen, Sadaqa & Zakat, för moskéer — plus juridiska sidor (villkor, integritet) och en FAQ. Superadmin redigerar det levande via ett enkelt innehållssystem.
 
 ---
 
@@ -189,8 +195,8 @@ Resten av M7, M4 fullt ut, M9, M11, M15.
 → Bevis, badges, profiler, discovery, notiser. Nu känns det som en plattform, inte ett formulär.
 
 **Bygg-grupp C — "plattformen är en värld":**
-M10, M12, M13, M14, M16, M17.
-→ Katalog, karta, community, events, det självgående maskinrummet, teamets arbetsyta.
+M10, M12, M13, M14, M16, M17, M18, M19.
+→ Katalog, karta, community, events, det självgående maskinrummet, teamets arbetsyta, plattformsstyrningen (federation) och det publika innehållet/FAQ. *(M19:s juridiska sidor — villkor, integritet — byggs dock tidigare; de behövs före skarp lansering.)*
 
 Varför säga det här rakt: scopet är stort. Det är inte knas — det hänger ihop. Men du ska veta att kartan är komplett *och* att den inte byggs på en månad. Planen är hel; bygget är i grupper.
 
@@ -223,7 +229,7 @@ Dessa återkommer genom hela plattformen. När en modul bryter mot en av dem ska
 
 ## 8. Hur varje modulfil är uppbyggd — mallen
 
-Lär dig den här en gång. Alla 17 modulfiler följer den.
+Lär dig den här en gång. Alla 19 modulfiler följer den.
 
 ```
 1. Vad modulen är          — en mening + vad den löser
@@ -316,6 +322,7 @@ Vill du bara veta vad som finns: den här filen räcker.
 | **Granska före publicering** | Bekräftat av research: GoFundMes publicera-först är ett bedrägerihål. Confirmed av LaunchGoods modell. |
 | **Hela kartan planeras, bygget grupperas i A/B/C** | Ärlighet: scopet är stort. Planen får vara hel; bygget måste vara i hanterbara grupper. |
 | **M17 tillagd — Team & intern arbetsyta** | Adminpanelen/teamlagret var ett gap: hur de som driver plattformen får konton, roller och en arbetsyta. Eget koncept, skilt från M16:s driftvy. |
+| **M18 + M19 tillagda — Federation, Innehåll & FAQ** | Plattformsstyrning (regionala admins) och publikt innehåll/FAQ tillkom 2026-05-24 som ny omfattning. Se `Tillägg-Nya-beslut-2026-05-23.md`. Byggs i Bygg-grupp C. |
 
 ---
 
@@ -325,3 +332,4 @@ Vill du bara veta vad som finns: den här filen räcker.
 |---|---|---|
 | 1.0 | 2026-05-23 | Första masterkartan. 16 moduler, två lager, kopplingskarta, designprinciper, mall, research-sammanfattning, gammal→ny-mappning. |
 | 1.1 | 2026-05-23 | Modul 17 (Team & intern arbetsyta) tillagd efter att teamlagret identifierats som ett gap — 17 moduler. |
+| 1.2 | 2026-05-24 | M18 (Plattformsstyrning & federation) och M19 (Innehåll & FAQ) tillagda — 19 moduler. Återbetalningsmodellen reviderad i M1/M4/M5 (se `Tillägg-Nya-beslut-2026-05-23.md`). |

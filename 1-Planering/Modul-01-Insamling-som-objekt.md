@@ -141,7 +141,9 @@ Mosképrojekt · Religiösa varor (bönemattor, Quran, böcker) · Vatten (brunn
 
 Hela den ekonomiska och tidsmässiga ramen. Sex fält.
 
-> **Övergripande flagga:** Pengaflödet (M5) styr Block 2. Antagandet vi planerar mot — bekräftas i M5: **Stripe håller medlen tills insamlingsdeadline, utbetalning sker då** (inte per donation direkt). Det gör refund vid undermål tekniskt möjligt. Allt nedan bygger på det antagandet.
+> **Övergripande flagga:** Pengaflödet (M5) styr Block 2. Antagandet vi planerar mot — bekräftas i M5: **Stripe håller medlen tills insamlingsdeadline, utbetalning sker då** (inte per donation direkt). Det ger plattformen kontroll vid stängning och håller refund vid bedrägeri/fel tekniskt möjlig fram tills medlen transfererats. Allt nedan bygger på det antagandet.
+
+> **OBS — återbetalningsmodellen reviderad (Tillägg-Nya-beslut-2026-05-23 A1).** Den ursprungliga undermåls-modellen i Fält 4 (donatorn väljer per donation "ge ändå / återbetala mig", automatisk refund vid missat mål) **utgår**. Ny modell: pengarna flödar framåt — de används för saken oavsett om exakt mål nås; missat mål ger ingen automatisk återbetalning. Fält 4 nedan är uppdaterat enligt detta.
 
 ## Fält 1 — Målbelopps-modell
 
@@ -203,18 +205,20 @@ Hela den ekonomiska och tidsmässiga ramen. Sex fält.
 
 **Transparens:** Vid övermål visas tydligt på insamlingen: *"Detta projekt har nått sitt mål. Extra medel går till: [övermålsplan]."* Donatorn vet alltid vad en krona över målet gör.
 
-## Fält 4 — Undermål-policy + refund
+## Fält 4 — Undermål-policy
 
 **Vad händer när deadline nås men målet inte.**
 
-- **Default: insamlaren får genomföra med vad som finns.** 30k istället för 35k köper färre mattor men ändå mattor. "Verktyg, inte polis." Detta är GoFundMe-modellen (keep-what-you-raise) och den rätta för vår filosofi.
-- **MEN donatorn väljer vid donationstillfället** (M4) via en kryssruta:
-  *"Om insamlingen inte når sitt mål: [●] Ge ändå — pengarna går till projektet · [ ] Återbetala mig."*
-  Default = **Ge ändå** (de flesta vill det, och friktion vid donation är dålig).
-- Donatorer som valt "återbetala mig" → får automatisk refund om undermål inträffar.
+- **Pengarna flödar framåt.** Medlen används för saken oavsett om exakt mål nås. 30k istället för 35k köper färre mattor men ändå mattor. "Verktyg, inte polis." Detta är keep-what-you-raise-modellen och den rätta för vår filosofi.
+- **Missat mål utlöser ingen automatisk återbetalning.** Missar en insamling 50 000 med 49 998 återbetalas ingenting per automatik.
+- **Vid missat mål — två vägar:** insamlingen kan **förlängas en gång** (se Fält 5), eller så **används medlen som de är** för en skalad insats. Insamlaren rapporterar utfallet via transparens-loopen (M7).
+- **Donatorns per-donation-val "ge ändå / återbetala mig" utgår.** Det är inte längre en kryssruta vid donation (M4 Block 2 uppdaterat).
+- **Icke-förhandlingsbart krav:** donatorn ska **vid gåvotillfället** tydligt veta att gåvan används för saken oavsett om exakt mål nås. Transparens vid gåvotillfället ersätter det tidigare valet — utan det är det ett förtroendebrott.
 - **Bevistryck justeras:** når insamlingen bara 60 % visar transparens-loopen det ärligt — resultatet bevisas mot vad som faktiskt samlades in, inte mot det ursprungliga målet.
 
-**Teknisk förutsättning (→ M5):** Refund vid undermål är bara möjligt om medlen ännu inte betalats ut. Därför håller Stripe medlen till insamlingsdeadline. Refund-flödet, och vem som bär den icke-återbetalbara Stripe-avgiften vid refund, **spikas i M5** — flaggat som öppen fråga där.
+**Varför (Tillägg A1):** sadaqah som getts är Islamiskt oåterkallelig; givaren vill att saken hjälps oavsett slutsumma. Enklare flöde, färre tillstånd.
+
+**Återbetalning är ett undantag** — inte en del av undermåls-policyn. Den sker bara vid **bedrägeri** (upptäckt i valfritt skede, pengar återkallas i den mån det går med juridiska medel) eller **fel** (missad/felaktig donation). Refund-flödet, och vem som bär den icke-återbetalbara Stripe-avgiften, **spikas i M5** — flaggat som öppen fråga där.
 
 ## Fält 5 — Förlängningsregler
 
@@ -450,10 +454,10 @@ Charge som påbörjats före deadline men slutförs strax efter → räknas. Str
 | Slumpat ID-suffix i URL | Unik, läsbar, ändringssäker — och exponerar inte plattformens volym. |
 | Wizard, inte AI-skrivassistent (v1) | Folk vet *vad* de vill säga, inte i vilken ordning. AI-polering homogeniserar och dödar trovärdighet. |
 | Intervall: lägstanivå = "målet nått" | Erkänner leverantörsverklighet utan att svika löftet. Lägsta lovade leverans måste alltid bevisas. |
-| Keep-what-you-raise + donator-styrd refund vid undermål | "Verktyg, inte polis" — 30k köper ändå mattor. Men donatorn som vill ha tillbaka vid undermål ska få välja det vid gåvotillfället. |
+| Keep-what-you-raise — pengarna flödar framåt vid undermål (Tillägg A1) | "Verktyg, inte polis" — 30k köper ändå mattor. Missat mål ger ingen auto-refund; insamlingen förlängs en gång eller medlen används för en skalad insats. Donatorn vet vid gåvotillfället att gåvan används oavsett utfall. Refund är ett undantag (bedrägeri/fel). |
 | Övermål kräver deklarerad plan | Donatorn ska alltid veta vad en krona över målet gör. Utan plan → auto-stäng vid mål. |
 | Två datum (insamling + genomförande) | Pengaflödets slut och leveransens slut är olika saker. Donatorn behöver se båda. |
-| Stripe håller medlen till deadline | Enda sättet att göra refund vid undermål tekniskt möjligt. Förutsättning, bekräftas i M5. |
+| Stripe håller medlen till deadline | Ger plattformen kontroll vid stängning och håller refund vid bedrägeri/fel tekniskt möjlig fram tills transfer. Förutsättning, bekräftas i M5. |
 | `mission_id` finns i datamodellen från start | Återkommande insamlingar är parkerade — men relationen måste finnas så vi slipper migrera. Bygg uttaget nu. |
 | Publik ändringslogg | Transparens är billigare och starkare än förtroende-på-ord. |
 
@@ -469,7 +473,7 @@ Charge som påbörjats före deadline men slutförs strax efter → räknas. Str
 **Modul 1 lämnar ut:**
 - Objektet som **M2** bygger via wizarden och redigerar.
 - Objektet som **M3** granskar.
-- Mål, modell, datum, refund-villkor som **M5** verkställer i Stripe.
+- Mål, modell, datum, undermåls-/förlängningspolicy som **M5** verkställer i Stripe (framåt-flöde; refund bara vid bedrägeri/fel).
 - Bevis-krav (per kategori, per modell) som **M7** kräver in.
 - Tillståndet som **M11** filtrerar och listar på.
 - Plats-data som **M12** ritar på kartan.
@@ -516,3 +520,4 @@ Se avsnitt 5 (Designval & motivering) — det är Modul 1:s fullständiga beslut
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Full djup. Block 1 (6 fält) konsoliderat från frö-arbetet. Block 2 färdigställt (alla 6 fält, öppna frågor besvarade). Block 3 (livscykel), Block 4 (relationer), Block 5 (regler & kantfall) nyskrivna. |
+| 1.1 | 2026-05-24 | Återbetalningsmodell reviderad enligt Tillägg-Nya-beslut-2026-05-23 A1 — framåt-flöde, refund bara vid bedrägeri/fel. Block 2 Fält 4 omarbetat: undermåls-policyn är nu framåt-flöde (förlängning eller skalad insats), per-donation-valet "ge ändå / återbetala mig" utgår, transparens vid gåvotillfället krävs. Designval, kopplingar och OBS-not i Block 2 uppdaterade. |

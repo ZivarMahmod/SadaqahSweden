@@ -49,9 +49,9 @@ M17 gör teamet organiserat, ansvaret spårbart, och databasen förseglad.
 - **Inga självregistreringar.** En teammedlem läggs till *medvetet* av en admin (Block 4). Mängden är liten och känd — Zivar plus några betrodda vänner.
 - **Ett team-konto har:** namn, kontaktuppgift, en roll (Block 2), en stark inloggning, och en aktiv/inaktiv-status.
 - **Stark inloggning, obligatoriskt.** Team-konton är mäktiga — de ska skyddas hårdare än vanliga konton. **BankID** för inloggning, alternativt e-post + obligatorisk tvåfaktor. Detaljerna ärvs från M6.
-- **Team-kontot är skilt från ett ev. privat användarkonto.** Driver Zivar även en egen insamling är det ett separat användarkonto — team-rollen blandas aldrig in i det.
+- **En person = ett konto, team-rollen kan pausas.** En teammedlem har ett enda konto — det blir aldrig två. Vill en teammedlem driva en egen insamling **pausas team-rollen** under tiden: personen agerar då som vanlig insamlare, utan åtkomst till teamets verktyg. När insamlingen är klar **återupptas** rollen. Kontot raderas aldrig, historiken består.
 
-**Kantfall:** En teammedlem som också är insamlare → två skilda konton, två skilda roller. Granskar-rollen får aldrig granska sin egen insamling (jävsregeln, M3).
+**Kantfall:** En teammedlem som också vill vara insamlare → samma konto, ingen andra inloggning. Team-rollen pausas medan hen driver sin insamling och återupptas efteråt. Granskar-rollen får aldrig granska sin egen insamling (jävsregeln, M3) — pausen är det som håller det rent: en granskare med en pågående egen insamling har ingen aktiv granskar-roll alls.
 
 ---
 
@@ -172,6 +172,7 @@ Teammedlemmar vill troligen ha adresser som `namn@sadaqahsweden.se`. **Detta är
 |---|---|
 | Egen modul, skild från M16 | M16 är driftvyn (vad händer i plattformen). M17 är teamet och arbetsytan (vilka vi är, vad var och en får göra). Olika frågor. |
 | Teammedlemmar registrerar sig aldrig själva | Personal läggs till medvetet. Självregistrering hör till donatorer och insamlare — inte till dem som styr. |
+| En person = ett konto, pausbar team-roll | Ett andra konto för samma person är onödig dubblering och splittrar historiken. En team-roll som pausas medan personen driver en egen insamling är renare — allt på ett konto, jäv hanteras av pausen. Zivars beslut 2026-05-24; ersätter den tidigare två-konto-modellen. |
 | Två roller i v1 (Admin, Granskare) | Täcker verkligheten — Zivar styr, vänner granskar. Fler roller är komplexitet utan nytta nu. |
 | En samlad arbetsyta, rollmedveten | En inloggning, en plats. Teamet jobbar ideellt — verktyget får inte vara rörigt. |
 | Ingen direkt databasåtkomst, för någon | Skyddar mot oåterkalleliga misstag, bevarar ansvarsspåret, och håller reglerna (RLS) intakta. Den farligaste genvägen stängs. |
@@ -230,3 +231,4 @@ Se avsnitt 5 (Designval & motivering).
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Första versionen. Ny modul efter att teamlagret identifierats som ett gap. 5 block: teammedlemmar, roller, arbetsyta, onboarding, databasgräns. |
+| 1.1 | 2026-05-24 | Block 1 omskriven: en person = ett konto med **pausbar team-roll**, ersätter den tidigare två-konto-modellen. Beslut ur `2-Byggplan/11-Steg-17-federation-utkast.md` avsnitt E; byggs i Steg 17 (se `2-Byggplan/12-Goal-Steg-17-federation.md`, F7). Designval-tabellen uppdaterad. |

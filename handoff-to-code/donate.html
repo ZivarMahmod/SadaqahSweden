@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Donera — En brunn för byn Diabaly · Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  .donate-shell {
+    min-height: calc(100vh - 72px);
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    background: var(--paper);
+  }
+  .donate-left {
+    padding: 64px 80px 80px;
+    max-width: 720px;
+    margin-left: auto;
+  }
+  .donate-right {
+    background: var(--forest-deep);
+    color: var(--paper);
+    padding: 64px 64px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .donate-right::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.04)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 220px 220px;
+    pointer-events: none;
+  }
+  .donate-right > * { position: relative; z-index: 1; }
+
+  /* Stepper */
+  .stepper {
+    display: flex;
+    gap: 0;
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .stepper-line {
+    position: absolute;
+    top: 14px;
+    left: 16px; right: 16px;
+    height: 1px;
+    background: var(--ink-line);
+    z-index: 0;
+  }
+  .step-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px;
+    position: relative; z-index: 1;
+    cursor: pointer;
+  }
+  .step-circle {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    color: var(--ink-3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 200ms ease;
+  }
+  .step-item.active .step-circle {
+    background: var(--forest);
+    color: var(--paper);
+    border-color: var(--forest);
+    box-shadow: 0 0 0 6px var(--forest-soft);
+  }
+  .step-item.done .step-circle {
+    background: var(--copper);
+    color: var(--paper);
+    border-color: var(--copper);
+  }
+  .step-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    font-weight: 600;
+  }
+  .step-item.active .step-label { color: var(--forest); }
+  .step-item.done .step-label { color: var(--copper-deep); }
+
+  /* Step content */
+  .step-pane { display: none; }
+  .step-pane.active { display: block; animation: fadeIn 320ms ease-out both; }
+
+  h1.step-h {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.08;
+    letter-spacing: -0.014em;
+    font-weight: 400;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .step-sub {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 40px;
+    max-width: 560px;
+  }
+
+  /* Amount step */
+  .amount-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .amount-preset {
+    height: 72px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    background: var(--paper-soft);
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 180ms ease;
+    font-variant-numeric: tabular-nums;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px;
+  }
+  .amount-preset:hover { border-color: var(--forest); transform: translateY(-1px); box-shadow: var(--shadow-1); }
+  .amount-preset .ap-hint {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
+  .amount-preset.active {
+    background: var(--forest);
+    color: var(--paper);
+    border-color: var(--forest);
+  }
+  .amount-preset.active .ap-hint { color: rgba(245, 240, 228, 0.75); }
+
+  .amount-custom {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .amount-custom input {
+    height: 80px;
+    font-size: 36px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--ink);
+    text-align: left;
+    padding-right: 80px;
+  }
+  .amount-custom .kr {
+    position: absolute; right: 28px; top: 50%; transform: translateY(-50%);
+    font-size: 20px;
+    color: var(--ink-3);
+    font-family: var(--font-display);
+  }
+
+  /* Intent block */
+  .intent-block {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    margin-top: 24px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .intent-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--copper-soft);
+    color: var(--copper-deep);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 36px;
+  }
+  .intent-text { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+  .intent-text strong { color: var(--ink); font-weight: 600; }
+  .intent-toggle {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    margin-top: 12px;
+    cursor: pointer;
+  }
+  .intent-toggle input { width: 18px; height: 18px; accent-color: var(--forest); }
+  .intent-toggle .text { font-size: 14px; color: var(--ink-1); flex: 1; }
+  .intent-toggle .text strong { color: var(--ink); font-weight: 600; }
+
+  /* Payment methods */
+  .pay-methods {
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .pay-method {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: all 150ms ease;
+    background: var(--paper-soft);
+  }
+  .pay-method:hover { border-color: var(--forest); }
+  .pay-method.active {
+    border-color: var(--forest);
+    background: var(--forest-soft);
+    box-shadow: 0 0 0 1px var(--forest);
+  }
+  .pay-method input { accent-color: var(--forest); width: 18px; height: 18px; }
+  .pay-method-name { font-weight: 600; color: var(--ink); font-size: 15px; }
+  .pay-method-sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .pay-method-logos {
+    margin-left: auto;
+    display: flex; gap: 8px; align-items: center;
+    font-size: 11px; color: var(--ink-3);
+    font-family: var(--font-mono);
+  }
+  .pay-logo {
+    width: 38px; height: 24px;
+    border-radius: 4px;
+    background: var(--ink-line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  /* Field grid */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-grid .full { grid-column: 1 / -1; }
+
+  /* Receipt */
+  .kvitto {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 32px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    margin: 32px 0;
+    position: relative;
+  }
+  .kvitto::before, .kvitto::after {
+    content: '';
+    position: absolute;
+    height: 12px;
+    background-image: radial-gradient(circle, var(--paper) 4px, transparent 4px);
+    background-size: 16px 12px;
+    background-repeat: repeat-x;
+    left: 0; right: 0;
+  }
+  .kvitto::before { top: -6px; }
+  .kvitto::after { bottom: -6px; }
+  .kvitto-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--ink-line);
+  }
+  .kvitto-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    color: var(--ink-1);
+  }
+  .kvitto-row .label { color: var(--ink-3); }
+  .kvitto-row.total {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--ink-line);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 16px;
+  }
+  .kvitto-row.total .amount { color: var(--forest); font-family: var(--font-mono); font-size: 18px; }
+
+  /* SUCCESS view */
+  .success-mark {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: var(--copper-soft);
+    color: var(--copper-deep);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 32px;
+    animation: pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Sidebar */
+  .side-section {
+    margin-bottom: 40px;
+  }
+  .side-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-warm);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .side-campaign {
+    background: rgba(245, 240, 228, 0.06);
+    border: 1px solid rgba(245, 240, 228, 0.10);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .side-campaign-img {
+    height: 160px;
+    position: relative;
+  }
+  .side-campaign-img .ph { width: 100%; height: 100%; }
+  .side-campaign-body { padding: 20px; }
+  .side-campaign-title {
+    font-family: var(--font-display);
+    font-size: 20px; line-height: 1.2;
+    color: var(--paper);
+    font-weight: 500;
+    margin: 0 0 10px;
+  }
+  .side-progress { height: 5px; background: rgba(245, 240, 228, 0.10); }
+  .side-progress .progress-bar { background: var(--copper-warm); }
+  .side-stats {
+    display: flex; justify-content: space-between;
+    margin-top: 12px;
+    font-size: 12px;
+    color: rgba(245, 240, 228, 0.7);
+  }
+  .side-stats .amount { color: var(--paper); font-weight: 600; font-family: var(--font-mono); }
+
+  /* Trust strip */
+  .trust-strip {
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(245, 240, 228, 0.10);
+  }
+  .trust-strip h4 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-warm);
+    margin: 0 0 20px;
+  }
+  .trust-item {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    font-size: 13px;
+    color: rgba(245, 240, 228, 0.82);
+    line-height: 1.5;
+  }
+  .trust-item .ok {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(184, 132, 62, 0.18);
+    color: var(--copper-warm);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 22px;
+  }
+
+  /* Step actions */
+  .step-actions {
+    display: flex; gap: 12px; justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink-line);
+  }
+
+  /* Top mini-nav specific */
+  .donate-topnav {
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--ink-line);
+    padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    height: 72px;
+  }
+  .donate-topnav .right {
+    display: flex; align-items: center; gap: 24px;
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .donate-topnav .right .secure {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: var(--forest-soft);
+    color: var(--forest);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  @media (max-width: 1000px) {
+    .donate-shell { grid-template-columns: 1fr; }
+    .donate-left, .donate-right { padding: 32px; max-width: none; margin: 0; }
+    .field-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Mini top nav -->
+<header class="donate-topnav">
+  <a href="fundraiser.html" class="row aic gap-12" style="color: var(--ink-2); font-size: 13px;">
+    <span id="back-icon"></span>
+    Tillbaka till insamlingen
+  </a>
+  <span id="wordmark-slot"></span>
+  <div class="right">
+    <span class="secure">
+      <span id="lock-icon"></span>
+      SSL · Stripe · 256-bit
+    </span>
+    <span class="xs">Behöver hjälp? <a href="mailto:support@sadaqasweden.se" style="color: var(--forest); text-decoration: underline;">support@sadaqasweden.se</a></span>
+  </div>
+</header>
+
+<div class="donate-shell">
+  <!-- LEFT: form -->
+  <div class="donate-left">
+
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="stepper-line"></div>
+      <div class="step-item done" data-go="1">
+        <div class="step-circle" id="sc-1">1</div>
+        <div class="step-label">Belopp</div>
+      </div>
+      <div class="step-item active" data-go="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Uppgifter</div>
+      </div>
+      <div class="step-item" data-go="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Betalning</div>
+      </div>
+      <div class="step-item" data-go="4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Klart</div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Amount -->
+    <div class="step-pane" data-pane="1">
+      <h1 class="step-h">Vilket belopp vill du ge?</h1>
+      <p class="step-sub">Allt går direkt till mottagaren via Stripe. Plattformsavgiften är noll — bara en transaktionskostnad från betalanbjudaren tas ut.</p>
+
+      <div class="amount-presets">
+        <button class="amount-preset" data-amt="200">200 kr<span class="ap-hint">vattenfilter, 1 hushåll</span></button>
+        <button class="amount-preset active" data-amt="500">500 kr<span class="ap-hint">1 m² betongring</span></button>
+        <button class="amount-preset" data-amt="1000">1 000 kr<span class="ap-hint">en dags borrning</span></button>
+        <button class="amount-preset" data-amt="2000">2 000 kr<span class="ap-hint">pumpinstallation</span></button>
+        <button class="amount-preset" data-amt="5000">5 000 kr<span class="ap-hint">utbildning av tekniker</span></button>
+        <button class="amount-preset" data-amt="custom">Eget belopp</button>
+      </div>
+
+      <div class="amount-custom">
+        <input type="text" class="input" id="amount-input" value="500">
+        <span class="kr">kr</span>
+      </div>
+
+      <div class="intent-toggle">
+        <input type="checkbox" id="anonymous">
+        <div class="text">
+          <strong>Donera anonymt.</strong> Ditt namn visas inte publikt — bara du och granskaren ser det.
+        </div>
+      </div>
+      <div class="intent-toggle">
+        <input type="checkbox" id="recurring">
+        <div class="text">
+          <strong>Gör detta månatligen.</strong> Plattformen drar samma belopp varje månad till samma insamling. Du kan avbryta när som helst.
+        </div>
+      </div>
+
+      <div class="intent-block">
+        <span class="intent-icon" id="intent-icon-1"></span>
+        <div class="intent-text">
+          <strong>Sadaqah är komplett när du gav.</strong> Men i denna värld behöver vi se. Plattformen visar dig var pengarna landade — start, utbetalning, resultat. Allah har redan sett.
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <a href="fundraiser.html" class="btn btn-ghost">Avbryt</a>
+        <button class="btn btn-primary btn-lg" data-next>
+          Fortsätt <span id="next-arrow-1"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Details -->
+    <div class="step-pane active" data-pane="2">
+      <h1 class="step-h">Vem är det här ifrån?</h1>
+      <p class="step-sub">För kvittot och så insamlaren kan tacka. Du kan välja att vara anonym publikt och ändå få kvitto.</p>
+
+      <div class="row gap-12 mb-24">
+        <button class="btn btn-secondary flex-1" style="height: 56px;">
+          <span id="bankid-icon"></span>
+          Logga in med BankID — autofyller
+        </button>
+        <button class="btn btn-ghost" style="height: 56px;">Fortsätt som gäst</button>
+      </div>
+
+      <div class="divider-star"><span class="small">eller fyll i manuellt</span></div>
+
+      <div class="field-grid mt-24">
+        <div class="field">
+          <label class="label label-required">Förnamn</label>
+          <input type="text" class="input" value="Adam" placeholder="Ditt förnamn">
+        </div>
+        <div class="field">
+          <label class="label label-required">Efternamn</label>
+          <input type="text" class="input" value="Karim" placeholder="Ditt efternamn">
+        </div>
+        <div class="field full">
+          <label class="label label-required">E-post för kvitto</label>
+          <input type="email" class="input" value="adam.karim@exempel.se" placeholder="du@exempel.se">
+          <span class="help">Kvittot skickas hit — vi sparar det inte längre än lagen kräver (7 år).</span>
+        </div>
+        <div class="field full">
+          <label class="label">Hälsning till insamlaren <span class="muted" style="font-weight: 400;">(valfri)</span></label>
+          <textarea class="textarea" placeholder="En kort dua, ett par ord — eller lämnas tomt." style="min-height: 80px;">Må Allah belöna er och låta vattnet flöda när det behövs.</textarea>
+          <span class="help">Visas under "Senaste donatorer" om du inte är anonym.</span>
+        </div>
+      </div>
+
+      <div class="intent-toggle mt-24">
+        <input type="checkbox" id="zakat-tag">
+        <div class="text">
+          <strong>Räkna denna donation som Zakat.</strong> Vi sätter en separat tagg på kvittot så det är spårbart i din egen bokföring av zakat.
+        </div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" data-back>
+          <span id="back-arrow-2"></span> Tillbaka
+        </button>
+        <button class="btn btn-primary btn-lg" data-next>
+          Fortsätt till betalning <span id="next-arrow-2"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Payment -->
+    <div class="step-pane" data-pane="3">
+      <h1 class="step-h">Betalning</h1>
+      <p class="step-sub">Pengarna går rakt till Yasmins Stripe-konto. Vi ser bara att du betalade — vi rör inte beloppet.</p>
+
+      <div class="pay-methods">
+        <label class="pay-method active">
+          <input type="radio" name="pay" checked>
+          <div>
+            <div class="pay-method-name">Kort · Visa eller Mastercard</div>
+            <div class="pay-method-sub">Direktbetalning via Stripe · 1,4 % + 1,80 kr</div>
+          </div>
+          <div class="pay-method-logos">
+            <span class="pay-logo">VISA</span>
+            <span class="pay-logo">MC</span>
+          </div>
+        </label>
+        <label class="pay-method">
+          <input type="radio" name="pay">
+          <div>
+            <div class="pay-method-name">Swish</div>
+            <div class="pay-method-sub">QR-kod öppnas i nästa steg · 2,00 kr per transaktion</div>
+          </div>
+          <div class="pay-method-logos">
+            <span class="pay-logo">SWISH</span>
+          </div>
+        </label>
+        <label class="pay-method">
+          <input type="radio" name="pay">
+          <div>
+            <div class="pay-method-name">Apple Pay / Google Pay</div>
+            <div class="pay-method-sub">Snabbast via biometri på din enhet</div>
+          </div>
+          <div class="pay-method-logos">
+            <span class="pay-logo"></span>
+            <span class="pay-logo">G</span>
+          </div>
+        </label>
+        <label class="pay-method">
+          <input type="radio" name="pay">
+          <div>
+            <div class="pay-method-name">Bankgiro / faktura</div>
+            <div class="pay-method-sub">Företag &amp; föreningar · 1–3 dgr leverans</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="field-grid mt-16">
+        <div class="field full">
+          <label class="label">Kortnummer</label>
+          <input type="text" class="input" placeholder="1234 5678 9012 3456" value="4242 4242 4242 4242">
+        </div>
+        <div class="field">
+          <label class="label">Utgångsdatum</label>
+          <input type="text" class="input" placeholder="MM/ÅÅ" value="12/28">
+        </div>
+        <div class="field">
+          <label class="label">CVC</label>
+          <input type="text" class="input" placeholder="123" value="123">
+        </div>
+      </div>
+
+      <div class="kvitto">
+        <div class="kvitto-head">
+          <span style="font-weight: 600; color: var(--ink); font-size: 14px;">Sammanställning</span>
+          <span class="xs" style="font-family: var(--font-mono); color: var(--ink-3);">SAD-2841-0142</span>
+        </div>
+        <div class="kvitto-row"><span class="label">Donation</span><span>500,00 kr</span></div>
+        <div class="kvitto-row"><span class="label">Transaktionsavgift (Stripe 1,4 % + 1,80 kr)</span><span>8,80 kr</span></div>
+        <div class="kvitto-row"><span class="label">Plattformsavgift</span><span style="color: var(--success);">0,00 kr</span></div>
+        <div class="kvitto-row total"><span>Du betalar</span><span class="amount">508,80 kr</span></div>
+        <div class="kvitto-row" style="margin-top: 6px; font-size: 11px;"><span class="label">Till mottagaren (Wells of Hope via Yasmin)</span><span style="color: var(--forest);">500,00 kr</span></div>
+      </div>
+
+      <div class="step-actions">
+        <button class="btn btn-ghost" data-back>
+          <span id="back-arrow-3"></span> Tillbaka
+        </button>
+        <button class="btn btn-primary btn-lg" data-next>
+          <span id="lock-icon-2"></span>
+          Betala 508,80 kr säkert
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Success -->
+    <div class="step-pane" data-pane="4">
+      <div class="success-mark" id="success-mark">
+        <span id="check-large"></span>
+      </div>
+      <h1 class="step-h text-center">Jazak Allah khair, Adam.</h1>
+      <p class="step-sub text-center" style="margin-left: auto; margin-right: auto;">
+        Din donation på <strong style="color: var(--forest);">500 kr</strong> har gått till brunnen i Diabaly. Yasmin har fått ett meddelande. Kvittot är på väg till din e-post.
+      </p>
+
+      <div class="card card-paper mt-32" style="background: var(--paper-soft); border-radius: var(--r-xl); padding: 32px;">
+        <div class="row aic jcs mb-16">
+          <span class="eyebrow">Kvitto · SAD-2841-0142</span>
+          <span class="pill pill-success">Genomförd · 14:23</span>
+        </div>
+        <table style="width: 100%; font-family: var(--font-mono); font-size: 13px;">
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Insamling</td><td style="text-align: right;">En brunn för byn Diabaly</td></tr>
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Mottagare</td><td style="text-align: right;">Wells of Hope Mali</td></tr>
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Givare</td><td style="text-align: right;">Adam Karim</td></tr>
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Belopp</td><td style="text-align: right; color: var(--forest); font-weight: 600;">500,00 kr</td></tr>
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Stripe-id</td><td style="text-align: right;">pi_3OZk2sLp...</td></tr>
+          <tr><td style="padding: 6px 0; color: var(--ink-3);">Tag</td><td style="text-align: right;">Zakat</td></tr>
+        </table>
+      </div>
+
+      <div class="card card-paper mt-16" style="padding: 24px;">
+        <div class="row aic gap-16">
+          <span style="width: 44px; height: 44px; border-radius: 50%; background: var(--copper-soft); color: var(--copper-deep); display: flex; align-items: center; justify-content: center;" id="bell-icon"></span>
+          <div style="flex: 1;">
+            <div class="h4" style="margin: 0;">Vi pingar dig när bevisen kommer</div>
+            <div class="xs mt-4">Borrning klar, utbetalning gjord, brunnen i drift — du får ett kort mejl varje steg.</div>
+          </div>
+          <button class="btn btn-secondary btn-sm">Hantera notiser</button>
+        </div>
+      </div>
+
+      <div class="step-actions" style="border: 0; padding-top: 16px;">
+        <a href="fundraiser.html" class="btn btn-secondary">Tillbaka till insamlingen</a>
+        <a href="discovery.html" class="btn btn-primary">
+          Hitta nästa <span id="next-arrow-4"></span>
+        </a>
+      </div>
+
+      <div class="text-center mt-48">
+        <p style="font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--ink-2); line-height: 1.4; max-width: 480px; margin: 0 auto;">
+          "Sadaqah kommer inte att minska egendom."
+        </p>
+        <p class="xs mt-12" style="color: var(--ink-3);">— Hadith · Muslim 2588</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: campaign sidebar -->
+  <aside class="donate-right">
+    <div class="side-eyebrow">Du donerar till</div>
+    <div class="side-campaign">
+      <div class="side-campaign-img">
+        <div class="ph" style="width:100%; height:100%;">
+          <span class="ph-label">Foto: brunn i Mali</span>
+        </div>
+      </div>
+      <div class="side-campaign-body">
+        <div class="side-campaign-title">En brunn för byn Diabaly — 280 personer får rent vatten</div>
+        <div class="row aic gap-8 mb-12">
+          <div class="fr-avatar" style="width: 24px; height: 24px; font-size: 11px; background: linear-gradient(135deg, var(--copper-warm), var(--copper)); color: var(--paper);">YA</div>
+          <span style="font-size: 12px; color: rgba(245,240,228,0.75);">Yasmin Adan · BankID-verifierad</span>
+        </div>
+        <div class="progress side-progress"><div class="progress-bar" style="width: 74%;"></div></div>
+        <div class="side-stats">
+          <span><span class="amount">148 200 kr</span> · 74 %</span>
+          <span>av 200 000 kr</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust-strip">
+      <h4>Det här är tryggt</h4>
+      <div class="trust-item">
+        <span class="ok" id="ts-1"></span>
+        <span>Insamlingen är granskad mot islamiska principer och svensk lagstiftning innan publicering.</span>
+      </div>
+      <div class="trust-item">
+        <span class="ok" id="ts-2"></span>
+        <span>Pengarna går direkt via Stripe Connect till mottagarens registrerade konto. Vi rör dem aldrig juridiskt.</span>
+      </div>
+      <div class="trust-item">
+        <span class="ok" id="ts-3"></span>
+        <span>Tre obligatoriska bevis (start, utbetalning, resultat) följer. Du får mejl när de publiceras.</span>
+      </div>
+      <div class="trust-item">
+        <span class="ok" id="ts-4"></span>
+        <span>Plattformsavgift är 0 kr — vi finansieras inte av era donationer.</span>
+      </div>
+      <div class="trust-item">
+        <span class="ok" id="ts-5"></span>
+        <span>Refund-möjlighet finns om målet inte nås och projektet inte kan genomföras (välj vid donationen).</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html', size: 18 });
+  document.getElementById('back-icon').innerHTML = SADAQA.icon('arrow-left', 14);
+  document.getElementById('lock-icon').innerHTML = SADAQA.icon('lock', 12);
+  document.getElementById('lock-icon-2').innerHTML = SADAQA.icon('lock', 16);
+  document.getElementById('intent-icon-1').innerHTML = SADAQA.icon('sparkles', 16);
+  document.getElementById('bankid-icon').innerHTML = SADAQA.icon('shield-check', 16);
+  document.getElementById('next-arrow-1').innerHTML = SADAQA.icon('arrow-right', 16);
+  document.getElementById('next-arrow-2').innerHTML = SADAQA.icon('arrow-right', 16);
+  document.getElementById('next-arrow-4').innerHTML = SADAQA.icon('arrow-right', 16);
+  document.getElementById('back-arrow-2').innerHTML = SADAQA.icon('arrow-left', 14);
+  document.getElementById('back-arrow-3').innerHTML = SADAQA.icon('arrow-left', 14);
+  document.getElementById('check-large').innerHTML = SADAQA.icon('check', 40);
+  document.getElementById('bell-icon').innerHTML = SADAQA.icon('bell', 18);
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('ts-' + i).innerHTML = SADAQA.icon('check', 12);
+  }
+
+  // Stepper interactive
+  let currentStep = 2;
+  function goTo(n) {
+    currentStep = n;
+    document.querySelectorAll('.step-pane').forEach(p => {
+      p.classList.toggle('active', parseInt(p.dataset.pane) === n);
+    });
+    document.querySelectorAll('.step-item').forEach((item, idx) => {
+      const i = idx + 1;
+      item.classList.toggle('active', i === n);
+      item.classList.toggle('done', i < n);
+      // update step circle content to checkmark for done
+      const sc = item.querySelector('.step-circle');
+      if (i < n) {
+        sc.innerHTML = SADAQA.icon('check', 12);
+      } else {
+        sc.textContent = i;
+      }
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.querySelectorAll('[data-next]').forEach(b => b.addEventListener('click', () => goTo(Math.min(currentStep + 1, 4))));
+  document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => goTo(Math.max(currentStep - 1, 1))));
+  document.querySelectorAll('.step-item').forEach(item => {
+    item.addEventListener('click', () => goTo(parseInt(item.dataset.go)));
+  });
+
+  // Amount preset interactive
+  const amountInput = document.getElementById('amount-input');
+  document.querySelectorAll('.amount-preset').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.amount-preset').forEach(p => p.classList.remove('active'));
+      b.classList.add('active');
+      const amt = b.dataset.amt;
+      if (amt !== 'custom' && amountInput) amountInput.value = amt;
+    });
+  });
+
+  // Pay method
+  document.querySelectorAll('.pay-method').forEach(pm => {
+    pm.addEventListener('click', () => {
+      document.querySelectorAll('.pay-method').forEach(p => p.classList.remove('active'));
+      pm.classList.add('active');
+      pm.querySelector('input').checked = true;
+    });
+  });
+</script>
+
+</body>
+</html>

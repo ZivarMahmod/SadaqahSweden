@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sadaqa Sweden — Designkatalog</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  /* Index-specific */
+  .hero-index {
+    position: relative;
+    padding: 100px 0 140px;
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .hero-index::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.05)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 240px 240px;
+    background-position: center;
+    pointer-events: none;
+  }
+  .hero-index > * { position: relative; z-index: 1; }
+
+  .index-eyebrow-row {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px;
+  }
+  .index-eyebrow-row .v-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+  }
+
+  .index-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 80px;
+    align-items: end;
+  }
+  .index-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding-top: 32px;
+    border-top: 1px solid var(--ink-line);
+    margin-top: 48px;
+  }
+  .index-meta dt {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    margin-bottom: 8px;
+  }
+  .index-meta dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--ink-1);
+    line-height: 1.35;
+  }
+
+  /* Sections */
+  .index-section { padding: 96px 0; border-top: 1px solid var(--ink-line); }
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 48px;
+    margin-bottom: 56px;
+  }
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--copper-deep);
+    letter-spacing: 0.1em;
+  }
+
+  /* Surface cards */
+  .surfaces {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ink-line);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+  .surface-card {
+    background: var(--paper-soft);
+    padding: 32px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    transition: background 200ms ease;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    min-height: 240px;
+  }
+  .surface-card:hover { background: var(--paper); }
+  .surface-card.coming { opacity: 0.55; }
+  .surface-card.coming:hover { background: var(--paper-soft); }
+  .surface-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-4);
+    letter-spacing: 0.06em;
+  }
+  .surface-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1.15;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+    margin: 0;
+  }
+  .surface-meta {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: auto;
+  }
+  .surface-arrow {
+    position: absolute;
+    top: 32px; right: 32px;
+    color: var(--copper-deep);
+    transition: transform 220ms ease;
+  }
+  .surface-card:hover .surface-arrow { transform: translateX(4px); }
+  .surface-desc { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+
+  /* Layer badges */
+  .layer-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--forest);
+    padding: 4px 10px;
+    background: var(--forest-soft);
+    border-radius: var(--r-pill);
+  }
+  .layer-badge.varlden { color: var(--copper-deep); background: var(--copper-soft); }
+
+  /* DNA panel */
+  .dna-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .dna-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    padding: 28px;
+    aspect-ratio: 1 / 1.2;
+    display: flex; flex-direction: column;
+  }
+  .dna-card.dna-forest { background: var(--forest); color: var(--paper); border-color: transparent; }
+  .dna-card.dna-paper { background: var(--paper-deep); }
+  .dna-card.dna-copper { background: var(--copper); color: #fff; border-color: transparent; }
+  .dna-spec {
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  .dna-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .dna-display {
+    font-family: var(--font-display);
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.014em;
+    margin-top: 24px;
+    font-weight: 400;
+  }
+  .dna-name {
+    font-family: var(--font-display);
+    font-size: 28px;
+    margin-top: 16px;
+  }
+
+  /* Type specimen */
+  .type-specimen {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .specimen-name {
+    font-family: var(--font-display);
+    font-size: 96px;
+    line-height: 1;
+    letter-spacing: -0.018em;
+    color: var(--forest);
+  }
+  .specimen-name .italic { color: var(--copper-deep); }
+  .specimen-name-small {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 16px;
+  }
+
+  /* Module diagram */
+  .module-diagram {
+    background: var(--forest-deep);
+    color: var(--paper);
+    border-radius: var(--r-2xl);
+    padding: 64px 48px;
+    margin-top: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-diagram::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.04)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 200px 200px;
+    pointer-events: none;
+  }
+  .module-diagram > * { position: relative; z-index: 1; }
+
+  .module-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 32px;
+  }
+  .module-col h4 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-warm);
+    margin: 0 0 20px;
+  }
+  .module-list {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex; flex-direction: column;
+    gap: 1px;
+    background: rgba(245, 240, 228, 0.08);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .module-list li {
+    background: rgba(245, 240, 228, 0.03);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
+  }
+  .module-list li .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(245, 240, 228, 0.4);
+    flex: 0 0 24px;
+  }
+  .module-list li .name { color: rgba(245, 240, 228, 0.92); flex: 1; }
+  .module-list li .ref {
+    font-size: 11px;
+    color: rgba(245, 240, 228, 0.4);
+    font-family: var(--font-mono);
+  }
+  .module-list li .interactive {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--copper-warm);
+  }
+  .module-list li .interactive.no { background: rgba(245, 240, 228, 0.15); }
+
+  /* Quick-link rail */
+  .quick-links {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .quick-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-pill);
+    font-size: 13px; color: var(--ink-1);
+    transition: all 200ms ease;
+  }
+  .quick-link:hover { background: var(--forest); color: var(--paper); border-color: var(--forest); }
+  .quick-link .num { font-family: var(--font-mono); color: var(--copper-deep); font-size: 11px; }
+  .quick-link:hover .num { color: var(--copper-warm); }
+
+  @media (max-width: 900px) {
+    .index-grid, .section-head, .type-specimen { grid-template-columns: 1fr; gap: 32px; }
+    .surfaces { grid-template-columns: 1fr; }
+    .dna-grid, .module-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top nav: catalog-specific -->
+<header class="topnav" id="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="#system" class="nav-link">Designsystem</a>
+    <a href="#surfaces" class="nav-link active">Ytor</a>
+    <a href="#modules" class="nav-link">Moduler</a>
+    <a href="byggplan.html" class="nav-link">Byggplan</a>
+    <a href="marketing.html" class="nav-link">Live preview <span style="font-size:10px;">↗</span></a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="byggplan.html" class="btn btn-secondary btn-sm">Genomgång &amp; byggplan</a>
+    <span class="pill pill-paper"><span class="dot dot-pulse"></span> Utkast · grund v0.1</span>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero-index">
+  <div class="container">
+    <div class="index-eyebrow-row">
+      <span class="eyebrow">Designkatalog</span>
+      <span class="v-num">/ v0.1 · 2026-05-23</span>
+    </div>
+
+    <div class="index-grid">
+      <div>
+        <h1 class="display" style="margin: 0;">
+          En insamlingsplattform <span class="italic" style="color: var(--copper-deep)">för det muslimska samhället</span> i Sverige.
+        </h1>
+      </div>
+      <div>
+        <p class="lead" style="margin: 0;">
+          Det här är katalogen över hela plattformen — varje yta, varje flöde, varje roll. Klicka in på en yta för att se den i sin riktiga storlek. Den är skissad i sin grund. Vi finputsar tillsammans, en yta i taget.
+        </p>
+        <div class="quick-links">
+          <a href="marketing.html" class="quick-link"><span class="num">01</span> Marknad</a>
+          <a href="fundraiser.html" class="quick-link"><span class="num">02</span> Insamlingssida</a>
+          <a href="donate.html" class="quick-link"><span class="num">03</span> Donator-flöde</a>
+          <a href="wizard.html" class="quick-link"><span class="num">04</span> Skapa-wizard</a>
+          <a href="review.html" class="quick-link"><span class="num">05</span> Granskning</a>
+        </div>
+      </div>
+    </div>
+
+    <dl class="index-meta">
+      <div>
+        <dt>Norrstjärnan</dt>
+        <dd>Premium, trygg, levande — inte ett kassaregister.</dd>
+      </div>
+      <div>
+        <dt>Skala</dt>
+        <dd>17 moduler · 2 lager · 8+ rollytor</dd>
+      </div>
+      <div>
+        <dt>Granskning</dt>
+        <dd>Före publicering — alltid. Inget GoFundMe-hål.</dd>
+      </div>
+      <div>
+        <dt>Pengaflöde</dt>
+        <dd>Stripe Connect direkt till insamlaren.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- Visual DNA -->
+<section class="index-section" id="system" style="background: var(--paper-soft);">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 01 — VISUELLT SPRÅK</div>
+        <h2 class="h1" style="margin: 16px 0 0;">Designsystem</h2>
+      </div>
+      <p class="lead" style="margin: 0;">
+        En djupgrön som anker, varmt creme-papper som yta, en dämpad koppar som accent. Spectral för rubriker — en värdig, redaktionell serif. Manrope för bodytext.
+      </p>
+    </div>
+
+    <!-- Type specimen -->
+    <div class="type-specimen mb-48">
+      <div>
+        <div class="specimen-name-small">Wordmark</div>
+        <div class="specimen-name">
+          Sadaqa<br>
+          <span class="italic">Sweden</span>
+        </div>
+      </div>
+      <div>
+        <div class="specimen-name-small">Spectral · Display Serif</div>
+        <p style="font-family: var(--font-display); font-size: 48px; line-height: 1.08; letter-spacing: -0.014em; margin: 0; font-weight: 400; color: var(--ink);">
+          Ge öppet. Bli granskad. Visa resultatet.
+        </p>
+        <div class="specimen-name-small mt-32">Manrope · UI Sans</div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink-2);">
+          En svenskspråkig insamlingsplattform där pengarna går direkt till insamlaren via Stripe, varje projekt granskas mot islamiska principer innan publicering, och resultatet bevisas öppet.
+        </p>
+      </div>
+    </div>
+
+    <!-- Color swatches -->
+    <div class="dna-grid">
+      <div class="dna-card dna-forest">
+        <div class="dna-label">Anker</div>
+        <div class="dna-name">Forest</div>
+        <div class="dna-spec" style="opacity:0.8; margin-top:auto;">
+          #1F4636<br>
+          Primary · CTA · sidopanel
+        </div>
+      </div>
+      <div class="dna-card dna-paper">
+        <div class="dna-label">Yta</div>
+        <div class="dna-name">Paper</div>
+        <div class="dna-spec" style="color: var(--ink-3);">
+          #F5F0E4<br>
+          Bakgrund · kort · varm
+        </div>
+      </div>
+      <div class="dna-card dna-copper">
+        <div class="dna-label">Accent</div>
+        <div class="dna-name">Copper</div>
+        <div class="dna-spec" style="opacity:0.9;">
+          #B8843E<br>
+          Markeringar · badges · ett per yta
+        </div>
+      </div>
+      <div class="dna-card" style="background: var(--ink); color: var(--paper);">
+        <div class="dna-label">Text</div>
+        <div class="dna-name">Ink</div>
+        <div class="dna-spec" style="opacity:0.7;">
+          #0E1411<br>
+          Rubriker · brödtext
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Surfaces — designed pages -->
+<section class="index-section" id="surfaces">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 02 — KLICKBARA YTOR</div>
+        <h2 class="h1" style="margin: 16px 0 0;">Designade sidor</h2>
+      </div>
+      <p class="lead" style="margin: 0;">
+        Trettonsju ytor, grupperade efter roll. De som är märkta <span class="pill pill-copper" style="font-size:11px;">interaktiv</span> har riktiga flöden — klicka igenom som om plattformen körde.
+      </p>
+    </div>
+
+    <!-- Publik sajt -->
+    <div class="mb-48">
+      <div class="row aic jcs mb-24">
+        <h3 class="h2" style="margin: 0;">Publik sajt</h3>
+        <span class="eyebrow eyebrow-ink">Marknad · discovery · donator</span>
+      </div>
+      <div class="surfaces">
+        <a href="marketing.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">01 / Marknad</span>
+            <span id="ic-1"></span>
+          </div>
+          <h4 class="surface-title">Startsida</h4>
+          <p class="surface-desc">Den första sidan en besökare landar på. Sätter ton, principer, exempel.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="discovery.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">02 / M11 Discovery</span>
+            <span id="ic-2"></span>
+          </div>
+          <h4 class="surface-title">Hitta insamlingar</h4>
+          <p class="surface-desc">Listning, filter, kategorier, sök. Det stora flödet av aktiva projekt.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="fundraiser.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">03 / M1 · M7</span>
+            <span id="ic-3"></span>
+          </div>
+          <h4 class="surface-title">Insamlingssida</h4>
+          <p class="surface-desc">Storyn, mottagaren, målet, bevis, uppdateringar, donationsknapp. Plattformens kärnyta.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="donate.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">04 / M4 Donator</span>
+            <span id="ic-4"></span>
+          </div>
+          <h4 class="surface-title">Donator-flöde</h4>
+          <p class="surface-desc">Belopp → uppgifter → bekräftelse → kvitto. Steg för steg, riktigt klickbart.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="profile.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">05 / M9</span>
+            <span id="ic-5"></span>
+          </div>
+          <h4 class="surface-title">Profilsida</h4>
+          <p class="surface-desc">Den publika sidan för en insamlare — historik, badges, transparens.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+          </div>
+        </a>
+        <a href="catalog.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">06 / M10</span>
+            <span id="ic-6"></span>
+          </div>
+          <h4 class="surface-title">Föreningskatalog</h4>
+          <p class="surface-desc">Muslimska föreningar och moskéer som registrerat sig. Filtrera per stad.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Insamlar-konto -->
+    <div class="mb-48">
+      <div class="row aic jcs mb-24">
+        <h3 class="h2" style="margin: 0;">Insamlare</h3>
+        <span class="eyebrow eyebrow-ink">M2 · M7 — Skapa, driva, bevisa</span>
+      </div>
+      <div class="surfaces">
+        <a href="account.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">07 / M2</span>
+            <span id="ic-7"></span>
+          </div>
+          <h4 class="surface-title">Mina insamlingar</h4>
+          <p class="surface-desc">Insamlarens hemvy — pågående projekt, utkast, status från granskaren.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Insamlare</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="wizard.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">08 / M2 wizard</span>
+            <span id="ic-8"></span>
+          </div>
+          <h4 class="surface-title">Skapa insamling</h4>
+          <p class="surface-desc">5-stegs-wizarden: identitet → mottagare → mål → media → granskning.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Insamlare</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="update.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">09 / M7</span>
+            <span id="ic-9"></span>
+          </div>
+          <h4 class="surface-title">Transparens-uppdatering</h4>
+          <p class="surface-desc">Lägg upp ett bevis — start, utbetalning, resultat. Bilder, kvitton, ord.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Insamlare</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Granskare / Admin / Team -->
+    <div class="mb-48">
+      <div class="row aic jcs mb-24">
+        <h3 class="h2" style="margin: 0;">Maskinrum</h3>
+        <span class="eyebrow eyebrow-ink">M3 · M16 · M17 — Granskning, drift, team</span>
+      </div>
+      <div class="surfaces">
+        <a href="review.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">10 / M3 Granskare</span>
+            <span id="ic-10"></span>
+          </div>
+          <h4 class="surface-title">Granskningsvy</h4>
+          <p class="surface-desc">Kön, ärendet, principerna, beslutet. Den viktigaste interna vyn.</p>
+          <div class="surface-meta">
+            <span class="layer-badge varlden">Internt</span>
+            <span class="pill pill-copper">Interaktiv</span>
+          </div>
+        </a>
+        <a href="admin.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">11 / M16</span>
+            <span id="ic-11"></span>
+          </div>
+          <h4 class="surface-title">Admin · drift</h4>
+          <p class="surface-desc">Statistik, larm, vad som händer just nu på plattformen.</p>
+          <div class="surface-meta">
+            <span class="layer-badge varlden">Internt</span>
+          </div>
+        </a>
+        <a href="team.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">12 / M17</span>
+            <span id="ic-12"></span>
+          </div>
+          <h4 class="surface-title">Team-arbetsyta</h4>
+          <p class="surface-desc">Vem gör vad. Rollerna, vem är inloggad, gemensam todo.</p>
+          <div class="surface-meta">
+            <span class="layer-badge varlden">Internt</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Världen runtom -->
+    <div>
+      <div class="row aic jcs mb-24">
+        <h3 class="h2" style="margin: 0;">Världen runtom</h3>
+        <span class="eyebrow eyebrow-ink">M12 · M13 · M14 — Karta, community, events</span>
+      </div>
+      <div class="surfaces">
+        <a href="map.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">13 / M12</span>
+            <span id="ic-13"></span>
+          </div>
+          <h4 class="surface-title">Karta över Sverige</h4>
+          <p class="surface-desc">Var insamlingar drivs och var hjälpen landar. Regional insikt.</p>
+          <div class="surface-meta">
+            <span class="layer-badge varlden">Världen</span>
+          </div>
+        </a>
+        <a href="community.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">14 / M13–14</span>
+            <span id="ic-14"></span>
+          </div>
+          <h4 class="surface-title">Community &amp; events</h4>
+          <p class="surface-desc">Strukturerade samtal, dua-knapp, händelser. Inte Facebook.</p>
+          <div class="surface-meta">
+            <span class="layer-badge varlden">Världen</span>
+          </div>
+        </a>
+        <a href="auth.html" class="surface-card">
+          <div class="row aic jcs">
+            <span class="surface-num">15 / M6</span>
+            <span id="ic-15"></span>
+          </div>
+          <h4 class="surface-title">Logga in · BankID</h4>
+          <p class="surface-desc">Auth-skalet. BankID-flödet och e-post-inloggning.</p>
+          <div class="surface-meta">
+            <span class="layer-badge">Publik</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Module map -->
+<section class="index-section" id="modules">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-num">§ 03 — MODULKARTAN</div>
+        <h2 class="h1" style="margin: 16px 0 0;">17 moduler, 2 lager</h2>
+      </div>
+      <p class="lead" style="margin: 0;">
+        Kärnan får plattformen att fungera. Världen runtom får folk att komma tillbaka.
+        Prickarna markerar vilka moduler som har en interaktiv yta i den här grunden.
+      </p>
+    </div>
+
+    <div class="module-diagram">
+      <div style="display:flex; align-items: baseline; justify-content: space-between;">
+        <div>
+          <div class="eyebrow" style="color: var(--copper-warm);">Kopplingskartan</div>
+          <h3 class="h2 mt-12" style="color: var(--paper); margin: 0;">M1 är navet. Allt annat refererar dit.</h3>
+        </div>
+        <div class="row gap-24 small" style="color: rgba(245,240,228,0.7);">
+          <span class="row aic gap-8"><span class="interactive" style="width:8px;height:8px;border-radius:50%;background:var(--copper-warm);"></span> har designad yta</span>
+          <span class="row aic gap-8"><span class="interactive no" style="width:8px;height:8px;border-radius:50%;background:rgba(245,240,228,0.18);"></span> kommer senare</span>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <div class="module-col">
+          <h4>🟢 Kärnan — insamlingsmotorn</h4>
+          <ul class="module-list">
+            <li><span class="num">M1</span><span class="name">Insamling som objekt</span><span class="ref">fundraiser</span><span class="interactive"></span></li>
+            <li><span class="num">M2</span><span class="name">Insamlar-flödet</span><span class="ref">wizard, account</span><span class="interactive"></span></li>
+            <li><span class="num">M3</span><span class="name">Granskar-flödet</span><span class="ref">review</span><span class="interactive"></span></li>
+            <li><span class="num">M4</span><span class="name">Donator-flödet</span><span class="ref">donate</span><span class="interactive"></span></li>
+            <li><span class="num">M5</span><span class="name">Pengaflöde · Stripe</span><span class="ref">admin</span><span class="interactive"></span></li>
+            <li><span class="num">M6</span><span class="name">Identitet &amp; auth · BankID</span><span class="ref">auth</span><span class="interactive"></span></li>
+            <li><span class="num">M7</span><span class="name">Transparens-loopen</span><span class="ref">update</span><span class="interactive"></span></li>
+            <li><span class="num">M8</span><span class="name">Policies &amp; regler</span><span class="ref">—</span><span class="interactive no"></span></li>
+          </ul>
+        </div>
+        <div class="module-col">
+          <h4>🔵 Världen runtom — som lockar tillbaka</h4>
+          <ul class="module-list">
+            <li><span class="num">M9</span><span class="name">Profiler &amp; användarsidor</span><span class="ref">profile</span><span class="interactive"></span></li>
+            <li><span class="num">M10</span><span class="name">Organisationer &amp; katalog</span><span class="ref">catalog</span><span class="interactive"></span></li>
+            <li><span class="num">M11</span><span class="name">Listning &amp; discovery</span><span class="ref">discovery</span><span class="interactive"></span></li>
+            <li><span class="num">M12</span><span class="name">Karta &amp; geografisk insikt</span><span class="ref">map</span><span class="interactive"></span></li>
+            <li><span class="num">M13</span><span class="name">Community &amp; samtal</span><span class="ref">community</span><span class="interactive"></span></li>
+            <li><span class="num">M14</span><span class="name">Events &amp; platsinfo</span><span class="ref">community</span><span class="interactive"></span></li>
+            <li><span class="num">M15</span><span class="name">Notiser &amp; kommunikation</span><span class="ref">—</span><span class="interactive no"></span></li>
+            <li><span class="num">M16</span><span class="name">Admin &amp; dashboard</span><span class="ref">admin</span><span class="interactive"></span></li>
+            <li><span class="num">M17</span><span class="name">Team &amp; intern arbetsyta</span><span class="ref">team</span><span class="interactive"></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div id="footer-slot"></div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+  // tiny arrow icons on each surface card
+  for (let i = 1; i <= 15; i++) {
+    const el = document.getElementById('ic-' + i);
+    if (el) el.innerHTML = `<span class="surface-arrow">${SADAQA.icon('arrow-right', 18)}</span>`;
+  }
+</script>
+
+</body>
+</html>

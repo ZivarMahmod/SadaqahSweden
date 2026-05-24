@@ -1,0 +1,1992 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Designgenomgång &amp; byggplan — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper); }
+
+  /* Layout */
+  .doc-shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+    background: var(--paper);
+  }
+
+  /* TOC sidebar */
+  .doc-toc {
+    background: var(--forest-deep);
+    color: var(--paper);
+    padding: 32px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid rgba(245, 240, 228, 0.08);
+  }
+  .doc-toc-head {
+    padding: 4px 28px 24px;
+    border-bottom: 1px solid rgba(245, 240, 228, 0.08);
+    margin-bottom: 20px;
+  }
+  .doc-toc-head .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 4px 10px;
+    background: rgba(184, 132, 62, 0.18);
+    color: var(--copper-warm);
+    border-radius: var(--r-pill);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .doc-toc nav { padding: 0 16px; }
+  .doc-toc-section {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(245, 240, 228, 0.4);
+    letter-spacing: 0.14em;
+    padding: 16px 12px 6px;
+  }
+  .doc-toc a {
+    display: block;
+    padding: 7px 12px;
+    font-size: 13px;
+    color: rgba(245, 240, 228, 0.72);
+    border-radius: var(--r-sm);
+    transition: all 150ms ease;
+    line-height: 1.35;
+  }
+  .doc-toc a:hover { background: rgba(245, 240, 228, 0.06); color: var(--paper); }
+  .doc-toc a.active {
+    background: rgba(245, 240, 228, 0.10);
+    color: var(--paper);
+    box-shadow: inset 2px 0 0 var(--copper);
+  }
+  .doc-toc a .num {
+    font-family: var(--font-mono);
+    color: rgba(245, 240, 228, 0.4);
+    margin-right: 8px;
+    font-size: 11px;
+  }
+
+  /* Main */
+  .doc-main { max-width: 880px; margin: 0 auto; padding: 80px 80px 160px; }
+
+  @media (max-width: 1200px) {
+    .doc-main { padding: 56px 40px 120px; }
+  }
+  @media (max-width: 900px) {
+    .doc-shell { grid-template-columns: 1fr; }
+    .doc-toc { display: none; }
+    .doc-main { padding: 32px 24px 96px; }
+    .states-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Section */
+  .sec {
+    padding-top: 56px;
+    margin-top: 56px;
+    border-top: 1px solid var(--ink-line);
+    scroll-margin-top: 32px;
+  }
+  .sec:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+  .sec h2 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4vw, 48px);
+    font-weight: 400;
+    line-height: 1.06;
+    letter-spacing: -0.014em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .sec h2 .num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--copper-deep);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+  .sec h3 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.008em;
+    margin: 48px 0 16px;
+  }
+  .sec h4 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+    margin: 32px 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .sec p, .sec li {
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--ink-1);
+    text-wrap: pretty;
+  }
+  .sec p { margin: 0 0 16px; }
+  .sec strong { font-weight: 600; color: var(--ink); }
+  .sec em { color: var(--ink-2); font-style: italic; }
+  .sec .lead {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 32px;
+    max-width: 720px;
+  }
+  .sec ul, .sec ol { padding-left: 24px; margin: 0 0 16px; }
+  .sec li { margin-bottom: 8px; }
+  .sec li::marker { color: var(--copper-deep); }
+
+  /* Audit card */
+  .audit {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    padding: 28px 32px;
+    margin: 24px 0;
+  }
+  .audit .head {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .audit .head .ref {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--copper-deep);
+    letter-spacing: 0.1em;
+  }
+  .audit .head h4 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0;
+    flex: 1;
+    letter-spacing: -0.008em;
+  }
+  .audit .head .file {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    padding: 4px 10px;
+    background: var(--paper);
+    border-radius: var(--r-pill);
+    border: 1px solid var(--ink-line);
+  }
+
+  .findings { display: flex; flex-direction: column; gap: 14px; }
+  .finding {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--ink-line);
+  }
+  .finding:first-child { border-top: 0; padding-top: 0; }
+  .finding .mark {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 24px;
+  }
+  .finding.minor .mark { background: var(--forest-soft); color: var(--forest); }
+  .finding.fix .mark { background: var(--copper-soft); color: var(--copper-deep); }
+  .finding.critical .mark { background: var(--danger-soft); color: var(--danger); }
+  .finding .body { font-size: 14px; line-height: 1.55; color: var(--ink-1); }
+  .finding .body strong { color: var(--ink); }
+  .finding .body .fix {
+    margin-top: 6px;
+    padding-left: 12px;
+    border-left: 2px solid var(--copper-soft);
+    font-size: 13px;
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  .finding .body .fix::before {
+    content: 'Lösning: ';
+    font-weight: 600;
+    color: var(--copper-deep);
+    font-style: normal;
+  }
+
+  .severity-row {
+    display: flex; gap: 16px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .severity-row .item {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .severity-row .item .mark {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+  }
+
+  /* Code block */
+  pre {
+    background: var(--forest-deep);
+    color: rgba(245, 240, 228, 0.92);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid rgba(245, 240, 228, 0.10);
+  }
+  pre .k { color: #C9A064; }
+  pre .s { color: #93C5A1; }
+  pre .c { color: rgba(245, 240, 228, 0.5); font-style: italic; }
+  pre .n { color: #D8A672; }
+  pre .p { color: rgba(245, 240, 228, 0.7); }
+  code:not(pre code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    padding: 2px 6px;
+    background: var(--paper-deep);
+    border-radius: 4px;
+    color: var(--forest);
+  }
+
+  pre.file-head { background: var(--copper-deep); padding: 10px 24px; font-size: 12px; border-radius: var(--r-md) var(--r-md) 0 0; margin-bottom: 0; color: #fff; }
+  pre.file-head + pre { border-radius: 0 0 var(--r-md) var(--r-md); margin-top: 0; }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--ink-line);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ink-line);
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--ink-1);
+  }
+  td code { font-size: 12px; }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    margin: 24px 0;
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .callout.info { background: var(--forest-soft); border: 1px solid var(--forest-line); }
+  .callout.warn { background: var(--copper-soft); border: 1px solid var(--copper); }
+  .callout.danger { background: var(--danger-soft); border: 1px solid var(--danger); }
+  .callout .icn { color: var(--forest); }
+  .callout.warn .icn { color: var(--copper-deep); }
+  .callout.danger .icn { color: var(--danger); }
+  .callout .label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--forest);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .callout.warn .label { color: var(--copper-deep); }
+  .callout.danger .label { color: var(--danger); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .body { font-size: 14px; line-height: 1.55; }
+
+  /* Node tree */
+  .tree {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 20px 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.8;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .tree .tn { color: var(--forest); font-weight: 600; }
+  .tree .tc { color: var(--ink-3); font-style: italic; padding-left: 8px; }
+  .tree .ti { color: var(--copper-deep); }
+
+  /* State grid */
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--ink-line);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    margin: 24px 0;
+  }
+  .state {
+    background: var(--paper-soft);
+    padding: 18px;
+    display: flex; flex-direction: column;
+    gap: 8px;
+  }
+  .state .name {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .state .desc { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+  .state .mock {
+    margin-top: 8px;
+    padding: 12px;
+    background: var(--paper);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink-3);
+    line-height: 1.5;
+    min-height: 64px;
+  }
+
+  /* Step list */
+  .step-flow {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .step-flow .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+  }
+  .step-flow .step .num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .step-flow .step .body strong { font-size: 14px; color: var(--ink); }
+  .step-flow .step .body .sub { font-size: 13px; color: var(--ink-2); margin-top: 4px; line-height: 1.55; }
+
+  /* Diagram */
+  .diagram {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 32px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+
+  /* Top bar */
+  .doc-bar {
+    height: 64px;
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--ink-line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  /* Module table */
+  .module-tag {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px;
+    background: var(--forest-soft);
+    color: var(--forest);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .module-tag.varlden { background: var(--copper-soft); color: var(--copper-deep); }
+
+  /* Anchor link header for sections */
+  .h-anchor {
+    text-decoration: none; color: var(--ink-3);
+    margin-left: 8px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+  .sec h2:hover .h-anchor, .sec h3:hover .h-anchor { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="doc-shell">
+  <!-- TOC -->
+  <aside class="doc-toc">
+    <div class="doc-toc-head">
+      <span id="wordmark-slot"></span>
+      <span class="label"><span id="toc-i"></span> Designgenomgång &amp; byggplan</span>
+    </div>
+    <nav>
+      <div class="doc-toc-section">DEL 1 · GENOMGÅNG</div>
+      <a href="#oversikt"><span class="num">00</span>Vad detta dokument är</a>
+      <a href="#per-yta"><span class="num">01</span>Per yta — vad jag missade</a>
+      <a href="#genomgripande"><span class="num">02</span>Genomgripande designbrister</a>
+      <a href="#verkligheten"><span class="num">03</span>Verkliga övervägningar</a>
+
+      <div class="doc-toc-section">DEL 2 · BYGGPLAN</div>
+      <a href="#arkitektur"><span class="num">04</span>Arkitektur &amp; filstruktur</a>
+      <a href="#designsystemkod"><span class="num">05</span>Designsystem i kod</a>
+      <a href="#per-route"><span class="num">06</span>Per route — bygg-spec</a>
+      <a href="#tredje-part"><span class="num">07</span>Tredjeparter (BankID, Stripe, R2)</a>
+      <a href="#tillstand"><span class="num">08</span>Tillstånd: tom · loading · fel</a>
+      <a href="#mobile"><span class="num">09</span>Mobile breakpoints</a>
+      <a href="#tillganglighet"><span class="num">10</span>Tillgänglighet &amp; i18n</a>
+      <a href="#sekvens"><span class="num">11</span>Byggsekvensen — vad bygger Claude Code först</a>
+
+      <div class="doc-toc-section">BILAGOR</div>
+      <a href="#tokens"><span class="num">A</span>Token-referens</a>
+      <a href="#komponenter"><span class="num">B</span>Komponent-bibliotek</a>
+      <a href="#checklist"><span class="num">C</span>Pre-launch checklista</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <header class="doc-bar">
+      <div class="row aic gap-12">
+        <a href="index.html" style="font-size: 13px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px;">
+          <span id="back-i"></span> Designkatalog
+        </a>
+        <span style="color: var(--ink-line);">/</span>
+        <span style="font-size: 13px; color: var(--ink);">Designgenomgång &amp; byggplan</span>
+      </div>
+      <div class="row aic gap-12">
+        <span class="pill pill-paper">v0.1 · 2026-05-23</span>
+        <button class="btn btn-secondary btn-sm">Skriv ut</button>
+      </div>
+    </header>
+
+    <div class="doc-main">
+
+      <!-- ===== 00 OVERSIKT ===== -->
+      <section id="oversikt" class="sec">
+        <h2><span class="num">§ 00 · ÖVERSIKT</span>Vad det här dokumentet är</h2>
+        <p class="lead">
+          Designen i katalogen visar <em>hur</em> Sadaqa Sweden ska kännas. Det här dokumentet säger <em>vad som saknas</em> och <em>exakt hur det ska byggas</em> för att kännas så på riktigt — i kod, i alla tillstånd, i alla flöden.
+        </p>
+
+        <p>Dokumentet är skrivet för <strong>Claude Code</strong> att läsa rakt igenom. Det är två delar:</p>
+        <ol>
+          <li><strong>Designgenomgång</strong> — det jag (designern) ser brister i nu när jag tittar på mitt eget arbete. Per yta, samt genomgripande mönster.</li>
+          <li><strong>Byggplan</strong> — arkitektur, filstruktur, exakta routes, komponentträd, tillståndshantering, tredjeparts-integrationer, byggsekvens.</li>
+        </ol>
+
+        <div class="callout info">
+          <span class="icn" id="cal-1"></span>
+          <div class="body">
+            <span class="label">Att hålla i minnet</span>
+            <p>Designen är inte färdig — den är en grund. Det här dokumentet ska <em>inte</em> tolkas som att Claude Code måste replikera HTML-katalogen pixel för pixel. Designen pekar ut känsla, tonen och layoutprincipen. Byggplanen säger hur den känslan ska realiseras med riktiga komponenter, riktiga states, och riktig data.</p>
+          </div>
+        </div>
+
+        <p>Allt refererar tillbaka till de 17 modulerna (M1–M17) i <code>1-Planering/</code>. När en modulnotation som <span class="module-tag">M4</span> dyker upp betyder det att modul-filen är källan för affärsregler — designen och byggplanen är <em>tolkningen</em>.</p>
+      </section>
+
+      <!-- ===== 01 PER YTA ===== -->
+      <section id="per-yta" class="sec">
+        <h2><span class="num">§ 01 · DESIGN-GENOMGÅNG</span>Per yta — vad jag faktiskt missade</h2>
+        <p class="lead">
+          Tre kategorier av fynd: <strong>mindre</strong> (kosmetiskt), <strong>fixa</strong> (gör innan launch), <strong>kritiskt</strong> (utan detta är ytan trasig).
+        </p>
+
+        <div class="severity-row">
+          <div class="item"><span class="mark" style="background: var(--forest-soft); border: 1px solid var(--forest-line);"></span> Mindre — efter launch</div>
+          <div class="item"><span class="mark" style="background: var(--copper-soft); border: 1px solid var(--copper);"></span> Fixa — innan launch</div>
+          <div class="item"><span class="mark" style="background: var(--danger-soft); border: 1px solid var(--danger);"></span> Kritiskt — utan detta är ytan trasig</div>
+        </div>
+
+        <!-- Marketing -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A1</span>
+            <h4>Marknad — startsidan</h4>
+            <span class="file">marketing.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-1"></span>
+              <div class="body">
+                <strong>"8,4 mkr samlat in" är aspirationellt — inte sant vid launch.</strong> Plattformen startar med 0. Hero-stat-stripen kommer kännas falsk när första besökaren landar.
+                <div class="fix">Bygg en <code>StatStrip</code>-komponent som läser <em>riktiga</em> värden från <code>donation.sum()</code>. Vid 0 visa istället ett "Vi startar nu"-meddelande eller dölj stripen. Lägg en cron som uppdaterar siffran realtid.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-2"></span>
+              <div class="body">
+                <strong>"100 % till mottagaren" är inte sant.</strong> Stripe tar 1,4 % + 1,80 kr. Det är inte 100 %, det är 98,5 %.
+                <div class="fix">Ändra copy: <em>"0 % plattformsavgift — vi finansieras inte av era donationer. Betalanbjudaren (Stripe) tar 1,4 % + 1,80 kr per donation, det enda som dras innan beloppet når mottagaren."</em> Tydligare och håller juridiskt.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-3"></span>
+              <div class="body">
+                <strong>Inga riktiga foton.</strong> Hela hero, alla campaign-cards, allt är gradienter. Vid launch kommer detta att kännas billigt.
+                <div class="fix">Bestäm en bildstrategi: (a) Inköpta stockfoton för marknadsföring, (b) endast bilder från publicerade insamlingar visas — om 0 insamlingar publicerade, visa en minimalistisk illustration istället för fake-bilder.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-4"></span>
+              <div class="body">
+                <strong>Quote-sektionens hadith är inte verifierad.</strong> "Den som visar vägen till något gott..." — referensen är Muslim 1893 men jag har inte dubbelkollat. Att citera en hadith felaktigt på en muslimsk plattform vore förtroendebrist.
+                <div class="fix">Låt Ahmed N. (fiqh-granskaren) verifiera alla religiösa citat innan publicering. Lista godkända citat i <code>lib/content/citat.ts</code>.</div>
+              </div>
+            </div>
+            <div class="finding minor">
+              <span class="mark" id="m-5"></span>
+              <div class="body">
+                <strong>Hero-kortet roterar -2°.</strong> Snyggt men kan kännas pretentiöst för en seriös sajt.
+                <div class="fix">Testa A/B — rotation av eller 0,5°. Behåll om det får sidan att kännas "premium-redaktionell" snarare än "startup-cool".</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discovery -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A2</span>
+            <h4>Discovery — listning</h4>
+            <span class="file">discovery.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-6"></span>
+              <div class="body">
+                <strong>Range-slidern för belopp är bara visuell.</strong> Filtret är inte funktionellt i designen, men användare förväntar sig att det fungerar.
+                <div class="fix">Använd <code>&lt;input type="range"&gt;</code> dubbelt med JS, eller bygg en debounced React-state. Skicka URL-params <code>?amt_min=10000&amp;amt_max=200000</code> och filtrera serversidigt på en query.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-7"></span>
+              <div class="body">
+                <strong>14 resultat visas men 9 syns.</strong> Ingen paginering — bara en "Visa nästa 9" som inte gör något.
+                <div class="fix">Använd cursor-baserad paginering (<code>created_at + id</code>) eller infinite scroll med <code>useIntersectionObserver</code>. Server action returnerar nästa 12.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-8"></span>
+              <div class="body">
+                <strong>Inget empty state.</strong> Vad ser användaren om filtren inte ger något resultat?
+                <div class="fix">Designa en <code>NoResults</code>-komponent: stor "Inget matchar." + förslag att (a) ta bort filter, (b) bläddra hela kartan, (c) sätta upp en bevakning ("notifiera mig när en insamling matchar").</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-9"></span>
+              <div class="body">
+                <strong>"Zakat-OK"-filter behöver förklaring.</strong> Många (inkl muslimer) vet inte exakt vad som kvalificerar för zakat. Pillen är där men en tooltip saknas.
+                <div class="fix">Lägg en <code>Popover</code> bredvid filter-rubriken som öppnar en kort förklaring (2 meningar) + länk till "Sadaqa &amp; Zakat"-sidan.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fundraiser -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A3</span>
+            <h4>Insamlingssidan</h4>
+            <span class="file">fundraiser.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-10"></span>
+              <div class="body">
+                <strong>Tabs gömmer kritiskt innehåll.</strong> "Mottagare &amp; pengaflöde", "Granskning", "Konversation" är alla bakom tabs som inte fungerar — och dessa är de viktigaste sakerna för donatorns förtroende.
+                <div class="fix">Två alternativ: (a) Slopa tabs, visa allt i en lång scroll. (b) Behåll tabs men förladda alla sektioner i DOM så Ctrl+F hittar dem. Jag rekommenderar (a) — förtroende byggs genom att se allt utan att klicka.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-11"></span>
+              <div class="body">
+                <strong>Side-panelen (donera) skalar inte med scroll.</strong> När man scrollar ner till botten av storyn försvinner CTA-knappen. På långa sidor donerar folk inte.
+                <div class="fix">Sticky-position på donate-card men med max-height = viewport - 96px. Vid scroll på mobil: byt mot en fixed bottom bar med "Donera"-knapp.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-12"></span>
+              <div class="body">
+                <strong>Inga foton.</strong> Hero-bilden och thumbnails är gradienter. Här är det extra känsligt — donatorer som inte ser <em>verkliga</em> människor de hjälper donerar mindre.
+                <div class="fix">Min 1 bild av mottagar-platsen eller liknande projekt. Insamlaren laddar upp bilder i wizarden (steg 2). Granskaren verifierar EXIF + omvänd bildsök innan publicering.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-13"></span>
+              <div class="body">
+                <strong>Tre obligatoriska bevis visas på en gång — det förvirrar pre-utbetalning.</strong> När en insamling just publicerats finns bara bevis 1 (eller 0). Tidlinjen visar alla tre som "väntar" vilket ser ut som ofullständigt arbete.
+                <div class="fix">Visa bara bevis som faktiskt finns, plus en <em>diskret</em> rad längst ner som säger "2 bevis till kommer — vid utbetalning och vid resultat". Inte tre tomma kort.</div>
+              </div>
+            </div>
+            <div class="finding minor">
+              <span class="mark" id="m-14"></span>
+              <div class="body">
+                <strong>"Senaste donatorer" visar 4. Skulle kunna vara live (websocket-uppdaterad).</strong>
+                <div class="fix">Använd Supabase Realtime + <code>donation</code>-tabellen. Animera in nya rader med <code>fade-in</code>. Begränsa till 10 senaste.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donate flow -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A4</span>
+            <h4>Donator-flödet</h4>
+            <span class="file">donate.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-15"></span>
+              <div class="body">
+                <strong>Inget felfall.</strong> Vad händer om Stripe avvisar kortet? Om nätverket dör? Om beloppet ändrades sedan man valde det? Designen har bara "happy path".
+                <div class="fix">Bygg <code>PaymentError</code>-komponent. Tre subtyper: <em>card_declined</em> (visa Stripe-felmeddelande + behåll övriga fält), <em>network_error</em> (retry-knapp), <em>amount_changed</em> (visa nytt belopp + bekräfta). Skriv felmeddelanden på svenska.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-16"></span>
+              <div class="body">
+                <strong>Anonymitet är otydligt.</strong> "Donera anonymt" — anonym för vem? Insamlaren? Andra donatorer? Skatteverket?
+                <div class="fix">Bryt upp i <em>tre</em> nivåer: (1) "Publikt namn dolt — bara förnamn", (2) "Anonym för insamlaren — bara plattformen ser dig", (3) "Helt anonym — ingen ser namn (men kvitto i din mejl kvarstår, lagkrav)". Skatteverket-rad: "Avdrag möjligt? Då måste namnet kunna kopplas till ditt personnummer."</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-17"></span>
+              <div class="body">
+                <strong>"Månatlig donation" — Stripe-subscriptions är annorlunda än one-time.</strong> Behöver ett Stripe Customer (sparas), kortet sparas (PCI-implications), webhook för failed renewals.
+                <div class="fix">Lägg månatlig bakom en feature-flag och bygg inte i v1. Eller bygg på riktigt med Stripe Subscriptions + kund-portal för att avbryta. Mocka inte.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-18"></span>
+              <div class="body">
+                <strong>Swish-flödet är inte ritat.</strong> "Swish · QR-kod öppnas i nästa steg" säger designen — men inget steg 5.
+                <div class="fix">Swish behöver en QR-poll-state: visa QR + spinner + status "Väntar på betalning..." → "Klart!" eller timeout. Använd Stripes Swish-integration (PaymentMethod via PaymentIntent).</div>
+              </div>
+            </div>
+            <div class="finding minor">
+              <span class="mark" id="m-19"></span>
+              <div class="body">
+                <strong>Confetti-animation på success?</strong> Inte i designen — men många plattformar lägger till. För muslimsk kontext är det troligen fel ton.
+                <div class="fix">Skip confetti. Den nuvarande success-screen med stilla "Jazak Allah khair" är rätt ton — håll den värdig.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A5</span>
+            <h4>Skapa-wizarden</h4>
+            <span class="file">wizard.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-20"></span>
+              <div class="body">
+                <strong>Stripe Connect-onboarding saknas helt.</strong> Designen antar att insamlaren har Stripe-konto. I verkligheten måste vi öppna det åt dem (eller länka till Stripes Express-onboarding) innan första donation kan tas emot.
+                <div class="fix">Lägg ett <em>extra steg 5,5</em> efter granskning godkänts: "Innan din insamling kan ta emot betalningar behöver du koppla ett Stripe-konto." Använd Stripe Connect <code>Express</code>-onboarding flow — Stripe hostar formuläret, vi får ett <code>connected_account_id</code> tillbaka via webhook.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-21"></span>
+              <div class="body">
+                <strong>Live-preview uppdateras inte i designen.</strong> Den är statisk. Användaren skriver men ser inte sin titel/bild förändras.
+                <div class="fix">Bygg <code>WizardPreview</code> som lyssnar på samma React-state som formuläret. Använd <code>useDeferredValue</code> för att inte rerender per keystroke.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-22"></span>
+              <div class="body">
+                <strong>Bilduppladdning är inte ritad — inga progress bars, ingen klippning.</strong>
+                <div class="fix">Använd <code>react-image-crop</code> eller liknande. Tvinga 16:9 för omslagsbild, 1:1 för thumbnails. Spara till R2 via signed URL från en server action. Visa progress per bild.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-23"></span>
+              <div class="body">
+                <strong>Validation per steg saknas.</strong> Användaren kan gå till granska-steget utan att fylla i story-fältet. Designen säger inte hur fel visas.
+                <div class="fix">Använd <code>zod</code> för schema-validering per steg. Visa inline-fel med röd ram + meddelande under fältet. Disable "Nästa"-knappen tills steget validerar.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-24"></span>
+              <div class="body">
+                <strong>"Per-fält integritet" är ett unikt koncept som behöver mer förklaring.</strong> Använda ser tre toggles och vet inte vad som händer.
+                <div class="fix">Lägg en kort intro-paragraf ovanför: <em>"Du styr exakt vad som syns publikt. Granskaren ser allt, donatorerna ser bara det du gjort publikt. Detta är vår 'per-fält-integritet'-princip."</em></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Granskning -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A6</span>
+            <h4>Granskningsvy</h4>
+            <span class="file">review.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-25"></span>
+              <div class="body">
+                <strong>Eskalering-flödet är otydligt.</strong> "Väntar på Salma K." — vad gör Zivar om Salma är offline 3 dagar? SLA fortsätter ticka. Designen säger inte hur Zivar kan eskalera till nästa granskare.
+                <div class="fix">Lägg en "Eskalera"-knapp på principen-raden: <code>Stora belopp &gt;100k</code>. Den öppnar en modal: "Hoppa över Salma (offline 18h) — ta in Ahmed Z. istället". Logga eskaleringen i <code>granskning_handelse</code>.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-26"></span>
+              <div class="body">
+                <strong>"Avslå"-knappen behöver tvinga motivering + bekräftelse.</strong> Just nu är det en stor röd knapp som ser ut som att den kan klickas av misstag.
+                <div class="fix">Bygg <code>RejectModal</code>: kräver fritext min 80 tecken + dropdown med skäl (bedrägeri, icke-islamiskt, dubblett, otydligt mål, mottagare overifierbar). Inga snabb-skäl — varje avslag motiveras öppet.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-27"></span>
+              <div class="body">
+                <strong>Dokument-pdf:er visas inte inline.</strong> Granskaren måste ladda ner varje PDF för att se den.
+                <div class="fix">Bygg in <code>react-pdf</code> så PDF:er renderas inline med zoom + sidnavigering. Annoteringar valfritt i v1 — bara visning räcker.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-28"></span>
+              <div class="body">
+                <strong>Auto-verifiering av dokument är magiskt — vad verifieras egentligen?</strong>
+                <div class="fix">Definiera tre auto-checks: (1) <strong>Stripe-transferkvitto</strong> verifieras mot Stripe API (är denna transfer-ID äkta?), (2) <strong>EXIF + omvänd bildsök</strong> via TinEye eller Bing-API, (3) <strong>Organisations-registreringsbevis</strong> via Skatteverkets API (för svenska föreningar). Bygg en <code>VerificationLog</code> som visar exakt vad som kollades.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A7</span>
+            <h4>Insamlarens konto</h4>
+            <span class="file">account.html</span>
+          </div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="m-29"></span>
+              <div class="body">
+                <strong>"Svara granskaren"-knappen leder till granskningsvyn (review.html) — fel publik.</strong> Insamlaren ska inte se granskningskön — bara sin egen iteration.
+                <div class="fix">Bygg en separat <code>/insamling/[id]/iteration</code> route. Visar bara konversationen + möjlighet att svara + ladda upp nya dokument. Kalla den för "Granskar-konversation" på insamlarsidan.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-30"></span>
+              <div class="body">
+                <strong>Trust-poäng 92 visas för ny användare — det är fel.</strong> Ny användare har 0 eller "ej rankad".
+                <div class="fix">Default trust = "Ej rankad ännu (0 insamlingar)" med en länk till "Hur byggs trust-poäng?". Score börjar visas efter första avslutade insamling.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-31"></span>
+              <div class="body">
+                <strong>Inga notiser i sidopanelen.</strong> "12 meddelanden" är en räknare men ingen ikon-badge eller dropdown.
+                <div class="fix">Bygg <code>NotificationCenter</code> som dropdown från klock-ikonen. Realtid via Supabase Realtime. Tre typer: <em>granskar-respons</em>, <em>ny donator</em>, <em>insamling avslutas snart</em>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin / Map / Community / etc batched -->
+        <div class="audit">
+          <div class="head">
+            <span class="ref">A8</span>
+            <h4>Övriga ytor — batchade fynd</h4>
+            <span class="file">admin · team · map · community · catalog · auth · profile · update</span>
+          </div>
+          <div class="findings">
+            <div class="finding fix">
+              <span class="mark" id="m-32"></span>
+              <div class="body">
+                <strong>Admin · charten är illustrativ SVG — inte data.</strong>
+                <div class="fix">Använd <code>recharts</code> eller <code>visx</code>. Servera data från en server component som queryar <code>donation</code>-tabellen med <code>date_trunc('day', skapad)</code>.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-33"></span>
+              <div class="body">
+                <strong>Karta · Sverige-SVG är stiliserad — inte geografiskt korrekt.</strong>
+                <div class="fix">Hämta GeoJSON för Sveriges kommuner (Lantmäteriet). Använd <code>react-simple-maps</code> eller MapLibre. Aggregera insamlingar per kommun.</div>
+              </div>
+            </div>
+            <div class="finding critical">
+              <span class="mark" id="m-34"></span>
+              <div class="body">
+                <strong>Karta · pinning av insamlare på stadsnivå är ett integritetsproblem.</strong> Vissa donatorer/insamlare vill inte att deras bostadsort syns.
+                <div class="fix">Default: aggregera på län-nivå. Insamlaren får opt-in för stad-nivå pin. Använd <code>profil.geografisk_synlighet</code>-fält (enum: <code>land · lan · stad</code>).</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-35"></span>
+              <div class="body">
+                <strong>Community · dua-knappen lagrar vad?</strong> Är "142 dua" antal klick eller unika personer? Kan en person klicka två gånger?
+                <div class="fix">En dua per person per post. Unique constraint på <code>(post_id, profil_id)</code>. Gäster räknas inte (måste logga in). Visa antal: <code>SELECT COUNT(DISTINCT profil_id)</code>.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-36"></span>
+              <div class="body">
+                <strong>Auth · BankID-flödet visas som mockup.</strong> Det riktiga flödet kräver broker (Criipto eller Freja eID) — det är inte trivialt.
+                <div class="fix">Använd <strong>Criipto Verify</strong> (smidigast). De ger en <code>iframe</code> + JWT-token tillbaka. Vi mappar JWT → vår <code>profil</code>. PRIVAT-fält: vi sparar <em>aldrig</em> personnumret rådatamässigt — bara en hash + Criiptos sub-claim.</div>
+              </div>
+            </div>
+            <div class="finding fix">
+              <span class="mark" id="m-37"></span>
+              <div class="body">
+                <strong>Update · "auto-verifierad" Stripe-kvitto kräver Stripe API-lookup.</strong>
+                <div class="fix">När insamlaren laddar upp en pdf, parsa Stripe-transfer-ID:t (regex på text) → query Stripes API → matcha mot förväntat belopp + connected_account. Markera som <code>auto-verifierad</code> i <code>transparens_bevis.verifierings_status</code>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 02 GENOMGRIPANDE ===== -->
+      <section id="genomgripande" class="sec">
+        <h2><span class="num">§ 02 · GENOMGRIPANDE</span>Designbrister som drabbar alla ytor</h2>
+        <p class="lead">
+          Det här är mönstren jag missade som inte tillhör en enskild yta — men som måste lösas i hela plattformen.
+        </p>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G1</span><h4>Tomma tillstånd (empty states)</h4></div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="g-1"></span>
+              <div class="body">
+                <strong>Plattformen launchar med 0 data.</strong> Inga insamlingar publicerade, inga donatorer, inga föreningar. Alla mina mockups visar fyllda listor.
+                <div class="fix">Designa en <code>EmptyState</code>-komponent per kontext: <em>"Inga insamlingar än — bli den första"</em>, <em>"Du har inte donerat ännu — utforska"</em>, etc. Använd varma illustrationer (8-uddiga stjärnor) istället för "no-data"-piktogram.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G2</span><h4>Laddningstillstånd (loading)</h4></div>
+          <div class="findings">
+            <div class="finding fix">
+              <span class="mark" id="g-2"></span>
+              <div class="body">
+                <strong>Inga skeletons.</strong> Vad ser man medan en sida laddar?
+                <div class="fix">Bygg en <code>&lt;Skeleton&gt;</code>-komponent som matchar varje kort-typ (campaign-card, donor-row, message). Skimmer-animation: <code>linear-gradient(90deg, var(--paper-soft) 0%, var(--paper-deep) 50%, var(--paper-soft) 100%)</code> med translate.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G3</span><h4>Felfall (error states)</h4></div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="g-3"></span>
+              <div class="body">
+                <strong>Tre typer av fel saknar design:</strong> (1) nätverk dör, (2) server returnerar 500, (3) action timeout.
+                <div class="fix">En <code>&lt;ErrorBoundary&gt;</code> i layout-roten + en <code>&lt;ActionError&gt;</code>-komponent för server actions. Texterna ska vara på svenska, hjälpsamma, inte tekniska. <em>"Något gick fel just nu. Försök igen — eller mejla support@sadaqasweden.se om det fortsätter."</em></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G4</span><h4>Mobile responsivitet</h4></div>
+          <div class="findings">
+            <div class="finding critical">
+              <span class="mark" id="g-4"></span>
+              <div class="body">
+                <strong>De flesta sidor har grundläggande media queries men sticky-paneler funkar inte.</strong> Donate-card, granskar-rail, wizard-rail — alla blir konstiga på mobil.
+                <div class="fix">På <code>&lt; 768px</code>: (a) Donate-card → fixed bottom sheet, (b) Wizard-rail → horizontellt stepper-band överst, (c) Granskar-kö → swipe-deck mellan ärenden.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G5</span><h4>Tillgänglighet</h4></div>
+          <div class="findings">
+            <div class="finding fix">
+              <span class="mark" id="g-5"></span>
+              <div class="body">
+                <strong>Inga ARIA-attribut, ingen explicit fokus-management, kontraster inte mätta.</strong>
+                <div class="fix">Audit med axe-core CI på alla routes. <code>focus-visible</code>-stilar på alla interaktiva element. Minimum kontrast 4.5:1 för bodytext (kolla copper-text på cream — det är på gränsen). <code>prefers-reduced-motion</code> respekteras på alla animationer.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G6</span><h4>Internationalisering</h4></div>
+          <div class="findings">
+            <div class="finding minor">
+              <span class="mark" id="g-6"></span>
+              <div class="body">
+                <strong>Plattformen är svenskspråkig — bra.</strong> Men arabiska ord i community ("Allahumma barik", "Jazak Allah khair") är skrivna inline. Vissa skärmläsare hanterar inte detta väl.
+                <div class="fix">Wrappa arabiska i <code>&lt;span lang="ar"&gt;...&lt;/span&gt;</code>. Lägg en font-stack för arabiska — t.ex. <code>"Noto Sans Arabic"</code> som fallback.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit">
+          <div class="head"><span class="ref">G7</span><h4>Tooltip &amp; inline-förklaring</h4></div>
+          <div class="findings">
+            <div class="finding fix">
+              <span class="mark" id="g-7"></span>
+              <div class="body">
+                <strong>Många koncept förklaras inte:</strong> <em>Zakat-OK, Collab, KYC, Trust-poäng, Stripe Connect, Per-fält integritet</em>.
+                <div class="fix">Bygg <code>&lt;HelpTooltip term="zakat-ok" /&gt;</code>. Alla termer ligger i <code>lib/content/ordlista.ts</code>. Ikon: liten <code>i</code> i cirkel bredvid termen. Klick: popover med 1-2 meningar + länk till djupare läsning.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 03 VERKLIGA OVERVAGNINGAR ===== -->
+      <section id="verkligheten" class="sec">
+        <h2><span class="num">§ 03 · VERKLIGHETEN</span>Saker som händer i kontakt med riktiga användare</h2>
+        <p class="lead">
+          När designen möter användare, lagar och bankerna händer saker som mockups inte fångar.
+        </p>
+
+        <h3>Lagliga &amp; ekonomiska realiteter</h3>
+        <table>
+          <thead><tr><th>Område</th><th>Realitet</th><th>Vad detta innebär för designen</th></tr></thead>
+          <tr>
+            <td><strong>Skatteverket</strong></td>
+            <td>Donatorer som vill göra avdrag behöver organisationens 90-konto + verifierat namn.</td>
+            <td>Anonym-flagga får inte gälla för avdragsgilla donationer. Kvittot måste ha personnummer + namn för avdrags-spår.</td>
+          </tr>
+          <tr>
+            <td><strong>GDPR</strong></td>
+            <td>"Right to be forgotten" — användare kan kräva radering av allt.</td>
+            <td>Anonymisera donationer (behåll belopp, ta bort kopplingen till profilen). Inte radera helt — det stör revisor-spår. Bygg en GDPR-export-knapp i inställningar.</td>
+          </tr>
+          <tr>
+            <td><strong>Stripe Connect</strong></td>
+            <td>Mottagare under 18 år får inte ha eget Stripe-konto.</td>
+            <td>För insamlingar för barn (rullstol-fallet) går pengarna till en förälder eller förening. Tvinga val: "Vem tar emot pengarna?" — privatperson 18+ eller förening.</td>
+          </tr>
+          <tr>
+            <td><strong>Penningtvätt (FATF/PMTL)</strong></td>
+            <td>Belopp över viss tröskel triggrar KYC/AML-verifiering.</td>
+            <td>Designen behöver visa en larm-pill: <em>"Belopp över 50&nbsp;000 kr per donation kräver utökad KYC. Det här hanteras av Stripe automatiskt."</em></td>
+          </tr>
+          <tr>
+            <td><strong>Sanktioner</strong></td>
+            <td>Vissa länder/personer på EU-sanktionslistan får inte ta emot pengar.</td>
+            <td>Innan utbetalning: kör mottagarens namn mot sanktionslistan (OFAC + EU). Om träff → frys + manuell granskning.</td>
+          </tr>
+        </table>
+
+        <h3>Tekniska realiteter</h3>
+        <table>
+          <thead><tr><th>Område</th><th>Realitet</th><th>Vad designen behöver lägga till</th></tr></thead>
+          <tr>
+            <td><strong>Bilduppladdning</strong></td>
+            <td>Telefoner skickar 12 MB-bilder. R2 kostar att lagra.</td>
+            <td>Klient-side komprimering (max 1920px lång sida, 80% kvalitet). Visa progress-bar. Generera 3 varianter (thumb 200, card 800, full 1600) via Cloudflare Images.</td>
+          </tr>
+          <tr>
+            <td><strong>Realtid</strong></td>
+            <td>"Senaste donatorerna" och "Senaste timmen +2 200 kr" antyder live-data.</td>
+            <td>Supabase Realtime subscribe på <code>donation</code>. Throttle till 1 update / 2 sek. Animera in nya rader.</td>
+          </tr>
+          <tr>
+            <td><strong>Sökning</strong></td>
+            <td>Fritextsökning över storyn/titeln/orten.</td>
+            <td>Postgres <code>tsvector</code> + <code>tsquery</code> med svenska språk-config. Debounce 300ms. Inga externa sök-tjänster i v1.</td>
+          </tr>
+          <tr>
+            <td><strong>Bilduppvisning</strong></td>
+            <td>Inte alla browsers stöder WebP eller AVIF.</td>
+            <td>Använd <code>&lt;Image /&gt;</code> från Next.js (eller Cloudflare Images) som hanterar format-fallback automatiskt.</td>
+          </tr>
+          <tr>
+            <td><strong>E-post</strong></td>
+            <td>Donatorer förväntar sig kvitto inom sekunder.</td>
+            <td>Resend webhook efter Stripe-confirmation. Mall i <code>emails/kvitto.tsx</code> (React Email). Retry vid bounce.</td>
+          </tr>
+        </table>
+
+        <h3>Mänskliga realiteter</h3>
+        <table>
+          <thead><tr><th>Område</th><th>Realitet</th><th>Lösning</th></tr></thead>
+          <tr>
+            <td><strong>Bedrägeri-försök</strong></td>
+            <td>Fejk-insamlingar med stulna bilder kommer testas.</td>
+            <td>Granskning före publicering + omvänd bildsök + dokument-verifiering. Plus: tipsa-knapp på varje insamling.</td>
+          </tr>
+          <tr>
+            <td><strong>Granskaren hinner inte</strong></td>
+            <td>72 h SLA — om kön växer till 50 ärenden hinner inte 3 personer.</td>
+            <td>SLA-overflow-larm i admin. Auto-prioritera små belopp (auto-godkänn med spot-check?) Eller pausa nya insamlingar tills kön är under 20.</td>
+          </tr>
+          <tr>
+            <td><strong>Donatorn ångrar sig</strong></td>
+            <td>"Jag donerade fel belopp — ge tillbaka." Stripe-refund tar 5–10 dgr.</td>
+            <td>Klar refund-policy i checkout: "Refund inom 14 dgr — knapp i din mejl-kvitto." Inte chatta med support.</td>
+          </tr>
+          <tr>
+            <td><strong>Insamlaren visar inga bevis</strong></td>
+            <td>3 mån går utan resultat-bevis. Donatorer börjar undra.</td>
+            <td>Auto-påminnelse till insamlaren efter 30/60/90 dgr. Efter 90 dgr utan bevis: flagga publikt ("Bevis försenat") + sänk trust-poäng. Frys nya insamlingar tills bevis kommer.</td>
+          </tr>
+          <tr>
+            <td><strong>Insamlingen når inte målet</strong></td>
+            <td>50 % nått, deadline kommer.</td>
+            <td>Tvinga val vid skapande: "Om vi inte når målet — refund eller kör delvis?" (designen har detta — bra. Men förklara refund-mekaniken tydligare.)</td>
+          </tr>
+        </table>
+      </section>
+
+      <!-- ===== 04 ARKITEKTUR ===== -->
+      <section id="arkitektur" class="sec">
+        <h2><span class="num">§ 04 · ARKITEKTUR</span>Arkitektur &amp; filstruktur</h2>
+        <p class="lead">
+          Plattformen är en Next.js 15 App Router-applikation som deployar till Cloudflare Workers via OpenNext. Backend är Supabase (Postgres + RLS + Auth). Pengar via Stripe Connect. Filer via Cloudflare R2.
+        </p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 760 360" style="width: 100%; height: auto;">
+            <defs>
+              <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0L10 5L0 10z" fill="var(--ink-2)"/>
+              </marker>
+            </defs>
+
+            <!-- Browser -->
+            <rect x="20" y="20" width="160" height="80" rx="10" fill="var(--paper)" stroke="var(--ink-line)"/>
+            <text x="100" y="50" text-anchor="middle" font-family="Spectral" font-size="18" fill="var(--ink)">Browser</text>
+            <text x="100" y="72" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">React + tRPC-style server actions</text>
+
+            <!-- Cloudflare worker -->
+            <rect x="240" y="20" width="200" height="80" rx="10" fill="var(--forest-soft)" stroke="var(--forest)"/>
+            <text x="340" y="50" text-anchor="middle" font-family="Spectral" font-size="18" fill="var(--forest)">Cloudflare Worker</text>
+            <text x="340" y="72" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">Next.js SSR · OpenNext</text>
+
+            <!-- Supabase -->
+            <rect x="500" y="20" width="200" height="80" rx="10" fill="var(--copper-soft)" stroke="var(--copper)"/>
+            <text x="600" y="50" text-anchor="middle" font-family="Spectral" font-size="18" fill="var(--copper-deep)">Supabase</text>
+            <text x="600" y="72" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">Postgres · Auth · Realtime</text>
+
+            <!-- Stripe -->
+            <rect x="240" y="160" width="200" height="60" rx="10" fill="var(--paper-soft)" stroke="var(--ink-line)"/>
+            <text x="340" y="185" text-anchor="middle" font-family="Spectral" font-size="16" fill="var(--ink)">Stripe Connect</text>
+            <text x="340" y="205" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">Express onboarding · transfers · webhooks</text>
+
+            <!-- R2 -->
+            <rect x="500" y="160" width="200" height="60" rx="10" fill="var(--paper-soft)" stroke="var(--ink-line)"/>
+            <text x="600" y="185" text-anchor="middle" font-family="Spectral" font-size="16" fill="var(--ink)">Cloudflare R2</text>
+            <text x="600" y="205" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">Bilder · dokument · per-insamling-bucket</text>
+
+            <!-- BankID -->
+            <rect x="20" y="160" width="160" height="60" rx="10" fill="var(--paper-soft)" stroke="var(--ink-line)"/>
+            <text x="100" y="185" text-anchor="middle" font-family="Spectral" font-size="16" fill="var(--ink)">Criipto</text>
+            <text x="100" y="205" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">BankID broker · JWT</text>
+
+            <!-- Resend -->
+            <rect x="240" y="280" width="200" height="60" rx="10" fill="var(--paper-soft)" stroke="var(--ink-line)"/>
+            <text x="340" y="305" text-anchor="middle" font-family="Spectral" font-size="16" fill="var(--ink)">Resend</text>
+            <text x="340" y="325" text-anchor="middle" font-family="Manrope" font-size="11" fill="var(--ink-3)">Transaktions-mejl · kvitton</text>
+
+            <!-- Arrows -->
+            <line x1="180" y1="60" x2="240" y2="60" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="440" y1="60" x2="500" y2="60" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="340" y1="100" x2="340" y2="160" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="440" y1="190" x2="500" y2="190" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="180" y1="190" x2="240" y2="190" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+            <line x1="340" y1="220" x2="340" y2="280" stroke="var(--ink-2)" stroke-width="1.5" marker-end="url(#arr)"/>
+          </svg>
+        </div>
+
+        <h3>Filstruktur</h3>
+
+<pre class="file-head">5-Kod/</pre>
+<pre><span class="c">// Endast skelettet — Claude Code utökar inom denna struktur</span>
+
+<span class="k">app/</span>
+  <span class="k">(public)/</span>            <span class="c"># publika sidor — ingen auth-kontroll</span>
+    page.tsx              <span class="c"># marketing.html → /</span>
+    insamlingar/
+      page.tsx            <span class="c"># discovery.html → /insamlingar</span>
+      [publicId]/
+        page.tsx          <span class="c"># fundraiser.html → /insamlingar/[id]</span>
+        donera/
+          page.tsx        <span class="c"># donate.html — multi-step wrapper</span>
+          actions.ts      <span class="c"># Stripe PaymentIntent + customer + webhook</span>
+    foreningar/
+      page.tsx            <span class="c"># catalog.html → /foreningar</span>
+      [id]/page.tsx
+    karta/page.tsx        <span class="c"># map.html — kartvyn</span>
+    community/page.tsx    <span class="c"># community.html — events + dua</span>
+    profil/[handle]/
+      page.tsx            <span class="c"># profile.html — publik profil</span>
+
+  <span class="k">(auth)/</span>
+    login/page.tsx        <span class="c"># auth.html</span>
+    registrera/page.tsx
+    verifiera-epost/
+    konto-fryst/
+
+  <span class="k">(konto)/</span>           <span class="c"># kräver inloggning</span>
+    insamling/
+      page.tsx            <span class="c"># account.html → mina insamlingar</span>
+      ny/[steg]/
+        page.tsx          <span class="c"># wizard.html — varje steg sin route</span>
+      [id]/
+        page.tsx          <span class="c"># mitt utkast eller publicerad</span>
+        redigera/
+        iteration/        <span class="c"># NY — granskar-konversation</span>
+        uppdatering/      <span class="c"># update.html — nytt bevis</span>
+    donationer/page.tsx   <span class="c"># mina donationer</span>
+    installningar/
+    stripe-onboarding/    <span class="c"># NY — Connect Express-länkflöde</span>
+
+  <span class="k">(intern)/</span>          <span class="c"># kräver granskare/admin-roll</span>
+    granskning/
+      page.tsx            <span class="c"># review.html — kön</span>
+      [id]/page.tsx       <span class="c"># review.html — ärende</span>
+    admin/
+      page.tsx            <span class="c"># admin.html</span>
+      anvandare/
+      pengaflode/
+      larm/
+    team/page.tsx         <span class="c"># team.html</span>
+
+  <span class="k">api/</span>                <span class="c"># bara webhook-routes — allt annat är server actions</span>
+    stripe/webhook/route.ts
+    criipto/callback/route.ts
+    resend/bounce/route.ts
+
+  proxy.ts                <span class="c"># Next 15 proxy (tidigare middleware)</span>
+  layout.tsx              <span class="c"># root layout + font-loading</span>
+  globals.css             <span class="c"># tailwind base + tokens</span>
+
+<span class="k">components/</span>
+  <span class="k">ui/</span>                 <span class="c"># primitiva komponenter — Button, Input, etc.</span>
+    button.tsx
+    input.tsx
+    progress.tsx
+    pill.tsx
+    star-mark.tsx         <span class="c"># 8-uddiga stjärnan</span>
+    wordmark.tsx          <span class="c"># Sadaqa Sweden-ordmärket</span>
+    empty-state.tsx       <span class="c"># återanvändbar</span>
+    skeleton.tsx
+    error-boundary.tsx
+    help-tooltip.tsx
+  <span class="k">layouts/</span>            <span class="c"># topnav, sidebar, footer, app-shell</span>
+  <span class="k">campaign/</span>           <span class="c"># insamlings-relaterade — Card, Detail, Progress</span>
+  <span class="k">donate/</span>             <span class="c"># amount-stepper, payment-form, success</span>
+  <span class="k">wizard/</span>             <span class="c"># step-rail, preview, validation</span>
+  <span class="k">review/</span>             <span class="c"># queue, case, principles, decision</span>
+  <span class="k">timeline/</span>           <span class="c"># transparens-bevis timeline</span>
+
+<span class="k">lib/</span>
+  <span class="k">supabase/</span>           <span class="c"># client + server + types (finns redan)</span>
+  <span class="k">stripe/</span>
+    client.ts             <span class="c"># Stripe SDK init</span>
+    connect.ts            <span class="c"># Express onboarding + transfer logic</span>
+    webhook.ts            <span class="c"># signature-verify + event handler</span>
+  <span class="k">criipto/</span>
+    verify.ts             <span class="c"># JWT-validation + profil-mapping</span>
+  <span class="k">r2/</span>
+    upload.ts             <span class="c"># signed URL generation</span>
+    images.ts             <span class="c"># variant generation</span>
+  <span class="k">resend/</span>
+    send.ts
+    templates/
+      kvitto.tsx
+      iteration.tsx
+      bevis-paminnelse.tsx
+  <span class="k">auth.ts</span>             <span class="c"># finns redan — utöka med roll-helpers</span>
+  <span class="k">content/</span>
+    ordlista.ts           <span class="c"># Zakat, Sadaqa, KYC etc — tooltip-content</span>
+    citat.ts              <span class="c"># godkända hadith/koran-citat</span>
+  <span class="k">validation/</span>
+    insamling.ts          <span class="c"># zod-scheman per wizard-steg</span>
+    donation.ts</pre>
+
+        <div class="callout warn">
+          <span class="icn" id="cal-2"></span>
+          <div class="body">
+            <span class="label">Filstrukturen är inkrementell</span>
+            <p>Claude Code behöver inte skapa alla mappar dag 1. Byggsekvensen i § 11 säger vad som byggs i vilken ordning. Strukturen ovan är slutmålet — så placera filerna rätt när de skapas så slipper du refaktorera senare.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 05 DESIGNSYSTEM KOD ===== -->
+      <section id="designsystemkod" class="sec">
+        <h2><span class="num">§ 05 · DESIGNSYSTEM</span>Tokens &amp; primitiva komponenter i kod</h2>
+        <p class="lead">
+          Designens visuella språk översätts till Tailwind v4-tokens + ett litet bibliotek av primitiver. Alla värden är redan satta i <code>assets/style.css</code> i katalogen — det är källan att kopiera ifrån.
+        </p>
+
+        <h3>Globalt theme (app/globals.css)</h3>
+
+<pre class="file-head">app/globals.css</pre>
+<pre><span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"./tokens.css"</span>;
+
+<span class="k">@theme</span> {
+  <span class="c">/* Fonts — Manrope + Spectral + JetBrains Mono från Google Fonts */</span>
+  --font-display: <span class="s">"Spectral"</span>, Georgia, serif;
+  --font-ui: <span class="s">"Manrope"</span>, system-ui, sans-serif;
+  --font-mono: <span class="s">"JetBrains Mono"</span>, ui-monospace, monospace;
+
+  <span class="c">/* Färger — exponera dem som Tailwind-klasser */</span>
+  --color-forest: <span class="n">#1F4636</span>;
+  --color-forest-deep: <span class="n">#0F2A1F</span>;
+  --color-paper: <span class="n">#F5F0E4</span>;
+  --color-paper-soft: <span class="n">#FBF7EC</span>;
+  --color-copper: <span class="n">#B8843E</span>;
+  --color-copper-deep: <span class="n">#8E6429</span>;
+  --color-ink: <span class="n">#0E1411</span>;
+
+  --radius-md: <span class="n">10px</span>;
+  --radius-lg: <span class="n">14px</span>;
+  --radius-xl: <span class="n">20px</span>;
+}</pre>
+
+        <p>Alla 94 tokens i <code>assets/style.css</code> är källan. Claude Code: kopiera in den i <code>app/tokens.css</code> orörd — den är komplett.</p>
+
+        <h3>Primitiv-bibliotek (components/ui/)</h3>
+
+<pre class="file-head">components/ui/button.tsx</pre>
+<pre><span class="k">import</span> { cva, <span class="k">type</span> VariantProps } <span class="k">from</span> <span class="s">"class-variance-authority"</span>;
+<span class="k">import</span> { cn } <span class="k">from</span> <span class="s">"@/lib/utils"</span>;
+
+<span class="k">const</span> button = <span class="ti">cva</span>(
+  <span class="s">"inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all font-ui whitespace-nowrap disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"</span>,
+  {
+    variants: {
+      variant: {
+        primary: <span class="s">"bg-forest text-paper hover:bg-forest-deep hover:-translate-y-px hover:shadow-md"</span>,
+        copper: <span class="s">"bg-copper text-white hover:bg-copper-deep hover:-translate-y-px"</span>,
+        secondary: <span class="s">"bg-transparent text-forest border border-forest/15 hover:bg-forest/8"</span>,
+        ghost: <span class="s">"text-ink-2 hover:text-forest hover:bg-forest/8"</span>,
+      },
+      size: {
+        sm: <span class="s">"h-9 px-4 text-[13px]"</span>,
+        md: <span class="s">"h-11 px-5 text-sm"</span>,
+        lg: <span class="s">"h-14 px-8 text-base"</span>,
+      },
+    },
+    defaultVariants: { variant: <span class="s">"primary"</span>, size: <span class="s">"md"</span> },
+  }
+);
+
+<span class="k">export type</span> ButtonProps = React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt; &amp; VariantProps&lt;<span class="k">typeof</span> button&gt;;
+
+<span class="k">export function</span> <span class="ti">Button</span>({ className, variant, size, ...props }: ButtonProps) {
+  <span class="k">return</span> &lt;button className={cn(button({ variant, size }), className)} {...props} /&gt;;
+}</pre>
+
+        <p>Mappning från katalog-HTML-klasser till komponent-props:</p>
+        <table>
+          <thead><tr><th>HTML-klass i katalog</th><th>React-komponent</th></tr></thead>
+          <tr><td><code>.btn.btn-primary</code></td><td><code>&lt;Button variant="primary" /&gt;</code></td></tr>
+          <tr><td><code>.btn.btn-copper.btn-lg</code></td><td><code>&lt;Button variant="copper" size="lg" /&gt;</code></td></tr>
+          <tr><td><code>.pill.pill-success</code></td><td><code>&lt;Pill tone="success" /&gt;</code></td></tr>
+          <tr><td><code>.progress</code> + <code>.progress-bar</code></td><td><code>&lt;Progress value={74} /&gt;</code></td></tr>
+          <tr><td><code>.wordmark</code></td><td><code>&lt;Wordmark light? /&gt;</code></td></tr>
+          <tr><td><code>.star-mark</code></td><td><code>&lt;StarMark size={16} /&gt;</code></td></tr>
+          <tr><td><code>.card</code></td><td><code>&lt;Card&gt;...&lt;/Card&gt;</code></td></tr>
+          <tr><td><code>.input.input-lg</code></td><td><code>&lt;Input size="lg" /&gt;</code></td></tr>
+          <tr><td><code>.divider-star</code></td><td><code>&lt;DividerStar /&gt;</code></td></tr>
+        </table>
+      </section>
+
+      <!-- ===== 06 PER ROUTE BUILD SPEC ===== -->
+      <section id="per-route" class="sec">
+        <h2><span class="num">§ 06 · BYGG-SPEC PER ROUTE</span>Exakta noder, data, states per sida</h2>
+        <p class="lead">
+          För varje route: vilka komponenter, vilken data, vilka tillstånd. Designens HTML-fil refereras som källa för layout/visuell stil.
+        </p>
+
+        <h3>/insamlingar/[publicId] — insamlingssidan</h3>
+        <p><strong>Källa:</strong> <code>fundraiser.html</code> · <strong>Moduler:</strong> <span class="module-tag">M1</span> <span class="module-tag">M4</span> <span class="module-tag">M7</span> · <strong>Data:</strong> publik (men respekterar RLS per fält)</p>
+
+        <h4>Komponentträd</h4>
+<div class="tree">
+<span class="tn">&lt;FundraiserPage&gt;</span>             <span class="tc">// server component — fetcha insamling</span>
+  <span class="tn">&lt;TopNav variant="public" /&gt;</span>
+  <span class="tn">&lt;Breadcrumb /&gt;</span>
+  <span class="tn">&lt;div className="grid grid-cols-[1fr_380px] gap-16"&gt;</span>
+    <span class="tn">&lt;main&gt;</span>
+      <span class="tn">&lt;HeroImage</span> <span class="ti">images={i.media}</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;ThumbnailRow</span> <span class="ti">images={i.media}</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;TitleBlock</span> <span class="ti">category title</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;Byline</span> <span class="ti">insamlare collab</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;Section title="Storyn"&gt;</span>
+        <span class="tn">&lt;Prose</span> <span class="ti">content={i.story_html}</span> <span class="tn">/&gt;</span>     <span class="tc">// markdown → HTML, sanitized</span>
+      <span class="tn">&lt;/Section&gt;</span>
+      <span class="tn">&lt;Section title="Mottagare &amp; pengaflöde"&gt;</span>
+        <span class="tn">&lt;RecipientBlock</span> <span class="ti">recipient stripe_account</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;/Section&gt;</span>
+      <span class="tn">&lt;Section title="Bevis &amp; uppdateringar"&gt;</span>
+        <span class="tn">&lt;Suspense fallback={&lt;TimelineSkeleton /&gt;}&gt;</span>
+          <span class="tn">&lt;ProofTimeline</span> <span class="ti">insamlingId</span> <span class="tn">/&gt;</span>     <span class="tc">// klient-side, realtid</span>
+        <span class="tn">&lt;/Suspense&gt;</span>
+      <span class="tn">&lt;/Section&gt;</span>
+    <span class="tn">&lt;/main&gt;</span>
+    <span class="tn">&lt;aside className="sticky top-24 self-start"&gt;</span>
+      <span class="tn">&lt;DonatePanel</span> <span class="ti">insamlingId targetAmount currentAmount</span> <span class="tn">/&gt;</span>
+      <span class="tn">&lt;RecentDonors</span> <span class="ti">insamlingId</span> <span class="tn">/&gt;</span>           <span class="tc">// Realtime subscription</span>
+      <span class="tn">&lt;ShareCard /&gt;</span>
+    <span class="tn">&lt;/aside&gt;</span>
+  <span class="tn">&lt;/div&gt;</span>
+  <span class="tn">&lt;Footer /&gt;</span>
+<span class="tn">&lt;/FundraiserPage&gt;</span>
+</div>
+
+        <h4>Datafetchning (server component)</h4>
+<pre><span class="k">export default async function</span> <span class="ti">FundraiserPage</span>({ params }: { params: { publicId: <span class="k">string</span> } }) {
+  <span class="k">const</span> supabase = <span class="k">await</span> <span class="ti">createClient</span>();
+  <span class="k">const</span> { data: insamling } = <span class="k">await</span> supabase
+    .<span class="ti">from</span>(<span class="s">"insamling"</span>)
+    .<span class="ti">select</span>(<span class="s">`
+      *,
+      media:insamling_media(*),
+      kategori:insamling_kategori(kategori(*)),
+      insamlare:profiles!insamlare_id(id, namn, handle, bankid_verifierad, trust_poang),
+      collab:collab(forening(*)),
+      mottagare_dokument(*),
+      transparens_uppdatering(*, transparens_bevis(*))
+    `</span>)
+    .<span class="ti">eq</span>(<span class="s">"public_id"</span>, params.publicId)
+    .<span class="ti">single</span>();
+
+  <span class="k">if</span> (!insamling) <span class="ti">notFound</span>();
+
+  <span class="c">// Hämta aktuell summa via materialiserad vy eller aggregat-query</span>
+  <span class="k">const</span> { data: stats } = <span class="k">await</span> supabase
+    .<span class="ti">rpc</span>(<span class="s">"insamling_stats"</span>, { id: insamling.id });
+
+  <span class="k">return</span> &lt;<span class="ti">FundraiserView</span> insamling={insamling} stats={stats} /&gt;;
+}</pre>
+
+        <h4>States för denna sida</h4>
+        <div class="states-grid">
+          <div class="state">
+            <span class="name">Tom</span>
+            <span class="desc">Insamling finns men har 0 donationer.</span>
+            <div class="mock">Progress-bar 0% · "Bli första att donera"</div>
+          </div>
+          <div class="state">
+            <span class="name">Loading</span>
+            <span class="desc">Server component laddar.</span>
+            <div class="mock">Skelett-version av sidan med shimmer</div>
+          </div>
+          <div class="state">
+            <span class="name">Fel</span>
+            <span class="desc">DB-fel, slug finns inte, RLS blockerar.</span>
+            <div class="mock">notFound() eller ErrorBoundary</div>
+          </div>
+          <div class="state">
+            <span class="name">Avslutad</span>
+            <span class="desc">Tiden ut, mål nått eller ej.</span>
+            <div class="mock">Visa slutresultat + transparens-rapport · CTA mot relaterade</div>
+          </div>
+        </div>
+
+        <h3>/insamlingar/[publicId]/donera — donator-flödet</h3>
+        <p><strong>Källa:</strong> <code>donate.html</code> · <strong>Moduler:</strong> <span class="module-tag">M4</span> <span class="module-tag">M5</span> · <strong>Multi-step state:</strong> URL-baserad eller in-memory?</p>
+
+        <p><strong>Beslut:</strong> URL-baserad. <code>/donera?steg=1</code> till <code>?steg=4</code>. Möjliggör refresh utan att tappa state.</p>
+
+        <h4>Steg-flöde</h4>
+        <div class="step-flow">
+          <div class="step">
+            <div class="num">1</div>
+            <div class="body"><strong>Belopp</strong>
+              <div class="sub">Form-state i URL: <code>?belopp=500&amp;anon=true&amp;ater=false</code>. Inget skickas till server förrän steg 3.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div class="body"><strong>Uppgifter</strong>
+              <div class="sub">BankID-login optional (Criipto-flow → callback fyller i fält). E-post valideras inline. State i URL fortsätter.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div class="body"><strong>Betalning</strong>
+              <div class="sub">Server action: skapa <code>PaymentIntent</code> via Stripe. Returnera <code>client_secret</code>. Klient mounta <code>&lt;PaymentElement /&gt;</code>. När bekräftad: redirect till steg 4.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <div class="body"><strong>Klart</strong>
+              <div class="sub">Visa kvitto. Bakgrundsjobb: spara <code>donation</code>-rad (efter webhook bekräftat). Trigga Resend kvitto-mejl. Trigga realtidsuppdatering av "Senaste donatorer".</div>
+            </div>
+          </div>
+        </div>
+
+        <h4>Kritisk implementations-detalj — webhook först, sedan UI</h4>
+<pre><span class="c">// app/api/stripe/webhook/route.ts</span>
+<span class="k">export async function</span> <span class="ti">POST</span>(req: Request) {
+  <span class="k">const</span> sig = req.headers.<span class="ti">get</span>(<span class="s">"stripe-signature"</span>);
+  <span class="k">const</span> event = stripe.webhooks.<span class="ti">constructEvent</span>(<span class="k">await</span> req.<span class="ti">text</span>(), sig, env.STRIPE_WEBHOOK_SECRET);
+
+  <span class="k">switch</span> (event.type) {
+    <span class="k">case</span> <span class="s">"payment_intent.succeeded"</span>: {
+      <span class="k">const</span> pi = event.data.<span class="ti">object</span>;
+      <span class="c">// 1. Skapa donation-rad (service_role klient — bypassar RLS)</span>
+      <span class="k">await</span> supabaseAdmin.<span class="ti">from</span>(<span class="s">"donation"</span>).<span class="ti">insert</span>({
+        stripe_payment_intent_id: pi.id,
+        belopp_ore: pi.amount,
+        insamling_id: pi.metadata.insamling_id,
+        donator_id: pi.metadata.donator_id ?? <span class="k">null</span>,
+        anonym: pi.metadata.anonym === <span class="s">"true"</span>,
+      });
+      <span class="c">// 2. Uppdatera insamling.insamlat_ore via SECURITY DEFINER-funktion</span>
+      <span class="k">await</span> supabaseAdmin.<span class="ti">rpc</span>(<span class="s">"insamling_inkrementera"</span>, { id: pi.metadata.insamling_id, ore: pi.amount });
+      <span class="c">// 3. Skicka kvitto-mejl via Resend</span>
+      <span class="k">await</span> <span class="ti">sendKvitto</span>({ donationId, epost: pi.receipt_email });
+      <span class="k">break</span>;
+    }
+    <span class="k">case</span> <span class="s">"payment_intent.payment_failed"</span>: { <span class="c">/* logga + notifiera */</span> }
+    <span class="k">case</span> <span class="s">"charge.refunded"</span>: { <span class="c">/* dekrementera insamling, notifiera mottagare */</span> }
+  }
+  <span class="k">return new</span> <span class="ti">Response</span>(<span class="s">"ok"</span>);
+}</pre>
+
+        <div class="callout danger">
+          <span class="icn" id="cal-3"></span>
+          <div class="body">
+            <span class="label">Kritiskt</span>
+            <p>UI:t på steg 4 visar kvitto även om webhook ännu inte landat. Det är fel — vi kan inte garantera att donationen är registrerad. <strong>Pollar Stripe API:t från server action i steg 4</strong> som backup. Visa "Bearbetar..." tills Stripe bekräftar.</p>
+          </div>
+        </div>
+
+        <h3>/insamling/ny/[steg] — wizarden</h3>
+        <p><strong>Källa:</strong> <code>wizard.html</code> · <strong>Moduler:</strong> <span class="module-tag">M2</span> · <strong>Auth:</strong> krävs (insamlare-roll)</p>
+
+        <p>Varje steg är en egen route. State sparas till <code>insamling</code>-tabellen som <em>utkast</em> efter varje steg.</p>
+
+        <h4>Server action — spara steg</h4>
+<pre><span class="s">"use server"</span>;
+
+<span class="k">export async function</span> <span class="ti">sparaSteg</span>(insamlingId: <span class="k">string</span> | <span class="k">null</span>, steg: <span class="k">number</span>, data: FormData) {
+  <span class="k">const</span> { userId } = <span class="k">await</span> <span class="ti">kraver</span>([<span class="s">"insamlare"</span>]);
+  <span class="k">const</span> schema = <span class="ti">stegSchema</span>(steg);            <span class="c">// zod, en per steg</span>
+  <span class="k">const</span> parsed = schema.<span class="ti">safeParse</span>(<span class="ti">objectFromFormData</span>(data));
+  <span class="k">if</span> (!parsed.success) <span class="k">return</span> { fel: parsed.error.<span class="ti">flatten</span>() };
+
+  <span class="k">const</span> supabase = <span class="k">await</span> <span class="ti">createClient</span>();
+  <span class="k">if</span> (!insamlingId) {
+    <span class="c">// Steg 1 — skapa utkast</span>
+    <span class="k">const</span> { data: ny } = <span class="k">await</span> supabase
+      .<span class="ti">from</span>(<span class="s">"insamling"</span>)
+      .<span class="ti">insert</span>({ insamlare_id: userId, status: <span class="s">"utkast"</span>, ...parsed.data })
+      .<span class="ti">select</span>(<span class="s">"id"</span>)
+      .<span class="ti">single</span>();
+    <span class="ti">redirect</span>(<span class="s">`/insamling/ny/2?id=${ny.id}`</span>);
+  }
+  <span class="c">// Steg 2-5 — uppdatera</span>
+  <span class="k">await</span> supabase.<span class="ti">from</span>(<span class="s">"insamling"</span>).<span class="ti">update</span>(parsed.data).<span class="ti">eq</span>(<span class="s">"id"</span>, insamlingId);
+  <span class="ti">redirect</span>(<span class="s">`/insamling/ny/${steg + 1}?id=${insamlingId}`</span>);
+}</pre>
+
+        <h4>Skicka in för granskning (steg 5)</h4>
+<pre><span class="k">export async function</span> <span class="ti">skickaInForGranskning</span>(insamlingId: <span class="k">string</span>) {
+  <span class="k">await</span> <span class="ti">kraver</span>([<span class="s">"insamlare"</span>]);
+  <span class="c">// SECURITY DEFINER-funktion — flyttar status utkast → inskickad + skapar granskning-rad</span>
+  <span class="k">const</span> { data, error } = <span class="k">await</span> supabase.<span class="ti">rpc</span>(<span class="s">"insamling_skicka_in"</span>, { id: insamlingId });
+  <span class="k">if</span> (error) <span class="k">return</span> { fel: error.message };
+  <span class="ti">redirect</span>(<span class="s">"/insamling?just-inskickad=1"</span>);
+}</pre>
+
+        <h3>/granskning/[id] — granskningsvy</h3>
+        <p><strong>Källa:</strong> <code>review.html</code> · <strong>Moduler:</strong> <span class="module-tag">M3</span> · <strong>Auth:</strong> krävs (granskare- eller admin-roll)</p>
+
+        <h4>Kritisk affärslogik</h4>
+        <table>
+          <thead><tr><th>Beslut</th><th>Vad händer i DB</th></tr></thead>
+          <tr>
+            <td><strong>Godkänn</strong></td>
+            <td>Trigga <code>insamling_godkann()</code> SECURITY DEFINER — status: <code>inskickad → godkand</code>. Skapa <code>granskning_handelse</code> med beslut. Skicka Resend till insamlare. Om beloppet &gt; tröskel, kräv 2:a granskare.</td>
+          </tr>
+          <tr>
+            <td><strong>Be om komplettering</strong></td>
+            <td><code>insamling_iteration()</code> — status: <code>inskickad → iteration</code>. Skapa <code>granskning_handelse</code> med fritextfråga. Notifiera insamlare. Pausa SLA-räknare.</td>
+          </tr>
+          <tr>
+            <td><strong>Avslå</strong></td>
+            <td><code>insamling_avsla()</code> — status: <code>inskickad → avslagen</code>. Kräv motivering min 80 tecken + skäl-kod. Logga i <code>granskning_handelse</code>. Skicka avslags-mejl med möjlighet att överklaga.</td>
+          </tr>
+        </table>
+
+        <h3>Övriga routes — kortfattat</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Källa</th><th>Modul</th><th>Kommentar</th></tr></thead>
+          <tr><td><code>/</code></td><td>marketing.html</td><td>M11</td><td>Statiska sektioner + dynamiska "Pågående just nu" som ISR (60s)</td></tr>
+          <tr><td><code>/insamlingar</code></td><td>discovery.html</td><td>M11</td><td>Server component + searchParams för filter. <code>tsquery</code> för fritext</td></tr>
+          <tr><td><code>/foreningar</code></td><td>catalog.html</td><td>M10</td><td>Server component, ISR. Anmäl-formulär = egen route</td></tr>
+          <tr><td><code>/karta</code></td><td>map.html</td><td>M12</td><td>Klient-komponent med MapLibre. SSR-data: aggregat per kommun</td></tr>
+          <tr><td><code>/community</code></td><td>community.html</td><td>M13 M14</td><td>Klient — Realtime för dua-räknare</td></tr>
+          <tr><td><code>/profil/[handle]</code></td><td>profile.html</td><td>M9</td><td>Server component, ISR. Badges fetchas från <code>profil_badge</code></td></tr>
+          <tr><td><code>/insamling</code></td><td>account.html</td><td>M2</td><td>Server component. Filter per status</td></tr>
+          <tr><td><code>/insamling/[id]/uppdatering</code></td><td>update.html</td><td>M7</td><td>Bevis-form. Stripe-PDF auto-verifieras via API-lookup</td></tr>
+          <tr><td><code>/admin</code></td><td>admin.html</td><td>M16</td><td>Server component, aggregat. <code>recharts</code> klient-side</td></tr>
+          <tr><td><code>/team</code></td><td>team.html</td><td>M17</td><td>Server component. Aktivitet realtid</td></tr>
+          <tr><td><code>/login</code></td><td>auth.html</td><td>M6</td><td>BankID via Criipto + e-post fallback</td></tr>
+        </table>
+      </section>
+
+      <!-- ===== 07 TREDJEPART ===== -->
+      <section id="tredje-part" class="sec">
+        <h2><span class="num">§ 07 · TREDJEPART</span>BankID · Stripe Connect · R2 · Resend · Criipto</h2>
+
+        <h3>BankID via Criipto Verify</h3>
+        <p>Vi använder <strong>Criipto</strong> — inte direkt-integration med BankID. Det är snabbast att komma live.</p>
+
+        <ol>
+          <li>Användaren klickar "Logga in med BankID" på <code>/login</code></li>
+          <li>Vi redirectar till <code>https://login.criipto.com/oauth2/authorize?...</code> med vårt klient-id + redirect-URI</li>
+          <li>Criipto öppnar BankID-flödet (QR eller på samma enhet)</li>
+          <li>Användaren signerar i BankID-appen</li>
+          <li>Criipto callback'ar till <code>/api/criipto/callback?code=...</code></li>
+          <li>Vi byter code mot JWT via Criiptos token-endpoint</li>
+          <li>JWT innehåller <code>sub</code> (en hash av personnumret) + <code>name</code> + <code>given_name</code> + <code>family_name</code></li>
+          <li>Vi mappar <code>sub</code> till en <code>profil</code> i Supabase. Om ej finns: skapa</li>
+          <li>Sätt session via Supabase Auth (custom JWT-token)</li>
+        </ol>
+
+<pre class="file-head">lib/criipto/verify.ts</pre>
+<pre><span class="k">export async function</span> <span class="ti">verifieraBankIDToken</span>(token: <span class="k">string</span>) {
+  <span class="k">const</span> jwks = <span class="ti">createRemoteJWKSet</span>(<span class="k">new</span> <span class="ti">URL</span>(<span class="s">"https://YOUR-TENANT.criipto.id/.well-known/jwks"</span>));
+  <span class="k">const</span> { payload } = <span class="k">await</span> <span class="ti">jwtVerify</span>(token, jwks, {
+    issuer: <span class="s">"https://YOUR-TENANT.criipto.id"</span>,
+    audience: env.CRIIPTO_CLIENT_ID,
+  });
+  <span class="c">// payload.sub är hashen vi använder som persistent ID</span>
+  <span class="k">return</span> { sub: payload.sub, namn: payload.name, fornamn: payload.given_name, efternamn: payload.family_name };
+}</pre>
+
+        <div class="callout warn">
+          <span class="icn" id="cal-4"></span>
+          <div class="body">
+            <span class="label">Integritet</span>
+            <p>Vi sparar <em>aldrig</em> personnumret i klartext. Bara Criiptos hash (sub-claim). Detta håller GDPR-mässigt. Om Skatteverket eller polisen kräver namn → lagligt grundat utlämnande via Criipto.</p>
+          </div>
+        </div>
+
+        <h3>Stripe Connect (Express)</h3>
+        <p>Varje insamlare/förening har sitt eget Stripe-konto. Plattformen rör aldrig pengarna juridiskt — vi är bara payment-facilitator.</p>
+
+        <h4>Onboarding-flöde</h4>
+        <ol>
+          <li>Insamlare avslutar wizard → status <code>godkand</code></li>
+          <li>Innan första donation kan tas emot, krävs Stripe-konto. Redirect till <code>/konto/stripe-onboarding</code></li>
+          <li>Vår server skapar ett Stripe Express-konto: <code>stripe.accounts.create({ type: "express", country: "SE" })</code></li>
+          <li>Vi skapar en Account Link: <code>stripe.accountLinks.create({...})</code> med return_url</li>
+          <li>Användaren omdirigeras till Stripes hosted onboarding (de begär bank, KYC, etc.)</li>
+          <li>Stripe webhookar till oss när onboarding är klart (<code>account.updated</code> med <code>details_submitted=true</code>)</li>
+          <li>Vi sätter <code>insamling.connected_account_id</code> + aktiverar publicering</li>
+        </ol>
+
+        <h4>Charge-flöde (per donation)</h4>
+<pre><span class="k">const</span> intent = <span class="k">await</span> stripe.paymentIntents.<span class="ti">create</span>({
+  amount: belopp_ore,
+  currency: <span class="s">"sek"</span>,
+  application_fee_amount: <span class="n">0</span>,                <span class="c">// 0 % plattformsavgift</span>
+  transfer_data: { destination: insamling.connected_account_id },
+  metadata: {
+    insamling_id: insamling.id,
+    donator_id: donatorId ?? <span class="s">"gast"</span>,
+    anonym: anonym ? <span class="s">"true"</span> : <span class="s">"false"</span>,
+  },
+  receipt_email: epost,
+});
+<span class="c">// Returnera client_secret till klient → mount &lt;PaymentElement /&gt;</span></pre>
+
+        <h3>Cloudflare R2 — bilder &amp; dokument</h3>
+
+<pre class="file-head">lib/r2/upload.ts</pre>
+<pre><span class="k">export async function</span> <span class="ti">signedUploadUrl</span>(path: <span class="k">string</span>, contentType: <span class="k">string</span>) {
+  <span class="k">const</span> client = <span class="k">new</span> <span class="ti">S3Client</span>({
+    region: <span class="s">"auto"</span>,
+    endpoint: <span class="s">`https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`</span>,
+    credentials: { accessKeyId: env.R2_ACCESS_KEY, secretAccessKey: env.R2_SECRET },
+  });
+  <span class="k">const</span> command = <span class="k">new</span> <span class="ti">PutObjectCommand</span>({
+    Bucket: <span class="s">"sadaqasweden-uploads"</span>,
+    Key: path,
+    ContentType: contentType,
+  });
+  <span class="k">return</span> <span class="ti">getSignedUrl</span>(client, command, { expiresIn: <span class="n">600</span> });
+}</pre>
+
+        <p>Klienten PUT:ar direkt till R2 med signed URL → ingen server-side proxy. Cloudflare Images sköter resizing och WebP/AVIF-fallback.</p>
+
+        <h3>Resend — kvitto &amp; transaktions-mejl</h3>
+        <p>Tre primära mallar: <code>kvitto.tsx</code> (donator efter donation), <code>iteration.tsx</code> (insamlare när granskare frågar), <code>bevis-paminnelse.tsx</code> (insamlare 30/60/90 dgr efter publicering om bevis saknas). Skrivs med <code>react-email</code>.</p>
+      </section>
+
+      <!-- ===== 08 TILLSTAND ===== -->
+      <section id="tillstand" class="sec">
+        <h2><span class="num">§ 08 · TILLSTÅND</span>Tomma · loading · fel · success</h2>
+        <p class="lead">
+          Varje data-driven yta behöver fyra tillstånd. De är inte "extra" — de är hälften av jobbet.
+        </p>
+
+        <table>
+          <thead><tr><th>Yta</th><th>Tomt</th><th>Loading</th><th>Fel</th><th>Success</th></tr></thead>
+          <tr>
+            <td>Marknad — hero stats</td>
+            <td>Dölj stripen tills &gt; 0 kr</td>
+            <td>—</td>
+            <td>Visa senast cachade värde</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Discovery</td>
+            <td><code>NoResults</code> med förslag</td>
+            <td>Skeleton-grid</td>
+            <td>Retry-knapp</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Insamlingssidan</td>
+            <td>0 donatorer → "Bli första"</td>
+            <td>Hero-skeleton</td>
+            <td>404 eller "Pausad — kontakta support"</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Donate steg 3 → 4</td>
+            <td>—</td>
+            <td>Stripe-element loading</td>
+            <td><code>PaymentError</code> med Stripe-felmeddelande på svenska</td>
+            <td>Kvitto + animation</td>
+          </tr>
+          <tr>
+            <td>Mina insamlingar</td>
+            <td>"Inga ännu — skapa din första" + CTA</td>
+            <td>Skeleton-rader</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Granskningskön</td>
+            <td>"Tom kö! Bra jobbat 🤲" — eller bara stilren</td>
+            <td>Skeleton</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Wizarden</td>
+            <td>Steg 1 är tomt vid start</td>
+            <td>Sparar... -indikator</td>
+            <td>Valideringsfel inline</td>
+            <td>"Steg sparat ✓" — kort fade</td>
+          </tr>
+          <tr>
+            <td>Profil</td>
+            <td>Ny användare → "Inga insamlingar än"</td>
+            <td>Skeleton</td>
+            <td>404 om handle ej finns</td>
+            <td>—</td>
+          </tr>
+        </table>
+
+        <h4>Standard-komponenter att bygga</h4>
+        <ul>
+          <li><code>&lt;EmptyState icon title message cta /&gt;</code> — använd 8-uddiga stjärnan som ikon, varma toner</li>
+          <li><code>&lt;Skeleton variant="card|row|hero" /&gt;</code> — shimmer-animation med tokens</li>
+          <li><code>&lt;ErrorBoundary fallback /&gt;</code> — root-level + per-yta override</li>
+          <li><code>&lt;ActionError error /&gt;</code> — visar form-fel som returneras från server actions</li>
+          <li><code>&lt;LoadingDots /&gt;</code> — för knapp-loading states</li>
+        </ul>
+      </section>
+
+      <!-- ===== 09 MOBILE ===== -->
+      <section id="mobile" class="sec">
+        <h2><span class="num">§ 09 · MOBILE</span>Breakpoints &amp; per-sida-anpassning</h2>
+        <p class="lead">
+          Sannolikt &gt;60 % av trafiken kommer från mobil. Designerna i katalogen är ritade i 1280px+ — Claude Code behöver lägga till mobile-versioner.
+        </p>
+
+        <table>
+          <thead><tr><th>Breakpoint</th><th>Klass</th><th>Beskrivning</th></tr></thead>
+          <tr><td>&lt; 640px</td><td><code>sm:</code></td><td>Phone — primär målgrupp</td></tr>
+          <tr><td>640–1024px</td><td><code>md: lg:</code></td><td>Tablet</td></tr>
+          <tr><td>&gt; 1024px</td><td><code>xl:</code></td><td>Desktop</td></tr>
+        </table>
+
+        <h4>Specifika mobile-mönster</h4>
+        <table>
+          <thead><tr><th>Yta</th><th>Desktop</th><th>Mobile (&lt; 640)</th></tr></thead>
+          <tr><td>Insamlingssidan</td><td>2-kol grid (story + donera-aside)</td><td>1-kol scroll · donera-knapp i fixed bottom bar</td></tr>
+          <tr><td>Donator-flöde</td><td>Split 60/40 (form + sidebar)</td><td>Full-screen per steg · sidebar dolt · gå tillbaka via header-pil</td></tr>
+          <tr><td>Wizard</td><td>3-kol (rail + form + preview)</td><td>Form-only · rail som top stepper-band · preview som "Förhandsgranska"-modal</td></tr>
+          <tr><td>Granskning</td><td>3-kol (kö + ärende + principer)</td><td>Tabs: Kö / Ärende / Beslut. Swipe mellan ärenden</td></tr>
+          <tr><td>Discovery</td><td>Sidopanel + 3-kol grid</td><td>Filter som modal · 1-kol grid · sticky search top</td></tr>
+          <tr><td>Karta</td><td>Split (karta + sidopanel)</td><td>Karta first · pull-up sheet med data nedanifrån</td></tr>
+        </table>
+      </section>
+
+      <!-- ===== 10 TILLGANGLIGHET ===== -->
+      <section id="tillganglighet" class="sec">
+        <h2><span class="num">§ 10 · A11Y &amp; I18N</span>Tillgänglighet &amp; språk</h2>
+        <p class="lead">
+          Sadaqa Sweden vill kännas premium — det betyder bland annat att den fungerar för alla.
+        </p>
+
+        <h4>Audit-krav (WCAG 2.1 AA minst)</h4>
+        <ul>
+          <li>Alla interaktiva element är keyboard-nåbara (<code>tabindex</code>)</li>
+          <li>Synlig fokus-ring på alla element — använd <code>focus-visible</code> med 2px copper outline + 2px offset</li>
+          <li>Kontrast 4.5:1 för bodytext, 3:1 för stor text. <strong>Verifiera copper #B8843E på cream #F5F0E4 — det är 3.8:1 vilket inte räcker för bodytext.</strong> Använd copper-deep #8E6429 för text på cream.</li>
+          <li>Alla form-fält har <code>&lt;label&gt;</code> — inte placeholder-only</li>
+          <li>Alla bilder har <code>alt</code></li>
+          <li>Skip-to-content-länk i top</li>
+          <li>Reduced-motion: alla animationer pausas/förenklas</li>
+          <li>Screen reader-test med VoiceOver/NVDA på de fyra viktigaste flödena (donera, skapa, granska, hitta)</li>
+        </ul>
+
+        <h4>Språk</h4>
+        <ul>
+          <li>Hela appen är svensk (<code>lang="sv"</code> på <code>&lt;html&gt;</code>)</li>
+          <li>Arabiska inlägg wrappa i <code>&lt;span lang="ar"&gt;</code></li>
+          <li>Engelsk fallback för Stripe-felmeddelanden — översätt explicit i <code>lib/stripe/errors.ts</code></li>
+          <li>Datumformat: <code>Intl.DateTimeFormat("sv-SE")</code></li>
+          <li>Belopp: <code>Intl.NumberFormat("sv-SE", { style: "currency", currency: "SEK" })</code></li>
+        </ul>
+      </section>
+
+      <!-- ===== 11 BYGGSEKVENSEN ===== -->
+      <section id="sekvens" class="sec">
+        <h2><span class="num">§ 11 · BYGGSEKVENSEN</span>Vad bygger Claude Code först?</h2>
+        <p class="lead">
+          Plattformen byggs i den ordning som <code>2-Byggplan/05-Byggsekvens.md</code> säger — designkatalogen ändrar inte sekvensen, men ger Claude Code källan för utseendet på varje steg.
+        </p>
+
+        <table>
+          <thead><tr><th>Steg</th><th>Design-källa</th><th>Vad det gör</th><th>Status</th></tr></thead>
+          <tr><td>0 Fundament</td><td>—</td><td>Next.js, Tailwind, OpenNext, Cloudflare, Supabase</td><td>✅ Klart</td></tr>
+          <tr><td>1 Databas</td><td>—</td><td>18 tabeller, RLS, hjälpfunktioner</td><td>✅ Klart</td></tr>
+          <tr><td>2 Auth</td><td><code>auth.html</code> (e-post-delen)</td><td>Email login + session-management</td><td>✅ Klart</td></tr>
+          <tr><td>3 Insamling-objekt</td><td><code>wizard.html</code> + <code>account.html</code></td><td>Skapa-wizard, mina insamlingar, status</td><td>⏳ Nu</td></tr>
+          <tr><td>4 Granskning</td><td><code>review.html</code></td><td>Kö, ärende, beslut, eskalering</td><td>Nästa</td></tr>
+          <tr><td>5 Stripe</td><td>—</td><td>Connect Express + webhook + PaymentIntent</td><td></td></tr>
+          <tr><td>6 Donator-flödet</td><td><code>donate.html</code> + <code>fundraiser.html</code></td><td>Multi-step donation, kvitto, realtid</td><td></td></tr>
+          <tr><td>7 Transparens</td><td><code>update.html</code></td><td>Bevis-form, auto-verifiering, tidlinje</td><td></td></tr>
+          <tr><td>8 Profiler</td><td><code>profile.html</code></td><td>Publik profil, badges</td><td></td></tr>
+          <tr><td>9 Discovery</td><td><code>discovery.html</code> + <code>marketing.html</code></td><td>Listning, sök, filter, startsida</td><td></td></tr>
+          <tr><td>10 Notiser</td><td>—</td><td>Resend-mejl + in-app via Realtime</td><td></td></tr>
+          <tr><td>11–14</td><td><code>catalog · map · community</code></td><td>Världen runtom — föreningar, karta, samtal</td><td></td></tr>
+          <tr><td>15 BankID</td><td><code>auth.html</code> (BankID-delen)</td><td>Criipto-integration</td><td></td></tr>
+          <tr><td>16 Admin/Team</td><td><code>admin · team</code></td><td>Intern arbetsyta</td><td></td></tr>
+        </table>
+
+        <div class="callout info">
+          <span class="icn" id="cal-5"></span>
+          <div class="body">
+            <span class="label">Hur Claude Code ska läsa katalogen</span>
+            <p>För varje steg ovan: (1) Öppna design-källan i sin browser. (2) Identifiera vilka komponenter som behövs. (3) Bygg primitiver först (Button, Input, Card) om de inte finns. (4) Bygg sidan med <em>visuell exakthet</em> men <em>med riktiga states</em> (tom, loading, fel). (5) Skriv test för server actions. (6) Pusha + nästa.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== A TOKENS ===== -->
+      <section id="tokens" class="sec">
+        <h2><span class="num">BILAGA A · TOKENS</span>Designtokens — referens</h2>
+        <p>Alla 94 tokens finns i <code>assets/style.css</code>. Här är de viktigaste — kopiera resten orörda.</p>
+
+<pre><span class="c">/* Färg */</span>
+--forest: <span class="n">#1F4636</span>;        <span class="c">/* Primary — CTA, sidopaneler, ankor */</span>
+--forest-deep: <span class="n">#0F2A1F</span>;   <span class="c">/* Hover, djupa bakgrunder */</span>
+--paper: <span class="n">#F5F0E4</span>;         <span class="c">/* Bakgrund — varm cream */</span>
+--paper-soft: <span class="n">#FBF7EC</span>;    <span class="c">/* Kort-bakgrund, fält-bakgrund */</span>
+--copper: <span class="n">#B8843E</span>;        <span class="c">/* Accent — INTE för bodytext på cream! */</span>
+--copper-deep: <span class="n">#8E6429</span>;   <span class="c">/* Accent för text — har tillräcklig kontrast */</span>
+--ink: <span class="n">#0E1411</span>;           <span class="c">/* Rubriker, bodytext på cream */</span>
+--success: <span class="n">#2D6B4F</span>;       <span class="c">/* "Godkänd"-tillstånd */</span>
+--danger: <span class="n">#8B3A2E</span>;        <span class="c">/* Avslag, fel */</span>
+
+<span class="c">/* Typografi */</span>
+--font-display: <span class="s">"Spectral"</span>, Georgia, serif;
+--font-ui: <span class="s">"Manrope"</span>, system-ui, sans-serif;
+--font-mono: <span class="s">"JetBrains Mono"</span>, ui-monospace, monospace;
+
+<span class="c">/* Radii */</span>
+--r-md: <span class="n">10px</span>;
+--r-lg: <span class="n">14px</span>;
+--r-xl: <span class="n">20px</span>;
+--r-pill: <span class="n">999px</span>;
+
+<span class="c">/* Shadow — varm, papper-aktig */</span>
+--shadow-2: <span class="n">0 2px 8px rgba(14, 20, 17, 0.05), 0 1px 2px rgba(14, 20, 17, 0.04)</span>;</pre>
+      </section>
+
+      <!-- ===== B KOMPONENTER ===== -->
+      <section id="komponenter" class="sec">
+        <h2><span class="num">BILAGA B · KOMPONENTER</span>Komponent-bibliotek</h2>
+        <p>De primitiva komponenter Claude Code bör bygga först (innan någon sida). Allt sitter i <code>components/ui/</code>.</p>
+
+        <table>
+          <thead><tr><th>Komponent</th><th>Props</th><th>HTML-källa i katalog</th></tr></thead>
+          <tr><td><code>Button</code></td><td><code>variant: primary|copper|secondary|ghost · size: sm|md|lg</code></td><td><code>.btn.btn-*</code></td></tr>
+          <tr><td><code>Input</code></td><td><code>size: md|lg · invalid? · helpText?</code></td><td><code>.input</code></td></tr>
+          <tr><td><code>Textarea</code></td><td><code>rows · maxLength?</code></td><td><code>.textarea</code></td></tr>
+          <tr><td><code>Select</code></td><td><code>options[]</code></td><td><code>.select</code></td></tr>
+          <tr><td><code>Card</code></td><td><code>variant: default|paper|forest|bare · padding: tight|md|loose</code></td><td><code>.card</code></td></tr>
+          <tr><td><code>Pill</code></td><td><code>tone: forest|copper|success|danger|paper|dark · outline?</code></td><td><code>.pill.pill-*</code></td></tr>
+          <tr><td><code>Progress</code></td><td><code>value: 0-100 · tone: forest|copper</code></td><td><code>.progress</code></td></tr>
+          <tr><td><code>Avatar</code></td><td><code>initials · size · tone?</code></td><td><code>.fr-avatar</code></td></tr>
+          <tr><td><code>StarMark</code></td><td><code>size?</code></td><td><code>.star-mark</code></td></tr>
+          <tr><td><code>Wordmark</code></td><td><code>light? · size?</code></td><td><code>.wordmark</code></td></tr>
+          <tr><td><code>DividerStar</code></td><td><code>label?</code></td><td><code>.divider-star</code></td></tr>
+          <tr><td><code>Eyebrow</code></td><td><code>tone?</code></td><td><code>.eyebrow</code></td></tr>
+          <tr><td><code>EmptyState</code></td><td><code>icon · title · message · cta?</code></td><td>—</td></tr>
+          <tr><td><code>Skeleton</code></td><td><code>variant: card|row|hero · count?</code></td><td>—</td></tr>
+          <tr><td><code>HelpTooltip</code></td><td><code>term · placement?</code></td><td>—</td></tr>
+        </table>
+      </section>
+
+      <!-- ===== C CHECKLIST ===== -->
+      <section id="checklist" class="sec">
+        <h2><span class="num">BILAGA C · CHECKLIST</span>Pre-launch checklista</h2>
+        <p>Innan första riktiga insamling publiceras:</p>
+
+        <h4>Säkerhet</h4>
+        <ul>
+          <li>Alla RLS-policies testade med multi-tenant testdata</li>
+          <li>Stripe webhook signatur verifierad</li>
+          <li>Criipto JWT verifiering testad</li>
+          <li>Stora-belopp-eskalering automatisk vid &gt; 100 000 kr</li>
+          <li>Sanktionslist-koll innan utbetalning (OFAC/EU)</li>
+          <li>CSRF-skydd på alla server actions</li>
+          <li>Rate-limiting på donate och login</li>
+        </ul>
+
+        <h4>Pengaflöde</h4>
+        <ul>
+          <li>End-to-end test: donation → Stripe → webhook → DB → kvitto-mejl</li>
+          <li>Refund-flöde testat</li>
+          <li>Connect Express onboarding testat med test-konto</li>
+          <li>Auto-payout konfigurerat per land</li>
+          <li>Bokföring genererad korrekt (för revisor)</li>
+        </ul>
+
+        <h4>Innehåll</h4>
+        <ul>
+          <li>Användarvillkor + integritetspolicy publicerade på svenska</li>
+          <li>Föreningens 90-konto-status klar (eller medvetet utan)</li>
+          <li>Ahmed N. har verifierat alla hadith/koran-citat</li>
+          <li>Ordlistan (Zakat, Sadaqa, KYC, etc.) komplett</li>
+          <li>E-post-mallar testade i 5+ mejl-klienter (Gmail, Outlook, Apple Mail, ProtonMail)</li>
+        </ul>
+
+        <h4>Drift</h4>
+        <ul>
+          <li>Larm konfigurerade för: SLA-överskridning, Stripe-fel, DB-fel, R2-fel</li>
+          <li>Backup-rutin för Supabase (PITR-aktiverat)</li>
+          <li>Status-sida (status.sadaqasweden.se)</li>
+          <li>Tre granskare har gått igenom test-ärenden</li>
+        </ul>
+
+        <h4>Tillgänglighet</h4>
+        <ul>
+          <li>axe-core CI utan fel på alla routes</li>
+          <li>Manuell screen-reader-test på 4 viktigaste flöden</li>
+          <li>Mobile UX testat på iPhone SE och Android budget-modell</li>
+          <li>Reduced-motion respekteras</li>
+        </ul>
+
+        <p style="margin-top: 48px; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--ink-line); padding-top: 24px;">
+          <em>Allt detta i ett enda dokument — så Claude Code kan läsa rakt igenom, förstå designens intention, och bygga med både exakthet och realism. Mer kommer när vi går djupare per yta. — Designern</em>
+        </p>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ light: true, size: 17 });
+  document.getElementById('toc-i').innerHTML = SADAQA.STAR_MINI;
+  document.getElementById('back-i').innerHTML = SADAQA.icon('arrow-left', 12);
+
+  // Audit marks
+  for (let i = 1; i <= 37; i++) {
+    const el = document.getElementById('m-' + i);
+    if (el) el.innerHTML = SADAQA.icon(i % 3 === 0 ? 'alert' : (i % 3 === 1 ? 'edit' : 'info'), 13);
+  }
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('g-' + i);
+    if (el) el.innerHTML = SADAQA.icon(i === 3 || i === 4 ? 'alert' : 'edit', 13);
+  }
+  // Callout icons
+  document.getElementById('cal-1').innerHTML = SADAQA.icon('info', 18);
+  document.getElementById('cal-2').innerHTML = SADAQA.icon('info', 18);
+  document.getElementById('cal-3').innerHTML = SADAQA.icon('alert', 18);
+  document.getElementById('cal-4').innerHTML = SADAQA.icon('shield', 18);
+  document.getElementById('cal-5').innerHTML = SADAQA.icon('info', 18);
+
+  // TOC active state via IntersectionObserver
+  const tocLinks = document.querySelectorAll('.doc-toc a');
+  const sections = document.querySelectorAll('.sec');
+  const setActive = (id) => {
+    tocLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+  };
+  if (sections.length && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) setActive(e.target.id);
+      });
+    }, { rootMargin: '-30% 0px -65% 0px' });
+    sections.forEach(s => obs.observe(s));
+  }
+</script>
+
+</body>
+</html>

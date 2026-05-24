@@ -71,7 +71,7 @@ Tre enkla regler. Följ dem så blir det aldrig rörigt:
 
 Du frågade om mappar per modul vore snyggast. Svar: **inte för planeringen.** Varje modul är *en* fil — en mapp per modul vore tomma lådor med ett papper i var. Platta filer i `1-Planering/` är renast så länge en modul = en fil.
 
-**Mapp-per-modul hör hemma i koden.** När `5-Kod/` fylls kommer varje modul att bli flera filer (databas, logik, gränssnitt) — och *där* blir mappar per modul/funktion rätt. Den indelningen spikas i `2-Byggplan/` innan första kodraden skrivs, just för att koden ska födas organiserad — inte städas i efterhand.
+**I koden ligger modulkoden kolokerad vid sin route** — inte i en egen `modules/`-mapp. När `5-Kod/` fylls bor varje moduls sida, komponenter och logik i samma route-mapp i `app/`. Modulen hålls spårbar via route-namn + en modul-stämpel i varje fil + designkartan. Strukturen är spikad i `2-Byggplan/04-Repo-och-kodstruktur.md`.
 
 ---
 

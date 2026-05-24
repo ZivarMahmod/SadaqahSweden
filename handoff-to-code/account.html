@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mina insamlingar — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  /* App sidebar */
+  .a-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; background: var(--paper); }
+  .a-side {
+    background: var(--forest-deep); color: var(--paper);
+    padding: 24px 0; display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .a-side-head { padding: 4px 24px 20px; border-bottom: 1px solid rgba(245, 240, 228, 0.08); margin-bottom: 16px; }
+  .a-side-user {
+    margin-top: 24px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px;
+    background: rgba(245, 240, 228, 0.05);
+    border-radius: var(--r-md);
+  }
+  .a-side-user .av {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--copper);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 14px;
+  }
+  .a-side-user .info { flex: 1; font-size: 13px; }
+  .a-side-user .name { font-weight: 600; color: var(--paper); }
+  .a-side-user .role { font-size: 11px; color: rgba(245, 240, 228, 0.55); }
+
+  .a-nav { padding: 0 12px; flex: 1; }
+  .a-nav-section {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(245, 240, 228, 0.4);
+    padding: 20px 12px 8px;
+  }
+  .a-nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    font-size: 14px;
+    color: rgba(245, 240, 228, 0.75);
+    transition: all 150ms ease;
+  }
+  .a-nav a:hover { background: rgba(245, 240, 228, 0.06); color: var(--paper); }
+  .a-nav a.active {
+    background: rgba(245, 240, 228, 0.10); color: var(--paper);
+    box-shadow: inset 2px 0 0 var(--copper);
+  }
+  .a-nav a .count {
+    margin-left: auto; font-family: var(--font-mono); font-size: 11px;
+    color: rgba(245, 240, 228, 0.5);
+  }
+
+  /* Main */
+  .a-main { display: flex; flex-direction: column; min-height: 100vh; }
+  .a-bar {
+    height: 64px; background: var(--paper-soft);
+    border-bottom: 1px solid var(--ink-line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    position: sticky; top: 0; z-index: 20;
+  }
+  .a-content { padding: 40px 48px 64px; flex: 1; max-width: 1280px; width: 100%; }
+  .a-page-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .a-page-head h1 {
+    font-family: var(--font-display); font-size: 44px; font-weight: 400;
+    letter-spacing: -0.014em; line-height: 1.06; margin: 0;
+  }
+  .a-page-head .sub { font-size: 14px; color: var(--ink-3); margin-top: 8px; }
+
+  /* Stats strip */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--ink-line);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .stat {
+    background: var(--paper-soft);
+    padding: 28px 28px 24px;
+  }
+  .stat .label {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600; margin-bottom: 10px;
+  }
+  .stat .val {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--forest);
+    letter-spacing: -0.012em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .delta {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--copper-deep);
+  }
+  .stat.copper .val { color: var(--copper-deep); }
+
+  /* Tabs */
+  .ftab-row {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--ink-line);
+    margin-bottom: 24px;
+  }
+  .ftab {
+    padding: 12px 18px;
+    font-size: 13px; font-weight: 500;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .ftab.active { color: var(--forest); border-bottom-color: var(--copper); }
+  .ftab .b {
+    background: var(--paper-deep); color: var(--ink-2);
+    font-family: var(--font-mono); font-size: 11px;
+    padding: 1px 7px; border-radius: var(--r-pill);
+  }
+  .ftab.active .b { background: var(--copper-soft); color: var(--copper-deep); }
+
+  /* Row card */
+  .row-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 88px 1fr 220px 200px;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 12px;
+    transition: all 200ms ease;
+  }
+  .row-card:hover { box-shadow: var(--shadow-2); border-color: var(--copper-soft); }
+  .row-card .thumb {
+    width: 88px; height: 88px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .row-card .thumb .ph { width: 100%; height: 100%; }
+  .row-card .thumb .ph-label { font-size: 9px; }
+  .row-card .info .cat {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--copper-deep); font-weight: 600; margin-bottom: 4px;
+  }
+  .row-card .info .title {
+    font-family: var(--font-display); font-size: 20px;
+    line-height: 1.2; font-weight: 500;
+    color: var(--ink);
+    margin: 0;
+  }
+  .row-card .info .meta { margin-top: 8px; font-size: 12px; color: var(--ink-3); display: flex; gap: 12px; }
+
+  .row-card .prog .topline {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--ink-2); margin-bottom: 6px;
+  }
+  .row-card .prog .topline .amt { font-family: var(--font-mono); color: var(--forest); font-weight: 600; }
+  .row-card .prog .bar { height: 5px; }
+  .row-card .prog .b-stats {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--ink-3); margin-top: 6px;
+  }
+
+  .row-card .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+  .row-card .actions .pill { white-space: nowrap; }
+
+  /* Draft row */
+  .row-card.draft { background: var(--paper); border-style: dashed; }
+  .row-card.draft .thumb { background: var(--paper-deep); display: flex; align-items: center; justify-content: center; color: var(--ink-4); border: 1px dashed var(--ink-line); }
+  .row-card.draft .info .cat { color: var(--ink-3); }
+  .row-card.draft .info .title { color: var(--ink-2); font-style: italic; }
+  .row-card.draft .prog { display: flex; flex-direction: column; gap: 6px; color: var(--ink-3); font-size: 12px; }
+
+  /* Iteration card */
+  .row-card.iter { background: var(--copper-soft); border-color: var(--copper); }
+  .iter-callout {
+    background: rgba(184, 132, 62, 0.15);
+    padding: 12px 16px;
+    border-radius: var(--r-md);
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--copper-deep);
+    display: flex; gap: 10px;
+    align-items: flex-start;
+  }
+</style>
+</head>
+<body>
+
+<div class="a-shell">
+  <aside class="a-side">
+    <div class="a-side-head">
+      <span id="wordmark-slot"></span>
+      <div class="a-side-user">
+        <div class="av">YA</div>
+        <div class="info">
+          <div class="name">Yasmin Adan</div>
+          <div class="role">Insamlare · BankID</div>
+        </div>
+      </div>
+    </div>
+    <div class="a-nav">
+      <a href="#" class="active"><span id="ic-home"></span> Mina insamlingar <span class="count">8</span></a>
+      <a href="wizard.html"><span id="ic-plus"></span> Skapa ny</a>
+      <a href="#"><span id="ic-bell"></span> Donatorer &amp; meddelanden <span class="count">12</span></a>
+      <a href="update.html"><span id="ic-upd"></span> Transparens-uppdateringar</a>
+      <a href="profile.html"><span id="ic-prof"></span> Min profil</a>
+      <div class="a-nav-section">Konto</div>
+      <a href="#"><span id="ic-wal"></span> Stripe Connect</a>
+      <a href="#"><span id="ic-set"></span> Inställningar</a>
+      <a href="auth.html"><span id="ic-out"></span> Logga ut</a>
+    </div>
+  </aside>
+
+  <main class="a-main">
+    <header class="a-bar">
+      <div class="row aic gap-12">
+        <h2 class="h4" style="margin: 0; color: var(--ink);">Mina insamlingar</h2>
+        <span class="pill pill-paper"><span class="dot dot-pulse"></span> Allt fungerar</span>
+      </div>
+      <div class="row aic gap-12">
+        <button class="btn btn-ghost btn-sm"><span id="ic-search"></span> Sök</button>
+        <a href="wizard.html" class="btn btn-primary btn-sm"><span id="ic-plus-2"></span> Ny insamling</a>
+      </div>
+    </header>
+
+    <div class="a-content">
+      <div class="a-page-head">
+        <div>
+          <h1>Mina insamlingar</h1>
+          <div class="sub">8 insamlingar · 8/8 transparens-bevis komplett · Trust-poäng 92</div>
+        </div>
+        <a href="wizard.html" class="btn btn-primary btn-lg"><span id="ic-plus-3"></span> Skapa ny insamling</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="label">Insamlat hittills</div>
+          <div class="val">486 200 kr</div>
+          <div class="delta">+ 23 400 kr senaste veckan</div>
+        </div>
+        <div class="stat">
+          <div class="label">Antal donatorer</div>
+          <div class="val">643</div>
+          <div class="delta">+ 41 senaste veckan</div>
+        </div>
+        <div class="stat">
+          <div class="label">Aktiva insamlingar</div>
+          <div class="val">3</div>
+          <div class="delta">1 i granskning · 5 avslutade</div>
+        </div>
+        <div class="stat copper">
+          <div class="label">Trust-poäng</div>
+          <div class="val">92<span style="font-size: 22px; color: var(--ink-3);">/100</span></div>
+          <div class="delta">Top 8 % av insamlare</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="ftab-row">
+        <div class="ftab active">Alla <span class="b">8</span></div>
+        <div class="ftab">Pågående <span class="b">3</span></div>
+        <div class="ftab">I granskning <span class="b">1</span></div>
+        <div class="ftab">Behöver din respons <span class="b" style="background: var(--copper-soft); color: var(--copper-deep);">1</span></div>
+        <div class="ftab">Utkast <span class="b">2</span></div>
+        <div class="ftab">Avslutade <span class="b">5</span></div>
+      </div>
+
+      <!-- Iteration row — needs response -->
+      <div class="row-card iter">
+        <div class="thumb"><div class="ph" style="background: linear-gradient(135deg, #5C7A6B, #2D5947);"><span class="ph-label">cover</span></div></div>
+        <div class="info">
+          <div class="cat">Vatten · Mali</div>
+          <h3 class="title">En brunn för byn Diabaly — 280 personer får rent vatten</h3>
+          <div class="meta">
+            <span>#SAD-2841 · Skapad 25 maj</span>
+            <span>Mål 200 000 kr</span>
+            <span style="color: var(--copper-deep); font-weight: 600;">Iteration · 2 svar från granskaren</span>
+          </div>
+          <div class="iter-callout">
+            <span id="alert-i" style="color: var(--copper-deep); flex: 0 0 18px;"></span>
+            <div>
+              <strong>Granskaren har två frågor.</strong> Stripe-konto för Wells of Hope &amp; nedbrytning av 18 000 kr buffert. Svara inom 24 h — annars pausas SLA.
+            </div>
+          </div>
+        </div>
+        <div class="prog">
+          <div class="topline"><span>Status</span></div>
+          <div class="pill pill-copper">I granskning</div>
+          <div class="b-stats" style="margin-top: 10px;"><span>Skickad 25 maj 14:22</span></div>
+        </div>
+        <div class="actions">
+          <a href="review.html" class="btn btn-copper btn-sm">Svara granskaren</a>
+          <a href="wizard.html" class="btn btn-secondary btn-sm">Redigera utkast</a>
+        </div>
+      </div>
+
+      <!-- Active row -->
+      <div class="row-card">
+        <div class="thumb"><div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">cover</span></div></div>
+        <div class="info">
+          <div class="cat">Utbildning · Syrien</div>
+          <h3 class="title">Skolböcker till 120 barn i Idlib innan terminen</h3>
+          <div class="meta">
+            <span>#SAD-2839 · Live sedan 12 maj</span>
+            <span>Mål 48 000 kr</span>
+            <span>21 dgr kvar</span>
+          </div>
+        </div>
+        <div class="prog">
+          <div class="topline"><span class="amt">18 200 kr</span><span>38 %</span></div>
+          <div class="progress bar"><div class="progress-bar" style="width: 38%;"></div></div>
+          <div class="b-stats"><span>34 donatorer</span><span>av 48 000 kr</span></div>
+        </div>
+        <div class="actions">
+          <span class="pill pill-success"><span class="dot dot-success"></span> Aktiv</span>
+          <a href="fundraiser.html" class="btn btn-secondary btn-sm">Visa publikt</a>
+          <a href="update.html" class="btn btn-ghost btn-sm">Lägg upp uppdatering</a>
+        </div>
+      </div>
+
+      <!-- Active row 2 -->
+      <div class="row-card">
+        <div class="thumb"><div class="ph"><span class="ph-label">cover</span></div></div>
+        <div class="info">
+          <div class="cat">Vatten · Mali</div>
+          <h3 class="title">Vattendunkar &amp; filter — 50 hushåll Bamako</h3>
+          <div class="meta">
+            <span>#SAD-2832 · Live sedan 18 apr</span>
+            <span>Mål 50 000 kr</span>
+            <span>44 dgr kvar</span>
+          </div>
+        </div>
+        <div class="prog">
+          <div class="topline"><span class="amt">14 000 kr</span><span>28 %</span></div>
+          <div class="progress bar"><div class="progress-bar" style="width: 28%;"></div></div>
+          <div class="b-stats"><span>22 donatorer</span><span>av 50 000 kr</span></div>
+        </div>
+        <div class="actions">
+          <span class="pill pill-success"><span class="dot dot-success"></span> Aktiv</span>
+          <a href="fundraiser.html" class="btn btn-secondary btn-sm">Visa publikt</a>
+        </div>
+      </div>
+
+      <!-- Soon-deadline row -->
+      <div class="row-card">
+        <div class="thumb"><div class="ph" style="background: linear-gradient(135deg, #1F4636, #0F2A1F);"><span class="ph-label">cover</span></div></div>
+        <div class="info">
+          <div class="cat">Mat · Syrien</div>
+          <h3 class="title">Iftar-paket till 400 familjer i Aleppo</h3>
+          <div class="meta">
+            <span>#SAD-2828 · Live sedan 6 apr</span>
+            <span>Mål 80 000 kr</span>
+            <span style="color: var(--copper-deep); font-weight: 600;">2 dgr kvar — når snart målet</span>
+          </div>
+        </div>
+        <div class="prog">
+          <div class="topline"><span class="amt">73 640 kr</span><span>92 %</span></div>
+          <div class="progress bar"><div class="progress-bar progress-bar-copper" style="width: 92%;"></div></div>
+          <div class="b-stats"><span>168 donatorer</span><span>av 80 000 kr</span></div>
+        </div>
+        <div class="actions">
+          <span class="pill pill-copper">Når målet snart</span>
+          <a href="fundraiser.html" class="btn btn-secondary btn-sm">Visa publikt</a>
+        </div>
+      </div>
+
+      <!-- Draft -->
+      <div class="row-card draft">
+        <div class="thumb"><span id="draft-icn"></span></div>
+        <div class="info">
+          <div class="cat">Sjukvård · Utkast</div>
+          <h3 class="title">Rullstol till Mariam — 8 år, ryggmärgsskada</h3>
+          <div class="meta">
+            <span>Skapad 12 maj · senast redigerad 19 maj</span>
+            <span>3 av 5 steg ifyllda</span>
+          </div>
+        </div>
+        <div class="prog">
+          <span class="pill pill-paper">Utkast</span>
+          <div style="margin-top: 8px;">Saknar mottagar-dokument och mål-nedbrytning.</div>
+        </div>
+        <div class="actions">
+          <a href="wizard.html" class="btn btn-primary btn-sm">Fortsätt utkast</a>
+          <button class="btn btn-ghost btn-sm">Radera</button>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="row-card">
+        <div class="thumb"><div class="ph" style="background: linear-gradient(135deg, #C9A064, #8E6429); opacity: 0.85;"><span class="ph-label">cover</span></div></div>
+        <div class="info">
+          <div class="cat">Mat · Sverige</div>
+          <h3 class="title">Iftar 2026 i Husby — 600 portioner per kväll, 5 dagar</h3>
+          <div class="meta">
+            <span>#SAD-2784 · Avslutad 1 apr</span>
+            <span>3/3 bevis publicerade</span>
+            <span style="color: var(--copper-deep);">+ 12 % över mål</span>
+          </div>
+        </div>
+        <div class="prog">
+          <div class="topline"><span class="amt">134 200 kr</span><span>112 %</span></div>
+          <div class="progress bar"><div class="progress-bar progress-bar-copper" style="width: 100%;"></div></div>
+          <div class="b-stats"><span>241 donatorer</span><span>av 120 000 kr</span></div>
+        </div>
+        <div class="actions">
+          <span class="pill pill-success">Avslutad &amp; bevisad</span>
+          <a href="fundraiser.html" class="btn btn-secondary btn-sm">Visa rapport</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html', light: true, size: 18 });
+  document.getElementById('ic-home').innerHTML = SADAQA.icon('list', 16);
+  document.getElementById('ic-plus').innerHTML = SADAQA.icon('plus', 16);
+  document.getElementById('ic-bell').innerHTML = SADAQA.icon('bell', 16);
+  document.getElementById('ic-upd').innerHTML = SADAQA.icon('megaphone', 16);
+  document.getElementById('ic-prof').innerHTML = SADAQA.icon('user', 16);
+  document.getElementById('ic-wal').innerHTML = SADAQA.icon('wallet', 16);
+  document.getElementById('ic-set').innerHTML = SADAQA.icon('settings', 16);
+  document.getElementById('ic-out').innerHTML = SADAQA.icon('log-out', 16);
+  document.getElementById('ic-search').innerHTML = SADAQA.icon('search', 14);
+  document.getElementById('ic-plus-2').innerHTML = SADAQA.icon('plus', 14);
+  document.getElementById('ic-plus-3').innerHTML = SADAQA.icon('plus', 16);
+  document.getElementById('alert-i').innerHTML = SADAQA.icon('alert', 16);
+  document.getElementById('draft-icn').innerHTML = SADAQA.icon('edit', 20);
+
+  document.querySelectorAll('.ftab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.ftab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

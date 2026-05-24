@@ -98,8 +98,8 @@ Hela Next.js-appen bor i `5-Kod/`. Den mappen *är* GitHub-repot.
 
 Strukturen följer två principer:
 
-1. **Delad kod ligger plant** — UI-byggstenar, Supabase-klient, hjälpfunktioner som alla moduler använder.
-2. **Modulspecifik kod ligger i en mapp per modul** — där en modul har egen logik, egna komponenter eller egna typer får den en egen mapp. Detta är "mapp per modul" som `0-LÄS-MIG-FÖRST.md` säger hör hemma i koden, inte i planeringen.
+1. **Delad kod ligger plant** — UI-byggstenar, Supabase-klient, hjälpfunktioner som alla moduler använder, i `components/` och `lib/`.
+2. **Modulspecifik kod ligger kolokerad vid sin route** — en moduls egna komponenter, server actions och logik bor i samma route-mapp i `app/` som sidan. Ingen separat `modules/`-mapp; modulen hålls spårbar via route-namn + modul-stämpel (avsnitt 4).
 
 ```
 5-Kod/
@@ -111,125 +111,114 @@ Strukturen följer två principer:
 ├── next.config.ts
 ├── tsconfig.json
 ├── postcss.config.mjs
+├── wrangler.jsonc               # Cloudflare Workers-konfig (OpenNext)
+├── open-next.config.ts          # OpenNext-adaptern
+├── proxy.ts                     # auth/session globalt (Next 15-proxy)
 │
 ├── public/                      # statiska filer — bilder, ikoner, favicon
 │
-├── app/                         # Next.js App Router — sidor & routing
+├── app/                         # Next.js App Router — sidor, routing OCH
+│   │                            # modulspecifik kod (kolokerad vid sin route)
 │   ├── layout.tsx               # rot-layout
-│   ├── page.tsx                 # startsidan
-│   ├── globals.css
+│   ├── page.tsx                 # M11 startsidan
+│   ├── globals.css              # Tailwind v4 base + designtokens
+│   ├── site-nav.tsx             # delad navigation
 │   │
-│   ├── (publikt)/               # route-grupp: publika sidor (ej inloggning)
-│   │   ├── insamlingar/         # M11 listning + M1 detaljsida
-│   │   │   ├── page.tsx                 # flöde / sök / filter
-│   │   │   └── [slug]/page.tsx          # en insamlings publika sida
-│   │   ├── ge/[slug]/           # M4 donationsflödet — inloggningsfritt
-│   │   ├── profil/[id]/         # M9 publik profil
+│   ├── (public)/                # route-grupp: publika sidor (ej inloggning)
+│   │   ├── insamlingar/
+│   │   │   ├── page.tsx                  # M11 listning / sök / filter
+│   │   │   └── [publicId]/
+│   │   │       ├── page.tsx              # M1 insamlingssidan
+│   │   │       └── donera/               # M4 donator-flödet
+│   │   │           ├── page.tsx
+│   │   │           └── actions.ts        # server actions för M4
 │   │   ├── foreningar/          # M10 föreningskatalog
+│   │   ├── profil/[handle]/     # M9 publik profil
 │   │   ├── karta/               # M12 Sverige-kartan
-│   │   └── events/              # M14 events & platsinfo
+│   │   └── community/           # M13 + M14 community & events
+│   │
+│   ├── (auth)/                  # route-grupp: inloggning
+│   │   ├── login/ · registrera/ # M6
+│   │   ├── verifiera-epost/ · konto-fryst/
+│   │   └── actions.ts           # logga in / registrera / logga ut
 │   │
 │   ├── (konto)/                 # route-grupp: inloggad användare
-│   │   ├── skapa/               # M2 insamlar-wizard
-│   │   ├── mina-insamlingar/    # M2 driva/redigera
-│   │   ├── installningar/       # M6 konto, M15 notis-opt-in
-│   │   └── onboarding/          # M5 Stripe Connect-onboarding
+│   │   └── insamling/           # M2 insamlar-flödet
+│   │       ├── page.tsx                  # mina insamlingar
+│   │       ├── actions.ts                # spara utkast / skicka in
+│   │       ├── ny/[steg]/                # skapa-wizard, ett steg per route
+│   │       └── [id]/
+│   │           ├── redigera/             # redigera utkast
+│   │           └── uppdatering/          # M7 transparens-uppdatering
 │   │
-│   ├── (granskning)/            # route-grupp: granskar-roll
-│   │   └── ko/                  # M3 granskningskö & beslut
+│   ├── (intern)/                # route-grupp: granskar / admin / team-roll
+│   │   ├── granskning/          # M3 granskningskö & beslut
+│   │   ├── admin/               # M16 drift, statistik, larm
+│   │   └── team/                # M17 intern arbetsyta
 │   │
-│   ├── (admin)/                 # route-grupp: admin-roll
-│   │   └── dashboard/           # M16 drift, statistik, larm
+│   ├── auth/callback/route.ts   # M6 e-post / BankID-callback
 │   │
-│   ├── auth/                    # M6 inloggning, BankID-callback
-│   │
-│   └── api/                     # API-routes (server)
-│       ├── stripe/              # M5 checkout-session, Connect-länkar
-│       └── webhooks/            # OBS: Stripe-webhooks bor i Edge Functions
+│   └── api/                     # endast webhook-routes
+│       └── stripe/webhook/      # M5 — OBS: tung webhook-logik i Edge Function
 │
-├── components/                  # DELADE UI-komponenter
+├── components/                  # DELAD UI — används av flera moduler
 │   ├── ui/                      # byggstenar — knapp, kort, input, modal
-│   └── layout/                  # header, footer, navigation
-│
-├── modules/                     # MODULSPECIFIK kod — mapp per modul
-│   ├── insamling/               # M1 — komponenter + logik för objektet
-│   ├── insamlare/               # M2
-│   ├── granskning/              # M3
-│   ├── donation/                # M4
-│   ├── betalning/               # M5 — Stripe-logik
-│   ├── identitet/               # M6 — auth, roller, KYC
-│   ├── transparens/             # M7 — bevis, uppdateringar, badges
-│   ├── policy/                  # M8 — regelkonstanter, granskningskriterier
-│   ├── profil/                  # M9
-│   ├── organisation/            # M10
-│   ├── discovery/               # M11 — sök, filter, kategorier
-│   ├── karta/                   # M12
-│   ├── community/               # M13 — kommentarer, dua, reaktioner
-│   ├── events/                  # M14
-│   ├── notiser/                 # M15
-│   └── admin/                   # M16
-│     (varje modulmapp: components/, logik .ts-filer, ev. egna typer)
+│   └── layout/                  # header, footer, wordmark
 │
 ├── lib/                         # DELAD infrastruktur & affärslogik
 │   ├── supabase/
 │   │   ├── client.ts            # Supabase-klient — webbläsare
 │   │   ├── server.ts            # Supabase-klient — server
-│   │   └── middleware.ts        # session-hantering
-│   ├── stripe/
-│   │   └── client.ts            # Stripe SDK-init (server)
-│   ├── auth/                    # roll-helpers, behörighetskontroller
+│   │   ├── middleware.ts        # session-hantering
+│   │   └── types.ts             # AUTO-GENERERAD från Supabase-schemat
+│   ├── auth.ts                  # roll-helpers, behörighetskontroller
 │   └── utils/                   # formatering, datum, valuta
-│
-├── types/                       # DELADE TypeScript-typer
-│   ├── database.types.ts        # AUTO-GENERERAD från Supabase-schemat
-│   └── domain.ts                # domäntyper byggda ovanpå databasen
-│
-├── middleware.ts                # Next.js middleware — auth/session globalt
 │
 └── supabase/                    # DATABAS & EDGE FUNCTIONS
     ├── config.toml
-    ├── migrations/               # numrerade SQL-migrationer
-    │   ├── 0001_init.sql
-    │   ├── 0002_insamling.sql
-    │   └── ...                   # en migration per byggsteg
-    ├── functions/                # Edge Functions (Deno)
-    │   ├── stripe-webhook/       # M5 — sanningen för pengar
-    │   ├── deadline-stangning/   # M1 — pg_cron-triggad
-    │   └── notiser/              # M15 — utskick
-    └── seed.sql                  # testdata för lokal utveckling
+    ├── migrations/               # numrerade SQL-migrationer — en per byggsteg
+    └── functions/                # Edge Functions (Deno)
+        ├── stripe-webhook/       # M5 — sanningen för pengar
+        ├── deadline-stangning/   # M1 — pg_cron-triggad
+        └── notiser/              # M15 — utskick
+
+Modulspecifik kod (komponenter, server actions, modul-logik) ligger KOLOKERAD
+i samma route-mapp i `app/` som sidan. Ingen separat `modules/`-mapp.
 ```
 
 **Att lägga märke till:**
 
-- **`app/` är bara routing.** Sidfiler hålls tunna — de hämtar data och anropar `modules/`. Tung logik bor aldrig i en `page.tsx`.
-- **Route-grupper** `(publikt)`, `(konto)`, `(granskning)`, `(admin)` grupperar sidor efter vem som får se dem. Parenteserna syns inte i URL:en — de strukturerar bara koden och låter olika delar dela layout.
-- **`modules/` är hjärtat.** En mapp per modul. Modulens egna komponenter och logik bor här — inte utspridda.
+- **Modulkod ligger kolokerad.** En moduls sida, komponenter, server actions och logik bor i samma route-mapp i `app/`. Ingen separat `modules/`-mapp — modulen identifieras av route-namnet + modul-stämpeln (avsnitt 4), inte av en mapp.
+- **`page.tsx` hålls tunn.** Sidfilen hämtar data och komponerar. Tyngre logik bor i syskonfiler (`actions.ts`, komponenter) i samma mapp, eller i `lib/` om den delas.
+- **Route-grupper** `(public)`, `(auth)`, `(konto)`, `(intern)` grupperar sidor efter vem som får se dem. Parenteserna syns inte i URL:en — de strukturerar bara koden och låter olika delar dela layout.
+- **Delad kod** (används av flera moduler) lyfts till `components/` eller `lib/`. Bygg inte delad kod i förväg.
 - **Stripe-webhooks bor i `supabase/functions/`, inte i `app/api/`.** Webhooks är "sanningen för pengar" (fil 00, regel 7) och körs som Edge Function — närmast databasen, oberoende av webbappens drift.
 
 ---
 
 ## 3. Hur strukturen speglar de 17 modulerna
 
-Varje modul har en plats i koden. Sidan (var användaren ser den) och modulmappen (var logiken bor).
+Varje modul har en plats i koden: route-mappen i `app/` — där bor både sidan (det användaren ser) och modulens kolokerade logik.
 
-| Modul | Sida i `app/` | Logik i `modules/` |
+| Modul | Route i `app/` | Modulkod ligger |
 |---|---|---|
-| **M1** Insamling som objekt | `(publikt)/insamlingar/[slug]/` | `modules/insamling/` |
-| **M2** Insamlar-flödet | `(konto)/skapa/`, `(konto)/mina-insamlingar/` | `modules/insamlare/` |
-| **M3** Granskar-flödet | `(granskning)/ko/` | `modules/granskning/` |
-| **M4** Donator-flödet | `(publikt)/ge/[slug]/` | `modules/donation/` |
-| **M5** Pengaflöde | `api/stripe/`, `(konto)/onboarding/` | `modules/betalning/` + `supabase/functions/stripe-webhook/` |
-| **M6** Identitet & auth | `auth/` | `modules/identitet/` + `lib/auth/` |
-| **M7** Transparens-loopen | del av insamlingens sida | `modules/transparens/` |
-| **M8** Policies & regler | publika policy-sidor | `modules/policy/` |
-| **M9** Profiler | `(publikt)/profil/[id]/` | `modules/profil/` |
-| **M10** Organisationer & katalog | `(publikt)/foreningar/` | `modules/organisation/` |
-| **M11** Listning & discovery | `(publikt)/insamlingar/` | `modules/discovery/` |
-| **M12** Karta & geo-insikt | `(publikt)/karta/` | `modules/karta/` |
-| **M13** Community & samtal | del av insamlingens sida | `modules/community/` |
-| **M14** Events & platsinfo | `(publikt)/events/` | `modules/events/` |
-| **M15** Notiser | `(konto)/installningar/` | `modules/notiser/` + `supabase/functions/notiser/` |
-| **M16** Admin & dashboard | `(admin)/dashboard/` | `modules/admin/` |
+| **M1** Insamling som objekt | `(public)/insamlingar/[publicId]/` | kolokerad i route-mappen |
+| **M2** Insamlar-flödet | `(konto)/insamling/` | kolokerad i route-mappen |
+| **M3** Granskar-flödet | `(intern)/granskning/` | kolokerad i route-mappen |
+| **M4** Donator-flödet | `(public)/insamlingar/[publicId]/donera/` | kolokerad i route-mappen |
+| **M5** Pengaflöde | `(konto)/stripe-onboarding/`, `api/stripe/` | kolokerad + `supabase/functions/stripe-webhook/` |
+| **M6** Identitet & auth | `(auth)/`, `auth/callback/` | kolokerad + `lib/auth.ts` |
+| **M7** Transparens-loopen | `(konto)/insamling/[id]/uppdatering/` + del av M1-sidan | kolokerad i route-mappen |
+| **M8** Policies & regler | publika policy-sidor | kolokerad + delade konstanter i `lib/` |
+| **M9** Profiler | `(public)/profil/[handle]/` | kolokerad i route-mappen |
+| **M10** Organisationer & katalog | `(public)/foreningar/` | kolokerad i route-mappen |
+| **M11** Listning & discovery | `(public)/insamlingar/`, `/` | kolokerad i route-mappen |
+| **M12** Karta & geo-insikt | `(public)/karta/` | kolokerad i route-mappen |
+| **M13** Community & samtal | `(public)/community/` + del av M1-sidan | kolokerad i route-mappen |
+| **M14** Events & platsinfo | `(public)/community/` | kolokerad i route-mappen |
+| **M15** Notiser | `(konto)/installningar/` | kolokerad + `supabase/functions/notiser/` |
+| **M16** Admin & dashboard | `(intern)/admin/` | kolokerad i route-mappen |
+| **M17** Team & intern arbetsyta | `(intern)/team/` | kolokerad i route-mappen |
 
 **Databasen** ligger inte per modul — den är ett sammanhängande schema i `supabase/migrations/`. Varje byggsteg lägger en numrerad migration. Datamodellen detaljeras i fil `01-Databasplan.md`.
 
@@ -254,21 +243,32 @@ Den viktigaste gränsen att hålla:
 
 | Frågan | Svaret |
 |---|---|
-| Används av **flera moduler**? | → `components/`, `lib/` eller `types/` |
-| Hör till **en modul**? | → `modules/<modul>/` |
+| Används av **flera moduler**? | → `components/` eller `lib/` |
+| Hör till **en modul**? | → kolokerad i modulens route-mapp i `app/` |
 
-**Tumregel:** börja modulspecifikt. Lyfts något ut till delad kod *först* när en andra modul faktiskt behöver det. Bygg inte delad kod i förväg.
+**Tumregel:** börja modulspecifikt (i route-mappen). Lyfts något ut till delad kod *först* när en andra modul faktiskt behöver det. Bygg inte delad kod i förväg.
+
+### Modul-stämpel — obligatorisk
+
+Eftersom modulkoden inte ligger i en egen `modules/`-mapp hålls spårbarheten modul ↔ kod via en **stämpel** högst upp i varje route-fil (`page.tsx`, `actions.ts`):
+
+```
+// Modul M3 — Granskar-flödet
+// Design: handoff-to-code/review.html · Regler: 1-Planering/Modul-03-Granskar-flodet.md
+```
+
+Öppna vilken kodfil som helst → du ser direkt vilken modul den hör till och var designens och planeringens källa finns. Tillsammans med route-namnet och `handoff-to-code/DESIGN-KARTA.md` är detta den röda tråden design ↔ modul ↔ kod.
 
 ### TypeScript-typer
 
 - **`types/database.types.ts`** genereras automatiskt från Supabase-schemat med Supabase CLI. **Redigeras aldrig för hand** — regenereras efter varje migration.
 - **`types/domain.ts`** är delade domäntyper byggda ovanpå databastyperna (t.ex. en `Insamling` med beräknade fält).
-- **Modulspecifika typer** bor i sin modulmapp.
+- **Modulspecifika typer** bor kolokerade i modulens route-mapp.
 - **`any` undviks.** Är en typ okänd — skriv ut den.
 
 ### Övrigt
 
-- Affärslogik bor i `modules/` eller `lib/` — **aldrig** i en `page.tsx`.
+- Affärslogik bor i route-mappens syskonfiler (`actions.ts`, komponenter) eller `lib/` — **aldrig** i en `page.tsx`.
 - Behörighet kontrolleras i databasen via RLS (fil 00, regel 5–6). Frontend-kontroller är UX, inte säkerhet.
 
 ---
@@ -365,8 +365,8 @@ Vid varje pull request kör ett enkelt workflow:
 | **Ett privat monorepo** | Kod + databas-migration i samma commit. En sanning, en historik. Enklare än flera repon. |
 | **Repo-namn `sadaqahsweden`** | Arbetsnamn, matchar projektet. Byts om plattformen får annat namn. |
 | **`main` + feature-branches** | Enkelt flöde som passar ett litet team. Skyddad `main`, merge via PR. |
-| **Mapp per modul i `modules/`** | "Mapp per modul" hör hemma i koden (`0-LÄS-MIG-FÖRST.md`). Modulspecifik logik samlad, inte utspridd. |
-| **`app/` bara routing** | Tunna sidfiler. Affärslogik i `modules/`/`lib/`. Lättare att testa och läsa. |
+| **Kolokerad modulkod (ingen `modules/`)** | Modulkoden bor bredvid sin route i `app/`. Matchar Next.js App Router-konvention, den faktiska kodbasen och designöverlämningens byggplan. Spårbarhet via route-namn + modul-stämpel + `DESIGN-KARTA.md`. |
+| **Tunna `page.tsx`** | Sidfiler hämtar data och komponerar. Affärslogik i route-mappens syskonfiler / `lib/`. Lättare att testa och läsa. |
 | **Stripe-webhooks i Edge Functions** | "Webhooks är sanningen för pengar" — körs nära databasen, oberoende av webbappen. |
 | **`database.types.ts` auto-genereras** | Databasen är källan. Typer regenereras, redigeras aldrig för hand. |
 | **Migrationer körs via GitHub Actions vid merge** | Koden och databasen i takt — samma trigger, samma ögonblick. |
@@ -390,3 +390,4 @@ Vid varje pull request kör ett enkelt workflow:
 | 1.0 | 2026-05-23 | Första versionen. GitHub-monorepo, branch-strategi, fullständig mappstruktur för `5-Kod/`, modul-till-kod-mappning, konventioner, miljövariabler, CI & deploy. |
 | 1.1 | 2026-05-23 | Hosting ändrad från Vercel till Cloudflare Pages (OpenNext-adapter). |
 | 1.2 | 2026-05-23 | Rättad mot faktisk scaffold — root-app/ (ingen src/), 17 moduler, repo-namn sadaqahsweden, brasklapp om autonomt soloskede. |
+| 1.3 | 2026-05-23 | Struktur ändrad: kolokerad modulkod, **ingen `modules/`-mapp** (matchar faktisk kod + designöverlämningens byggplan). Route-grupper `(public)/(auth)/(konto)/(intern)`. Modul-stämpel-konvention tillagd. Beslutat av Zivar. |

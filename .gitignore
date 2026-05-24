@@ -41,6 +41,10 @@ desktop.ini
 supabase/.branches/
 supabase/.temp/
 
+# Lokala verktygsinställningar
+.claude/
+.playwright-mcp/
+
 # Misc
 *.tmp
 *.bak

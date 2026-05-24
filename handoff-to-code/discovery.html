@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hitta insamlingar — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  .disc-head {
+    background: var(--paper-soft);
+    padding: 56px 0 32px;
+    border-bottom: 1px solid var(--ink-line);
+    position: relative;
+    overflow: hidden;
+  }
+  .disc-head::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.04)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 200px 200px;
+    pointer-events: none;
+  }
+  .disc-head > * { position: relative; z-index: 1; }
+  .disc-head h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 4vw, 56px);
+    font-weight: 400;
+    letter-spacing: -0.014em;
+    line-height: 1.06;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .disc-head .sub { font-family: var(--font-display); font-size: 20px; color: var(--ink-2); font-weight: 300; margin: 0 0 32px; }
+
+  .search-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 8px;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-pill);
+    padding: 6px;
+  }
+  .search-row .input, .search-row .select {
+    height: 52px;
+    border: 0; background: transparent;
+    font-size: 15px;
+    padding: 0 20px;
+    border-radius: var(--r-pill);
+  }
+  .search-row .input:focus, .search-row .select:focus { background: var(--paper-soft); box-shadow: none; }
+  .search-row .btn { height: 52px; padding: 0 28px; }
+
+  /* Filter rail */
+  .disc-body {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 48px;
+    padding: 40px 0 96px;
+  }
+  .filter-side .group {
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--ink-line);
+    padding-bottom: 24px;
+  }
+  .filter-side .group:last-child { border-bottom: 0; }
+  .filter-side h4 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    margin: 0 0 12px;
+  }
+  .check-list { display: flex; flex-direction: column; gap: 8px; }
+  .check-list label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px;
+    color: var(--ink-1);
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .check-list label .count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+  }
+  .check-list label input { accent-color: var(--forest); width: 16px; height: 16px; }
+
+  /* Range slider */
+  .range-track {
+    height: 4px;
+    background: var(--paper-deep);
+    border-radius: var(--r-pill);
+    position: relative;
+    margin: 16px 0;
+  }
+  .range-fill {
+    position: absolute;
+    left: 15%; right: 30%;
+    height: 100%;
+    background: var(--forest);
+    border-radius: var(--r-pill);
+  }
+  .range-handle {
+    position: absolute;
+    top: 50%; transform: translate(-50%, -50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--paper-soft);
+    border: 2px solid var(--forest);
+    cursor: pointer;
+  }
+  .range-handle.h1 { left: 15%; }
+  .range-handle.h2 { left: 70%; }
+  .range-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+  }
+
+  /* Results */
+  .results-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .results-count { font-size: 14px; color: var(--ink-2); }
+  .results-count strong { color: var(--ink); font-weight: 600; font-family: var(--font-mono); }
+  .sort-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .sort-row select {
+    height: 36px; padding: 0 32px 0 14px;
+    font-size: 13px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    background: var(--paper-soft);
+    color: var(--ink-1);
+  }
+  .view-toggle {
+    display: flex; gap: 2px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    padding: 3px;
+  }
+  .view-toggle button {
+    width: 36px; height: 30px;
+    border-radius: var(--r-sm);
+    color: var(--ink-3);
+  }
+  .view-toggle button.active { background: var(--forest); color: var(--paper); }
+
+  /* Active filters */
+  .active-filters {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .active-filter {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px 4px 12px;
+    background: var(--forest-soft);
+    color: var(--forest);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .active-filter button { color: var(--forest); opacity: 0.6; padding: 2px; }
+  .active-filter button:hover { opacity: 1; }
+
+  /* Campaign grid */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .c-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: all 240ms ease;
+    display: flex; flex-direction: column;
+  }
+  .c-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); border-color: var(--copper-soft); }
+  .c-card .img { height: 200px; position: relative; }
+  .c-card .img .ph { width: 100%; height: 100%; }
+  .c-card .img .pills {
+    position: absolute; top: 12px; left: 12px;
+    display: flex; gap: 6px;
+  }
+  .c-card .img .save {
+    position: absolute; top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(14, 20, 17, 0.55);
+    color: rgba(245, 240, 228, 0.9);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+  }
+  .c-card .body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .c-card .cat { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--copper-deep); font-weight: 600; }
+  .c-card h3 {
+    font-family: var(--font-display);
+    font-size: 19px; line-height: 1.2;
+    font-weight: 500; letter-spacing: -0.008em;
+    margin: 0; text-wrap: balance;
+  }
+  .c-card .meta { margin-top: auto; }
+  .c-card .stats {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--ink-2);
+    margin-top: 8px;
+  }
+  .c-card .stats .amt { font-family: var(--font-mono); color: var(--forest); font-weight: 600; }
+  .c-card .footer-row {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--ink-line);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .c-card .footer-row .av {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+  }
+
+  /* Map preview teaser */
+  .map-teaser {
+    grid-column: 1 / -1;
+    margin: 32px 0;
+    background: linear-gradient(135deg, var(--forest), var(--forest-deep));
+    color: var(--paper);
+    border-radius: var(--r-2xl);
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-teaser::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.06)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 180px 180px;
+    pointer-events: none;
+  }
+  .map-teaser > * { position: relative; z-index: 1; }
+  .map-teaser .ph {
+    height: 180px;
+    border-radius: var(--r-lg);
+    background: rgba(245, 240, 228, 0.06);
+    border: 1px dashed rgba(245, 240, 228, 0.2);
+    color: rgba(245, 240, 228, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link active">Insamlingar</a>
+    <a href="catalog.html" class="nav-link">Föreningar</a>
+    <a href="map.html" class="nav-link">Karta</a>
+    <a href="#" class="nav-link">Hur det fungerar</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+
+<!-- Head -->
+<section class="disc-head">
+  <div class="container">
+    <div class="section-eyebrow" style="margin-bottom: 24px;">
+      <span class="star-mark" id="star-1"></span>
+      <span class="label" style="font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--copper-deep);">132 aktiva · 36 föreningar · 18 städer</span>
+    </div>
+    <h1>Hitta en insamling att stötta.</h1>
+    <p class="sub">Allt är granskat. Allt går direkt till mottagaren. Bevis följer.</p>
+
+    <div class="search-row">
+      <input class="input" placeholder="Sök på namn, plats, mottagare…" value="vatten">
+      <select class="select">
+        <option>Alla kategorier</option>
+        <option selected>Vatten</option>
+        <option>Mat &amp; bistånd</option>
+      </select>
+      <select class="select">
+        <option selected>Alla länder</option>
+        <option>Sverige</option>
+        <option>Mali</option>
+      </select>
+      <button class="btn btn-primary">
+        <span id="search-icon"></span>
+        Sök
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Body -->
+<div class="container disc-body">
+  <!-- Filter side -->
+  <aside class="filter-side">
+    <div class="group">
+      <h4>Kategori</h4>
+      <div class="check-list">
+        <label><input type="checkbox" checked> Vatten <span class="count">42</span></label>
+        <label><input type="checkbox"> Mat &amp; bistånd <span class="count">38</span></label>
+        <label><input type="checkbox"> Sjukvård <span class="count">26</span></label>
+        <label><input type="checkbox"> Utbildning <span class="count">31</span></label>
+        <label><input type="checkbox"> Mosképrojekt <span class="count">19</span></label>
+        <label><input type="checkbox"> Katastrofhjälp <span class="count">14</span></label>
+        <label><input type="checkbox"> Flykting <span class="count">22</span></label>
+        <label><input type="checkbox"> Fastebrytning <span class="count">8</span></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Land / region</h4>
+      <div class="check-list">
+        <label><input type="checkbox"> Sverige <span class="count">42</span></label>
+        <label><input type="checkbox" checked> Mali <span class="count">8</span></label>
+        <label><input type="checkbox"> Syrien <span class="count">16</span></label>
+        <label><input type="checkbox"> Palestina <span class="count">12</span></label>
+        <label><input type="checkbox"> Somalia <span class="count">9</span></label>
+        <label><input type="checkbox"> Bangladesh <span class="count">5</span></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Belopp</h4>
+      <div class="range-track">
+        <div class="range-fill"></div>
+        <div class="range-handle h1"></div>
+        <div class="range-handle h2"></div>
+      </div>
+      <div class="range-labels">
+        <span>15 000 kr</span>
+        <span>250 000 kr</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Stötta &amp; tagg</h4>
+      <div class="check-list">
+        <label><input type="checkbox" checked> Zakat-OK <span class="count">38</span></label>
+        <label><input type="checkbox"> Driven av förening <span class="count">52</span></label>
+        <label><input type="checkbox"> Stöttas av collab <span class="count">28</span></label>
+        <label><input type="checkbox"> &lt; 7 dgr kvar <span class="count">14</span></label>
+        <label><input type="checkbox"> Nyligen publicerad <span class="count">18</span></label>
+      </div>
+    </div>
+
+    <div class="group">
+      <h4>Status</h4>
+      <div class="check-list">
+        <label><input type="checkbox" checked> Aktiv <span class="count">132</span></label>
+        <label><input type="checkbox"> Når målet snart <span class="count">22</span></label>
+        <label><input type="checkbox"> Avslutad &amp; bevisad <span class="count">98</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Results -->
+  <div>
+    <div class="results-head">
+      <div class="results-count"><strong>14</strong> insamlingar — vatten · Mali</div>
+      <div class="sort-row">
+        <span>Sortera:</span>
+        <select>
+          <option>Mest brådskande</option>
+          <option>Nyast</option>
+          <option>Nära målet</option>
+          <option>Mest stöttat</option>
+        </select>
+        <div class="view-toggle">
+          <button class="active"><span id="grid-i"></span></button>
+          <button><span id="list-i"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-filters">
+      <span class="active-filter">"vatten" <button><span id="x-1"></span></button></span>
+      <span class="active-filter">Kategori: Vatten <button><span id="x-2"></span></button></span>
+      <span class="active-filter">Land: Mali <button><span id="x-3"></span></button></span>
+      <span class="active-filter">Zakat-OK <button><span id="x-4"></span></button></span>
+      <a href="#" class="small" style="margin-left: 8px; color: var(--copper-deep); text-decoration: underline;">Rensa alla</a>
+    </div>
+
+    <div class="results-grid">
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span><span class="pill pill-copper">Zakat-OK</span></div>
+          <span class="save" id="sv-1"></span>
+          <div class="ph"><span class="ph-label">Foto: brunn i Mali</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>En brunn för byn Diabaly — 280 personer får rent vatten</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 74%;"></div></div>
+            <div class="stats"><span><span class="amt">148 200 kr</span> · 74 %</span><span>12 dgr</span></div>
+            <div class="footer-row"><span class="av">YA</span> Yasmin A. · BankID</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span></div>
+          <span class="save" id="sv-2"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #5C7A6B, #2D5947);"><span class="ph-label">Vatten · Mali · Massala</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Vattenrening till skolan i Massala — 80 barn</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 45%;"></div></div>
+            <div class="stats"><span><span class="amt">31 500 kr</span> · 45 %</span><span>26 dgr</span></div>
+            <div class="footer-row"><span class="av">HS</span> Hjälpkraft Sverige</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span><span class="pill pill-copper">Zakat-OK</span></div>
+          <span class="save" id="sv-3"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">Foto: handpump</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Handpumpar till 4 byar runt Mopti</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar progress-bar-copper" style="width: 92%;"></div></div>
+            <div class="stats"><span><span class="amt">220 800 kr</span> · 92 %</span><span>4 dgr</span></div>
+            <div class="footer-row"><span class="av">MS</span> Mali-Solidaritet</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span></div>
+          <span class="save" id="sv-4"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #1F4636, #0F2A1F);"><span class="ph-label">Foto: borrning</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Djupbrunn för moské &amp; samhälle i Ségou</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 18%;"></div></div>
+            <div class="stats"><span><span class="amt">36 000 kr</span> · 18 %</span><span>52 dgr</span></div>
+            <div class="footer-row"><span class="av">SH</span> Stockholms Hjälp</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span><span class="pill pill-copper">Zakat-OK</span></div>
+          <span class="save" id="sv-5"></span>
+          <div class="ph"><span class="ph-label">Foto: vatten-tankning</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Tankbil med rent vatten — torkperioden 2026</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 63%;"></div></div>
+            <div class="stats"><span><span class="amt">75 600 kr</span> · 63 %</span><span>17 dgr</span></div>
+            <div class="footer-row"><span class="av">AB</span> Abdulah B. · BankID</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span></div>
+          <span class="save" id="sv-6"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #C9A064, #8E6429);"><span class="ph-label">Foto: skolbarn dricker</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Vattenkran &amp; latrin för flickskolan i Koulikoro</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 32%;"></div></div>
+            <div class="stats"><span><span class="amt">48 000 kr</span> · 32 %</span><span>38 dgr</span></div>
+            <div class="footer-row"><span class="av">HK</span> Hjälpkraft Sverige</div>
+          </div>
+        </div>
+      </a>
+
+      <!-- Map teaser -->
+      <div class="map-teaser">
+        <div>
+          <div class="eyebrow" style="color: var(--copper-warm); margin-bottom: 16px;">Hittar du inte?</div>
+          <h3 style="font-family: var(--font-display); font-size: 32px; line-height: 1.1; margin: 0; font-weight: 400; color: var(--paper);">Bläddra på kartan istället.</h3>
+          <p style="color: rgba(245, 240, 228, 0.7); margin: 16px 0 24px;">
+            Se var i världen pengarna landar — och var i Sverige insamlarna bor. 132 aktiva insamlingar på 18 platser.
+          </p>
+          <a href="map.html" class="btn btn-copper">Öppna kartan <span id="map-arrow"></span></a>
+        </div>
+        <div class="ph">
+          <span class="ph-label">Karta: 132 pins · 28 länder</span>
+        </div>
+      </div>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span></div>
+          <span class="save" id="sv-7"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #2D5947, #1F4636);"><span class="ph-label">Foto: by-möte</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Solar-driven vattenpump — utbildning av tekniker</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 58%;"></div></div>
+            <div class="stats"><span><span class="amt">52 200 kr</span> · 58 %</span><span>9 dgr</span></div>
+            <div class="footer-row"><span class="av">OB</span> Omar B. · BankID</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span><span class="pill pill-copper">Zakat-OK</span></div>
+          <span class="save" id="sv-8"></span>
+          <div class="ph" style="background: linear-gradient(135deg, #B8843E, #5E4321);"><span class="ph-label">Foto: brunn-invigning</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>3 brunnar för flyktingläger nära Mopti</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar progress-bar-copper" style="width: 88%;"></div></div>
+            <div class="stats"><span><span class="amt">528 000 kr</span> · 88 %</span><span>6 dgr</span></div>
+            <div class="footer-row"><span class="av">HS</span> Hjälpkraft Sverige</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="c-card">
+        <div class="img">
+          <div class="pills"><span class="pill pill-paper">Granskad</span></div>
+          <span class="save" id="sv-9"></span>
+          <div class="ph"><span class="ph-label">Foto: vattendunkar</span></div>
+        </div>
+        <div class="body">
+          <span class="cat">Vatten · Mali</span>
+          <h3>Vattendunkar &amp; filter — 50 hushåll Bamako</h3>
+          <div class="meta">
+            <div class="progress"><div class="progress-bar" style="width: 28%;"></div></div>
+            <div class="stats"><span><span class="amt">14 000 kr</span> · 28 %</span><span>44 dgr</span></div>
+            <div class="footer-row"><span class="av">SM</span> Sara M.</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="row jcc mt-48">
+      <button class="btn btn-secondary btn-lg">Visa nästa 9 av 14 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div id="footer-slot"></div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+  document.getElementById('star-1').innerHTML = SADAQA.STAR_MINI;
+  document.getElementById('search-icon').innerHTML = SADAQA.icon('search', 16);
+  document.getElementById('grid-i').innerHTML = SADAQA.icon('grid', 14);
+  document.getElementById('list-i').innerHTML = SADAQA.icon('list', 14);
+  document.getElementById('map-arrow').innerHTML = SADAQA.icon('arrow-right', 16);
+  for (let i = 1; i <= 4; i++) document.getElementById('x-' + i).innerHTML = SADAQA.icon('x', 10);
+  for (let i = 1; i <= 9; i++) {
+    const el = document.getElementById('sv-' + i);
+    if (el) el.innerHTML = SADAQA.icon('heart', 14);
+  }
+
+  document.querySelectorAll('.view-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.view-toggle button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -10,6 +10,14 @@
 
 ---
 
+> **OBS (2026-05-24) — läs detta först.** v1 använder **inte** en BankID-broker.
+> Identitets-KYC för insamlare sker via **Stripe Connect-onboardingens inbyggda
+> verifiering** — gratis, ingår i Connect. Se
+> `1-Planering/Tillägg-Nya-beslut-2026-05-23.md` **A5**. Den här filen står kvar
+> som komplett spec för BankID som ett **senare uttag** — bygg den inte i v1.
+
+---
+
 ## 1. BankID-integration — via broker
 
 ### 1.1 Varför en broker, inte BankID direkt

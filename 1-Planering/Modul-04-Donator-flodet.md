@@ -32,7 +32,7 @@ Tre problem som Donator-flödet löser:
 | Block | Innehåll | Status |
 |---|---|---|
 | 1 | Donationsögonblicket — belopp eller enheter, snabbval, fri summa | ✅ Spikad |
-| 2 | Donatorns val — undermål-valet, anonymitet, meddelande/dua | ✅ Spikad |
+| 2 | Donatorns val — undermåls-information, anonymitet, meddelande/dua | ✅ Spikad |
 | 3 | Betalning — Stripe checkout, Swish, kort, gäst vs inloggad | ✅ Spikad |
 | 4 | Kvitto & bekräftelse — vad donatorn får, skattekvitto-frågan | ✅ Spikad |
 | 5 | Efter donationen — följa insamlingen, notiser, erbjuda praktisk hjälp | ✅ Spikad |
@@ -104,31 +104,28 @@ Under snabbvalen: ett fält för **fri summa**.
 
 # BLOCK 2 — Donatorns val
 
-Innan betalning gör donatorn tre val. Alla tre har **förnuftiga defaults** så att en donator som bara vill ge snabbt aldrig fastnar — men varje val är synligt för den som bryr sig.
+Innan betalning gör donatorn två val. Båda har **förnuftiga defaults** så att en donator som bara vill ge snabbt aldrig fastnar — men varje val är synligt för den som bryr sig.
 
-## 2.1 Undermål-valet — "om målet inte nås"
+> **OBS — undermål-valet borttaget (Tillägg-Nya-beslut-2026-05-23 A1).** Den ursprungliga kryssrutan "Ge ändå / Återbetala mig" **utgår**. Pengarna flödar framåt — gåvan används för saken oavsett om exakt mål nås. I stället för ett val ska donatorn **vid gåvotillfället tydligt informeras** om detta. Avsnitt 2.1 nedan beskriver den nya informationsytan.
 
-Det viktigaste valet. M1 Block 2 Fält 4 spikade att donatorn väljer detta **vid donationstillfället**. M4 verkställer det.
+## 2.1 Undermåls-informationen — "om målet inte nås"
+
+M1 Block 2 Fält 4 (reviderad enligt Tillägg A1) spikar att **pengarna flödar framåt**: missar insamlingen sitt mål får insamlaren ändå använda medlen — för en skalad insats eller efter en förlängning. Det finns **inget per-donation-val** längre. M4:s uppgift är att göra detta **tydligt vid gåvotillfället** — transparens ersätter valet.
 
 **Specifikation:**
 
-- En **kryssruta / val** med två alternativ:
-  - **● Ge ändå — pengarna går till projektet** *(default, förvald)*
-  - **○ Återbetala mig om målet inte nås**
-- **Default = "Ge ändå".** Motivering: de flesta vill det (30k köper ändå mattor — "verktyg, inte polis"), och en friktionsfri default skyddar mot att donatorn fastnar i ett val hen inte tänkt på.
-- Valet syns **bara när det är relevant** — för insamlingar med **fast** eller **intervall**-mål. För **öppet** mål finns inget "undermål", så valet visas inte alls (det vore förvirrande).
-- Valet sparas på **donationen** (inte på donatorn) — varje gåva har sitt eget undermål-val.
+- **Ingen kryssruta.** I stället en kort, klar **informationsrad** intill betalningssammanfattningen, för insamlingar med **fast** eller **intervall**-mål:
+  > *"Om insamlingen inte når sitt mål senast [deadline] används din gåva ändå för projektet — insamlaren genomför då en mindre insats eller förlänger insamlingen. Din gåva går alltid till saken."*
+- För **öppet** mål finns inget "undermål" — informationsraden visas inte (den vore förvirrande).
+- Detta är **ett icke-förhandlingsbart krav** (Tillägg A1): donatorn ska veta, redan när hen ger, att gåvan används för saken oavsett om exakt mål nås. Utan den informationen är det ett förtroendebrott.
+- Det sparas **inget undermål-val** på donationen — varje gåva behandlas likadant vid undermål: den flödar framåt.
 
-**Vad valet gör tekniskt:**
+**Varför valet togs bort:** sadaqah som getts är Islamiskt oåterkallelig; givaren vill att saken hjälps oavsett slutsumma. Ett val mellan "ge ändå / återbetala mig" speglar inte den verkligheten — och det utlöser ett tillstånds- och refund-flöde plattformen inte behöver. Transparens vid gåvotillfället är både ärligare och enklare.
 
-- "Ge ändå" → vid undermål ingår gåvan i utbetalningen till insamlaren (M5 Block 3).
-- "Återbetala mig" → vid undermål får donatorn automatisk refund (M5 Block 4).
+**Återbetalning finns kvar — men som undantag.** Den sker bara vid bedrägeri eller fel (missad/felaktig donation), aldrig för att ett mål missades. Mekaniken bor i M5 Block 4.
 
-**Förklarande mikrotext** intill valet, kort och klar:
-> *"Om insamlingen inte når sitt mål senast [deadline] kan insamlaren ändå genomföra projektet i mindre skala. Vill du att din gåva ska gå dit ändå, eller få tillbaka den?"*
-
-**Kantfall:** Donatorn väljer "återbetala mig", insamlingen **når** målet → ingen refund, gåvan ingår normalt. Valet aktiveras bara vid faktiskt undermål.
-**Kantfall:** Insamling med **intervall**-mål når lägstanivån men inte max → räknas som "målet nått" (M1 Block 2 Fält 1). Ingen refund triggas. "Återbetala mig" gäller bara om man inte ens når lägstanivån.
+**Kantfall:** Insamling med **intervall**-mål når lägstanivån men inte max → räknas som "målet nått" (M1 Block 2 Fält 1) — inget undermål alls.
+**Kantfall:** Donatorn upptäcker efter gåvan att målet missades och vill ha pengarna tillbaka → nej; gåvan flödar framåt. Refund är inte ångerrätt (M5 Block 4.6).
 
 ## 2.2 Anonymitet
 
@@ -177,10 +174,10 @@ Donatorn kan lämna ett kort **meddelande eller en dua**.
 Innan donatorn går vidare till betalning visas en **lugn sammanfattning**:
 
 > Du ger **20 bönemattor (700 kr)** till *"Bönematter till 50 moskéer"*.
-> Om målet inte nås: **din gåva går till projektet ändå.**
+> Om målet inte nås: **din gåva används ändå för projektet.**
 > Du visas som: **Anonym givare.**
 
-Ett klick på valfri rad tar tillbaka donatorn till det valet. Sammanfattningen är **inte** ett extra steg — den ligger på samma skärm som "Fortsätt till betalning". Den finns för att donatorn ska känna kontroll, inte för att lägga friktion.
+Raden om målet är **information, inte ett val** — den speglar undermåls-informationen i 2.1. Ett klick på en valbar rad (anonymitet, meddelande) tar tillbaka donatorn till det valet. Sammanfattningen är **inte** ett extra steg — den ligger på samma skärm som "Fortsätt till betalning". Den finns för att donatorn ska känna kontroll, inte för att lägga friktion.
 
 ---
 
@@ -261,7 +258,7 @@ Direkt efter genomförd betalning visas en **bekräftelseskärm** — lugn, varm
 
 - En tydlig bekräftelse: *"Din gåva är mottagen. Jazak Allahu khayran."*
 - Vad som gavs: belopp + ev. enheter, till vilken insamling.
-- Undermål-valet, sammanfattat: *"Om målet inte nås går din gåva till projektet"* (eller "...återbetalas till dig").
+- Undermåls-informationen, sammanfattad: *"Om målet inte nås används din gåva ändå för projektet."*
 - Insamlingens nya status — t.ex. en uppdaterad progress bar: *"Tack vare dig och 142 andra: 68 % av målet."*
 - En diskret länk vidare — följ insamlingen (inloggad) eller skapa konto (gäst).
 
@@ -338,7 +335,8 @@ Notiser till donatorn ägs av **M15** — M4 definierar bara *vilka händelser* 
 | Insamlingen förlängd | "Insamlingen du stöttade har förlängts till [datum]" | På (inloggad), opt-in (gäst) |
 | Resultatbevis publicerat | "Se vad din gåva blev — resultatet är här" | På (inloggad), opt-in (gäst) |
 | Insamlingen utbetald till insamlaren | (Visas i transparens-loopen, ingen separat push) | — |
-| Undermål → din gåva refunderas | "Insamlingen nådde inte målet — din gåva återbetalas" | **Alltid på** — detta rör donatorns pengar |
+| Insamlingen nådde inte målet | "Insamlingen du stöttade nådde inte målet — så här används din gåva ändå" | På (inloggad), opt-in (gäst) |
+| Din gåva refunderas (bedrägeri/fel) | "Viktig information — din gåva återbetalas" | **Alltid på** — detta rör donatorns pengar |
 | Insamlingen pausad/nedstängd | "Viktig information om en insamling du stöttade" | **Alltid på** — detta rör donatorns pengar |
 
 **Princip:** Notiser som rör **donatorns pengar** (refund, nedstängning) går alltid fram — de är inte marknadsföring, de är information donatorn har rätt till. Notiser som är *uppmuntran* (mål nått, resultat) är opt-in för gäster, på som default för inloggade, och alltid avstängbara. Allt detaljstyrs i M15.
@@ -374,7 +372,7 @@ En insikt från M1 Block 1 Fält 6: hjälp-platsen kan trigga en **personlig kop
 | Belopp och per-enhet är samma charge, bara olika vy | "20 mattor" gör gåvan gripbar; "700 kr" är abstrakt. Att stödja båda komplicerar inte pengaflödet — Stripe ser bara ett belopp. Verkställer M1 Block 2 Fält 1. |
 | Snabbvalsknappar med en mjukt förvald nivå | Tar bort beslutsångest, höjer genomsnittsgåvan — utan att pressa. Förvald ≠ tvingande. |
 | Minsta gåva 20 kr | Under det äter Stripe-avgiften gåvan och microtransaktioner skapar refund-/bevis-strul. Lågt nog att ingen seriös givare stängs ute. |
-| Undermål-valet default = "Ge ändå" | De flesta vill det (30k köper ändå mattor — princip 5). Friktionsfri default skyddar mot att donatorn fastnar. Verkställer M1 Block 2 Fält 4. |
+| Undermåls-information i stället för per-donation-val (Tillägg A1) | Pengarna flödar framåt — gåvan används för saken oavsett om exakt mål nås. Sadaqah som getts är Islamiskt oåterkallelig. Valet "ge ändå / återbetala mig" utgår; donatorn informeras tydligt vid gåvotillfället i stället. Verkställer M1 Block 2 Fält 4 (reviderad). |
 | Tre nivåer av anonymitet | Mellannivån ("dold publikt, synlig för insamlaren") respekterar en faktisk islamisk motivering — sadaqah i tysthet. Inte över-engineering, utan andlig respekt (princip 8). |
 | Gäst kan ge utan konto, bara e-post krävs | Att tvinga registrering innan en gåva förlorar donatorer. Research (GoFundMe) bekräftar. BankID-kravet gäller insamlaren (KYC), inte givaren — princip 12: målgrupp, inte mur. |
 | Swish är obligatoriskt, inte ett tillval | En svensk muslimsk plattform utan Swish känns främmande. "SEK/Swish-nativ" är själva marknadsluckan (Masterkarta avsnitt 9). |
@@ -389,21 +387,20 @@ En insikt från M1 Block 1 Fält 6: hjälp-platsen kan trigga en **personlig kop
 
 **Modul 4 tar in:**
 
-- Insamlings-objektet från **M1** — målmodell, enhetspris, deadline, övermåls-/undermålspolicy, hjälp-plats, status. Allt donatorn ser och väljer mot.
+- Insamlings-objektet från **M1** — målmodell, enhetspris, deadline, övermåls-/undermålspolicy (framåt-flöde), hjälp-plats, status. Allt donatorn ser och väljer mot.
 - Roller och konto-status från **M6** — är besökaren gäst eller inloggad; finns BankID-identitet.
 - Betalnings-kapacitet från **M5** — vilka metoder, hur checkout fungerar tekniskt.
 
 **Modul 4 lämnar ut:**
 
 - **Donationen** som dataobjekt till **M1** (relationen "Donationer → insamling", M1 Block 4) och till **M5** (charge ska skapas).
-- Undermål-valet per donation till **M5** — avgör om gåvan ska kunna refunderas.
 - Donatorns publika synlighet + meddelande till **M13** (community — donatorlista, dua-flöde).
 - Gåvan + donator-identitet till **M9** (donationshistorik på profilen, för inloggade).
 - Händelser (mål nått, refund, resultat) som triggar **M15** (notiser).
 - Personlig-koppling-meddelanden till insamlaren — gränssnitt mot **M2** (insamlarens inkorg).
 - Det frivilliga bidraget — flaggat och separerat — till **M5 Block 5**.
 
-**Hård beroende-flagga:** Block 3 (betalning) kan inte byggas färdigt förrän M5 spikat Stripe Checkout-uppsättningen. Block 2:s undermål-val är meningslöst utan M5:s refund-mekanik. M4 planeras klart nu; bygget av Block 2–3 väntar på M5.
+**Hård beroende-flagga:** Block 3 (betalning) kan inte byggas färdigt förrän M5 spikat Stripe Checkout-uppsättningen. Block 2:s undermåls-information speglar M5:s framåt-flöde och M1 Block 2 Fält 4 — den ska vara korrekt formulerad innan checkouten byggs. M4 planeras klart nu; bygget av Block 2–3 väntar på M5.
 
 ---
 
@@ -415,7 +412,7 @@ En insikt från M1 Block 1 Fält 6: hjälp-platsen kan trigga en **personlig kop
 - **Mycket stor enskild gåva** (riktmärke >50 000 kr) flaggas internt för admin — penningtvätts-medvetenhet (samordnas med M5/M16).
 - **Publika meddelanden filtreras** — samma innehållsfilter som M13. Insamlaren kan dölja olämpliga meddelanden på sin insamling.
 - **Gästdonationer kräver giltig e-post** — så att refund och kvitto kan nå donatorn.
-- **Undermål-valet är låst per donation** — kan inte ändras i efterhand av någon, vilket skyddar både donatorns vilja och insamlarens förutsägbarhet.
+- **Undermåls-informationen visas alltid vid gåvotillfället** — donatorn ska aldrig kunna ge utan att veta att gåvan flödar framåt om målet missas (icke-förhandlingsbart krav, Tillägg A1).
 - **"Erbjud praktisk hjälp"** kan inte missbrukas allvarligt — insamlaren styr om funktionen finns, vem som svaras, och kan blockera avsändare.
 - **Anonymitet läcker inte** — en anonym donators namn visas aldrig publikt, och vid "anonym utåt" ser insamlaren namnet bara för att hen aktivt fått den rätten.
 
@@ -426,7 +423,7 @@ En insikt från M1 Block 1 Fält 6: hjälp-platsen kan trigga en **personlig kop
 - Hela donationsflödet — belopp/enheter, val, betalning, charge.
 - Kvitto genereras och skickas automatiskt.
 - Bekräftelseskärm och progress bar uppdateras direkt.
-- Undermål-valet sparas och verkställs automatiskt av M5 vid deadline.
+- Undermåls-utfallet hanteras automatiskt av M5 vid deadline — pengarna flödar framåt, ingen auto-refund.
 - Notiser triggas automatiskt av händelser (M15).
 - Gäst → konto-koppling sker automatiskt vid matchande e-post.
 - Innehållsfilter på meddelanden körs automatiskt.
@@ -468,3 +465,4 @@ Se avsnitt 5 (Designval & motivering) — det är Modul 4:s fullständiga beslut
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Full djup. Block 1 (donationsögonblicket), Block 2 (donatorns val), Block 3 (betalning), Block 4 (kvitto & bekräftelse), Block 5 (efter donationen) nyskrivna. Match-funding parkerad. Verkställer M1 Block 2:s donator-styrda val. |
+| 1.1 | 2026-05-24 | Återbetalningsmodell reviderad enligt Tillägg-Nya-beslut-2026-05-23 A1 — framåt-flöde, refund bara vid bedrägeri/fel. Block 2.1 omarbetat: per-donation-valet "ge ändå / återbetala mig" utgår, ersatt av en undermåls-informationsrad (transparens vid gåvotillfället). Block 2.4 sammanfattning, 4.1 bekräftelseskärm, 5.2 notiser, designval, kopplingar, säkerhet och automatisering uppdaterade. |

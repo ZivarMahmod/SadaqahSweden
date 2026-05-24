@@ -5,6 +5,11 @@
 
 Läs `00-Byggplan-oversikt.md` först — teknikval och byggfilosofi gäller varje steg här.
 
+> **Läs även `1-Planering/Tillägg-Nya-beslut-2026-05-23.md`.** Det innehåller nyare
+> beslut som ändrar eller utökar modulerna (bl.a. återbetalningsmodellen för Steg 5–7,
+> Swish-bekräftelse, superadmin/admin-federation). Säger tillägget och en modultext
+> olika — tillägget vinner.
+
 ---
 
 ## Så läses ett steg
@@ -144,6 +149,28 @@ Ett steg ≈ en arbetsorder för Claude Code. Stora steg kan delas i en egen det
 **Bygger:** M17. **Förutsätter:** Steg 2 (auth), 4 (granskning), 15 (drift). **Plan-referens:** M17.
 **Klar när:** teamet kan logga in i en samlad arbetsyta, roller styr vad var och en ser, onboarding/offboarding fungerar — och ingen har direkt databasåtkomst.
 
+### Steg 17 — Plattformsstyrning & federation
+**Mål:** Regionala admins kan dela granskning och support — plattformen blir inte en flaskhals.
+**Bygger:** M18.
+**Förutsätter:** Steg 4 (granskning), 15 (admin/drift), 16 (team).
+**Plan-referens:** M18, `1-Planering/Tillägg-Nya-beslut-2026-05-23.md` B1.
+**Klar när:**
+- [ ] Tre admin-nivåer (superadmin / region-admin / medhjälpare), RLS-skyddade.
+- [ ] Granskning kan region-scopas — en regions insamlingar hamnar i regionens kö.
+- [ ] Skydden på plats (M8 som måttstock, överklagande-väg, stickprov, andra-granskning).
+- [ ] Subdomäner `superadmin.` / `admin.sadaqahsweden.se`.
+
+### Steg 18 — Innehåll & FAQ
+**Mål:** Publikt informationsinnehåll + FAQ, superadmin-redigerbart.
+**Bygger:** M19.
+**Förutsätter:** Steg 15 (admin). De juridiska sidorna (Villkor, Integritet) kan byggas tidigare — de behövs före skarp lansering.
+**Plan-referens:** M19, `1-Planering/Tillägg-Nya-beslut-2026-05-23.md` B2.
+**Klar när:**
+- [ ] Footer-sidorna finns med riktigt innehåll — ingen död länk.
+- [ ] CMS-light: superadmin kan lägga till/ändra redigerbart innehåll live.
+- [ ] FAQ-ytan fungerar.
+- [ ] Juridiska sidor (Villkor, Integritet) på plats.
+
 ---
 
 ## Parallellt spår — BankID
@@ -170,3 +197,4 @@ Vilka steg som faktiskt **lanseras för riktiga användare**, och i vilken ordni
 |---|---|---|
 | 1.0 | 2026-05-23 | Första byggsekvensen. 16 steg i tre bygg-grupper + parallellt BankID-spår. |
 | 1.1 | 2026-05-23 | Steg 16 (Team & intern arbetsyta, M17) tillagt — 17 steg. |
+| 1.2 | 2026-05-24 | Steg 17 (M18 Plattformsstyrning & federation) och Steg 18 (M19 Innehåll & FAQ) tillagda — 19 steg. Pekare till Tillägg-Nya-beslut tillagd. |

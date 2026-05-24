@@ -2,7 +2,7 @@
 
 **Lager:** 🔵 Världen runtom
 **Datum:** 2026-05-23
-**Status:** Full djup — alla 5 block spikade
+**Status:** Full djup — alla 9 block spikade
 **Bygger på:** `00-Masterkarta.md`, `Modul-01-Insamling-som-objekt.md` (Block 1 Fält 6 — Plats)
 
 ---
@@ -35,7 +35,7 @@ Kartan bygger inget nytt — den **visar** det som M1 redan samlar. Det gör den
 
 ---
 
-## 3. Blocköversikt — 5 block
+## 3. Blocköversikt — 9 block
 
 | Block | Innehåll | Status |
 |---|---|---|
@@ -44,8 +44,15 @@ Kartan bygger inget nytt — den **visar** det som M1 redan samlar. Det gör den
 | 3 | Regional insikt — vem driver mest, vad brister, data till städer | ✅ Spikad |
 | 4 | Hjälp-plats-visualisering — vart hjälpen landar, Sverige + världen | ✅ Spikad |
 | 5 | Integritet i geo-data — aggregering och minsta-antal-regeln | ✅ Spikad |
+| 6 | Drill-down & datadjup — vad en stad-/regionpanel visar | ✅ Spikad |
+| 7 | Impact-översättning — pengar → mänsklig skala, ärligt | ✅ Spikad |
+| 8 | Kategori-balans — synliggör under-stödda behov | ✅ Spikad |
+| 9 | Teknisk grund — kartmotor, basemap, geo-data | ✅ Spikad |
 
-När alla fem är klara vet vi exakt vad kartan visar, var datan kommer ifrån, och hur den aldrig pekar ut en enskild människa.
+Block 1–5 är kartans grund (vad den visar, varifrån, integritet). Block 6–8 är
+djupet och engagemangsmotorn (drill-down, impact, kategori-balans). Block 9 är
+den tekniska grunden. Tillsammans: exakt vad kartan visar, varifrån datan kommer,
+hur den aldrig pekar ut en individ — och hur den byggs.
 
 ---
 
@@ -71,7 +78,7 @@ På översiktsnivå visar kartan **aktivitet per region** via färg:
 
 ## 1.2 Hur kartan ser ut
 
-- **Stil:** ren vektorkarta. Inga satellitbilder, ingen Google-Maps-look. Plattformens egen lugna grafik — matchar premiumkänslan.
+- **Stil:** en **riktig, geografiskt korrekt karta** — verkliga kustlinjer, verkliga städer och kommungränser, panorera och zooma som i en riktig kartapp. Men renderad i plattformens **egen lugna stil** (cream, djupgrön, koppar) — inte den röriga, högljudda Google-Maps-looken, inga satellitbilder. Riktig karta, premium-yta. Den abstrakta Sverige-SVG:n i designmockupen var en mockup-begränsning (statisk HTML kan inte bära en kartmotor) — den riktiga ytan byggs med ett kartbibliotek, se Block 9.
 - **Två vyer, en växlare:**
   - **Insamlar-vyn** — "var i Sverige drivs insamlingar?" (default, Block 3 lever här).
   - **Hjälp-vyn** — "vart i världen landar hjälpen?" (Block 4 lever här, då zoomar kartan ut till världen).
@@ -262,6 +269,192 @@ Kärnan i Block 5. **En siffra för ett geografiskt område visas bara om områd
 
 ---
 
+# BLOCK 6 — Drill-down & datadjup
+
+Block 1 sa *att* man kan klicka sig nedåt. Block 6 spikar **vad man ser** när man gör det — djupet som gör kartan till något man utforskar, inte bara tittar på.
+
+## 6.1 Nivåerna man rör sig genom
+
+```
+Sverige-översikt
+   └─ klick region  → REGIONPANEL
+        └─ klick kommun → KOMMUNPANEL
+             └─ klick insamling → in i M1:s insamlingssida
+```
+
+Varje panel glider in från sidan, kartan stannar synlig (Block 1.3). Allt i panelen är **aggregat** och lyder minsta-antal-regeln (Block 5) — drill-down gör kartan djupare, aldrig mindre integritetssäker.
+
+## 6.2 Vad region-/kommunpanelen visar
+
+Exempel: man klickar Stockholm. Panelen visar, uppifrån och ner:
+
+- **Nyckeltal.** Aktiva insamlingar, totalt insamlat, antal verifierade insamlare, levererade insamlingar.
+- **Andel av riket.** Sätter siffran i sammanhang: *"Stockholms 38 insamlingar = 29 % av Sveriges aktiva insamlingar"* · *"insamlat i Stockholm = 22 % av allt insamlat i landet."* Ren aritmetik på riktiga tal — ingen tolkning, inget påhitt.
+- **Kategori-uppdelning.** Per kategori: antal insamlingar + insamlat belopp, som en kort stapellista. *"Mat — 12 insamlingar, 340 000 kr · Vatten — 6, 120 000 kr · Utbildning — 4, 88 000 kr."* Visar var ortens engagemang ligger.
+- **Aktivitet över tid.** Trendlinjen från Block 3.1 — växer eller mattas engagemanget här.
+- **Impact-sammanfattning.** Block 7:s ärliga översättning: vad ortens insamlingar har möjliggjort (verifierat) respektive beräknas möjliggöra (uppskattat).
+- **Topplista av ortens insamlingar.** Klickbara M11-listkort → rakt in i M1:s insamlingssida. Här slutar aggregatet och den enskilda insamlingen tar vid.
+
+## 6.3 Datakrav detta lägger på aggregatet
+
+Block 2:s `geo_aggregat` måste vara nycklat **per (område × kategori)**, inte bara per område — annars går kategori-uppdelningen i 6.2 inte att visa. Minsta-antal-regeln (Block 5.3) appliceras **per cell**: en (kommun × kategori)-cell under tröskeln slås ihop till en *"övrigt"*-post i stället för att visas.
+
+## 6.4 Kantfall
+
+- **Kommun under minsta-antal-tröskeln** → ingen kommunpanel med siffror; drill-down stannar på regionnivå med texten från Block 5.2.
+- **Kategori-cell under tröskeln** → hamnar i *"övrigt"*, pekas aldrig ut enskilt.
+- **Andel-av-riket när riket självt har få insamlingar** (tidig lansering) → visa absoluta tal, inte procent, tills riket har en meningsfull bas. En procent av ett litet tal ljuger.
+
+---
+
+# BLOCK 7 — Impact-översättning (pengar → mänsklig skala)
+
+Plattformens löfte står i en mening: *"Trygga insamlingar. Spårbara resultat."* Block 7 är där **resultaten** blir begripliga — pengar översatta till människor. Det är kartans känslomässigt starkaste funktion. Det är också den farligaste: **en påhittad impact-siffra raserar hela förtroendet.** Därför har Block 7 en hård regel.
+
+## 7.1 Grundregeln — plattformen uppfinner aldrig en siffra
+
+En impact-siffra ("≈ 32 000 personer kan få hjälp") får komma från **endast två källor**:
+
+1. **Verifierat resultat (M7).** När en insamling stängs `avslutad_levererad` bär dess bevis ett faktiskt utfall — *"500 matkassar utdelade"*, *"1 brunn byggd"*. Det är den hårda valutan. Märks **"verifierat resultat"** och får stå starkt och rakt.
+2. **Uppskattning från insamlarens egen enhetsnyckel.** En aktiv insamling kan i wizarden (M2) ange en enhet: *"100 kr = 1 matkasse"*, *"500 kr = en månads skolgång"*. Då kan kartan visa *insamlat hittills ≈ N enheter* — märkt **"uppskattning · baserat på insamlarens egna siffror"**, med nyckeln synlig.
+
+Plattformen har **ingen egen omräkningsfaktor.** Ingen generisk *"1 kr = X personer"*. Siffran kommer från insamlaren eller från beviset — aldrig från plattformen, aldrig från en gissning.
+
+## 7.2 Aggregerad impact
+
+Zivars exempel — *"deras 3 insamlingar kan tillsammans hjälpa ~32 000 personer"* — är **summan av per-insamlings-siffror**, och bär samma märkning som delarna. Blandas verifierat och uppskattat → visa dem **var för sig**: *"4 200 personer (verifierat) + ca 28 000 (uppskattat)"*. Slå aldrig ihop hårt och mjukt till ett enda tal.
+
+## 7.3 Hur det presenteras
+
+- **Uppskattningar** bär alltid osäkerhetsord — *"ungefär"*, *"beräknas"*, *"uppskattas"*. Aldrig tvärsäkert.
+- **Verifierade resultat** får stå utan brasklapp — de är bevisade.
+- **Allt är spårbart.** Varje impact-siffra på kartan är klickbar → leder till insamlingen eller beviset den kommer från. Ingen siffra utan en källa man kan nå.
+- **Hellre tyst än påhittat.** Anger en insamlare ingen enhetsnyckel → visa bara kronor. Ingen impact-rad. Tomt är ärligt; en gissning är det inte.
+
+## 7.4 Kopplingar detta skapar
+
+- **M2 (wizarden):** behöver ett frivilligt fält *"enhetsnyckel"* — belopp + vad det motsvarar.
+- **M3 (granskaren):** enhetsnyckeln är ett löftesbärande fält — en orimlig nyckel (*"1 kr = 1000 personer"*) fångas vid granskning, som vilket annat löfte som helst.
+- **M7 (transparens):** beviset behöver kunna bära ett strukturerat utfall, inte bara en bild.
+
+## 7.5 Kantfall
+
+- **Stängd insamling utan rapporterat resultat** → visa kronor + *"resultat ännu ej rapporterat"*. Aldrig en gissning i tomrummet.
+- **Enhetsnyckel i fel valuta/skala** → granskaren (M3) är kontrollen; kartan litar på granskad data.
+- **Insamling med flera enheter** (mat *och* skolgång) → visa den primära enheten insamlaren märkt som huvudmått; resten i insamlingens egen sida, inte på kartan.
+
+---
+
+# BLOCK 8 — Kategori-balans & under-stödda behov
+
+Kartan visar *var* engagemanget finns (Block 1–6). Block 8 visar **vad det riktas mot** — och synliggör de behov som har minst stöd. Det är engagemangsmotorn: när samhället *ser* en obalans kan det självmant rätta den.
+
+## 8.1 Principen — ärlig synlighet, aldrig dold styrning
+
+Zivar vill kunna *"lyfta under-stödda kategorier"*. Block 8 gör det på **ett enda sätt: genom att visa sann data tydligt.** Inte genom en dold knuff.
+
+Skälet är inte bara etik — det är styrka. En dold manipulation som upptäcks raserar förtroendet plattformen lovar. En **ärlig synlighet** som delas bygger en rörelse: människor litar på det de själva kan verifiera. Plattformen är linsen, inte dockföraren. Detta är samma val Block 3.2 redan gjorde för regioner — aldrig dömande, alltid inbjudande — nu utvidgat till kategorier.
+
+## 8.2 Vad kategori-vyn visar
+
+- **Per kategori, på riksnivå:** antal aktiva insamlingar + insamlat belopp. *"Mat — 234 insamlingar · Stöd till änkor i utsatta länder — 3."* Kontrasten talar för sig själv, utan att någon behöver pekas ut.
+- **"Minst stödda just nu"-sektion.** Inbjudande formulering, aldrig dömande: *"De här behoven har få insamlingar igång — kanske något för dig som vill starta?"* Samma ton som Block 3.2.
+- **Kategori × geografi.** *"3 insamlingar i hela Sverige för det här behovet."* Endast aggregat, minsta-antal-regeln per cell (Block 5.3) — en kategori i en liten kommun pekas aldrig ut.
+
+## 8.3 Gap-detektion — det som inte finns ännu
+
+Det starkaste kartan kan visa är ibland en **tom plats**. Exempel Zivar lyfter: en region utan en enda registrerad förening eller moské.
+
+- Kartan kan visa ett lager *"regioner utan registrerad förening"* — data från **M10** (organisationer & katalog).
+- Formuleras som en **inbjudan**, aldrig en brist: *"Här finns ännu ingen registrerad förening — vill ni vara först?"*
+- Så blir frånvaron handlingsbar: samhället kan hjälpas åt att starta det som saknas, i stället för att ingen märker det på fem månader.
+
+## 8.4 Internationell framtid (parkerad hook)
+
+`geo_aggregat` är redan nycklat på land/region (Block 2, M1:s `hjalp_land`). Datamodellen **generaliserar bortom Sverige utan omskrivning** — när plattformen en dag når andra länder ärver kartan det. Block 4:s världsvy är redan global. Ingen kod byggs för detta nu; det noteras bara så inget byggs som låser fast Sverige. → utvecklas i en framtida modul, inte här.
+
+## 8.5 Kantfall
+
+- **Kategori med 0 insamlingar** → får synas i "minst stödda" som en ren inbjudan — *"Ingen insamling för det här ännu."*
+- **"Minst stödda" råkar peka ut en känslig kategori** (t.ex. begravning) i en liten geografi → minsta-antal-regeln per cell (Block 5.3) gäller; visas bara på riksnivå, aldrig kopplat till en liten ort.
+- **Manipulationsförsök** — någon startar många sken-insamlingar i en kategori för att snedvrida balansen → samma skydd som hela kartan: endast `aktiv`+ och verifierade insamlare räknas (Block 2.1).
+
+---
+
+# BLOCK 9 — Teknisk grund
+
+Löser modulens öppna fråga 4. Block 9 är *hur* kartan byggs — kartmotor, basemap och geo-data. Det här är HUR-detaljer i en VAD-modul, medvetet samlat här så M12 är **en enda källa** för hela kartan (handoffen pekar Claude Code hit för kartytan).
+
+## 9.1 Kartmotor — MapLibre GL JS
+
+**MapLibre GL JS** — open source (community-fork av Mapbox GL från innan Mapbox stängde licensen). Standardvalet för interaktiva vektorkartor: panorera, zooma, klickbara lager, egen stil. Klient-komponent (kartan är interaktiv i webbläsaren). Detta är redan riktningen i designöverlämningens `byggplan.html`.
+
+## 9.2 Basemap — BESLUT: Protomaps PMTiles, självhostat på R2
+
+Den geografiskt korrekta bakgrunden (kustlinjer, städer). **Vald lösning: Protomaps PMTiles, lagd som en fil på er egen Cloudflare R2.** Det optimala valet för det här bygget:
+
+- PMTiles är ett **enfilsformat** som MapLibre läser direkt över HTTP (byte-ranges) — ingen tile-server behövs.
+- En Sverige-extrakt (~50–200 MB) ligger som **en fil på Cloudflare R2** — samma R2 ni redan har för media. R2 har **gratis egress** och 10 GB gratis lagring → i praktiken **noll kostnad**.
+- **Inga begränsningar:** ingen API-nyckel, inga rate limits, ingen tredjepart som kan gå ner eller ändra villkor. Kartan ligger på infra ni äger — Corevo bakom hela vägen, inget externt beroende. Det stärker plattformens äkthet.
+- **Stil:** Protomaps-stilarna är temabara — restyla till Sadaqas palett (cream/djupgrön/koppar), minimala etiketter. Så uppnås Block 1.2:s "riktig karta, premium-yta".
+- **Attribuering:** kartdatan kommer från OpenStreetMap (öppen data). En liten *"© OpenStreetMap"* i kartans hörn är obligatorisk — billig och självklar.
+- **Dev-genväg:** medan PMTiles-filen byggs kan OpenFreeMap (gratis, ingen nyckel) köras lokalt. Produktion är **alltid** R2.
+- **Internationellt senare:** en global basemap är större — då kan en större PMTiles-fil eller en betaltjänst (t.ex. MapTiler) tas in. Arkitekturen byter basemap utan att röra resten; kostnaden är okej då.
+
+## 9.3 Choropleth-lagret — de färgade områdena
+
+Aktivitetsfärgen per region/kommun (Block 1.1):
+
+- **GeoJSON** över Sveriges 21 län + 290 kommuner från **Lantmäteriet / SCB** (svensk öppen data).
+- Geometrin **förenklas** för webben (t.ex. med mapshaper) — full precision behövs inte för en choropleth.
+- Renderas som ett MapLibre `fill`-lager ovanpå basemapen; `fill-color` är **datadriven** från `geo_aggregat`.
+
+## 9.4 Datakedjan & interaktivitet
+
+```
+insamling (aktiv+) + M6-verifiering
+        │  pg_cron, var 6:e timme (Block 2.3)
+        ▼
+geo_aggregat   (område × kategori → antal, summa, impact)
+plats_taxonomi (län/kommun, stad→region-uppslag)
+        │  minsta-antal-regeln appliceras HÄR (Block 5)
+        ▼
+SSR levererar aggregatet  →  MapLibre-klientkomponent
+        │                         joinar mot GeoJSON
+        ▼
+   Choropleth + paneler + topplista
+```
+
+`geo_aggregat` och `plats_taxonomi` finns redan i `2-Byggplan/01-Databasplan.md`. Block 6.3 lägger kravet: `geo_aggregat` nycklat per (område × kategori).
+
+**Varifrån kartan hämtar sin data — och varför den känns direkt:**
+
+- **Ett anrop, inte hundra.** Hela aggregatet (21 län + 290 kommuner + kategorier + impact) är litet — några tusen små rader. Det levereras i **ett enda payload** när kart-sidan laddas, inte bit för bit.
+- **`/karta` är en ISR-sida.** Aggregatet ändras bara var 6:e timme (Block 2.3) — payloaden bakas in i en edge-cachad sida som förnyas i takt med `pg_cron`-jobbet. Sidan laddar statiskt snabbt för alla.
+- **All drill-down är klient-sidig.** Klick på Stockholm, vy-byte, kategorifilter — kartan läser ur det redan inladdade aggregatet i minnet. **Noll databasanrop per klick.** Det är det som ger den interaktiva känslan: panelerna öppnas direkt, inget spinner-väntande.
+- **Bara basemap-tiles strömmas on demand** — och de är statiska filer på R2, edge-cachade av Cloudflare. Snabbt överallt.
+- **Rådata når aldrig klienten** — bara det färdiga, minsta-antal-filtrerade aggregatet. Snabbt *och* säkert av samma skäl.
+
+Kort: tung data räknas på servern var 6:e timme; lätt, blixtsnabb interaktion sker i klienten. Datans *ålder* (Block 2.3) och kartans *känsla* är två skilda saker — kartan känns direkt även när siffrorna är 6 timmar gamla.
+
+## 9.5 Prestanda, integritet, säkerhet
+
+- **Prestanda:** vektor-tiles + förenklad GeoJSON. Kartkomponenten lazy-laddas. Topplistan (Block 1.2) renderas **utan** kartan — snabb first paint, och den primära ytan på mobil.
+- **Integritet:** minsta-antal-regeln (Block 5) appliceras i aggregat-steget på servern. Råa insamlingsrader når **aldrig** klienten — bara det färdiga aggregatet.
+- **Säkerhet:** PMTiles-filen på R2 är publik statisk läsning — ingen hemlighet. `geo_aggregat` läses via en publik-säker, RLS-skyddad väg (det är aggregat, inte rådata). Inga nycklar i klienten.
+
+## 9.6 Byggsteg
+
+Detta är **Steg 12** i `2-Byggplan/05-Byggsekvens.md`. `plats_taxonomi` seedas tidigt (svensk län/kommun-lista) även om kartan byggs i grupp C — den refereras av M1/M10 (noterat i Databasplanen).
+
+## 9.7 Kantfall
+
+- **PMTiles-filen hinner inte bli klar till Steg 12** → starta på OpenFreeMap, byt till R2 senare. Ingen blockare.
+- **GeoJSON för tung** → förenkla geometrin hårdare; en choropleth tål grov kontur.
+- **MapLibre-versioner rör sig snabbt** → verifiera aktuell version och API mot `maplibre.org` vid bygget.
+
+---
+
 ## 5. Designval & motivering (hela Modul 12)
 
 | Beslut | Motivering |
@@ -277,6 +470,10 @@ Kärnan i Block 5. **En siffra för ett geografiskt område visas bara om områd
 | Hjälp-plats visas detaljerat — utom när mottagaren är en utpekbar individ | M1: "desto mer desto bättre" gäller moskéer/byar. En enskild utsatt familj utomlands skyddas dock (princip 2). |
 | Regionrapport till städer/kommuner är ett M16-föreningsverktyg, inte en publik knapp | Rapporten behöver föreningens röst och kontext, och får aldrig genereras för ett område under integritetströskeln. |
 | Donator-plats är inte kart-data | Var donatorer bor lämnar aldrig M4. Kartan handlar om insamlare och hjälp-platser. |
+| Impact-siffror kommer bara från verifierat resultat (M7) eller insamlarens egen enhetsnyckel — aldrig från plattformen | "Spårbara resultat" är löftet. En påhittad impact-siffra raserar hela förtroendet. Hellre tyst än gissat (Block 7). |
+| Kategori-balans visas genom ärlig synlighet, aldrig dold styrning | En upptäckt manipulation raserar förtroende; ärlig synlighet bygger en rörelse. Samhället är aktören, plattformen linsen (Block 8). |
+| Riktig geografisk karta i egen stil — inte stiliserade blobbar, inte Google-looken | Mockupens abstrakta SVG var en begränsning. Riktig kartdata + egen lugn stil ger både korrekthet och premiumkänsla (Block 1.2 + 9). |
+| MapLibre GL JS + Protomaps/PMTiles på R2 + Lantmäteriet-GeoJSON | Open source, noll per-anrops-kostnad, på infra projektet redan äger. Full kontroll över stilen (Block 9). |
 
 ---
 
@@ -333,7 +530,7 @@ Riktmärke: kartan sköter sig själv 95 %+ av tiden. Det enda återkommande mä
 1. **Exakt minsta-antal-tröskel** — 5 är riktmärket. Bör stresstestas mot Sveriges minsta kommuner; kan behöva höjas till 10 för riktigt små orter. → bekräftas i M8 (integritetspolicy).
 2. **Regionrapportens exakta format** (PDF, webbsida, eller bådadera) och om den någonsin ska kunna delas publikt → M16.
 3. **"Platser jag bryr mig om"-fältet** på profilen — exakt utformning och hur många platser → M9.
-4. **Kartans tekniska underlag** (vilken geo-bibliotek/kartdata) → implementeringsplan, inte detta dokument.
+4. ~~Kartans tekniska underlag~~ → **Löst i Block 9:** MapLibre GL JS + Protomaps/PMTiles på Cloudflare R2 + Lantmäteriet/SCB-GeoJSON.
 5. **Ska hjälp-vyn visa historisk hjälp** (avslutade insamlingar) som ett separat lager — "här har vi hjälpt över tid"? Lockande, men kan vänta. → parkerad till efter v1-lansering.
 
 ## 10. Beslutslogg
@@ -347,3 +544,4 @@ Se avsnitt 5 (Designval & motivering) — det är Modul 12:s fullständiga beslu
 | Version | Datum | Ändring |
 |---|---|---|
 | 1.0 | 2026-05-23 | Full djup. Block 1 (Sverige-kartan), Block 2 (datakällor), Block 3 (regional insikt + data till kommuner), Block 4 (hjälp-plats-visualisering), Block 5 (integritet, minsta-antal-regeln) nyskrivna. |
+| 1.1 | 2026-05-23 | Block 6 (drill-down & datadjup), Block 7 (impact-översättning + ärlighetsregeln), Block 8 (kategori-balans & gap-detektion), Block 9 (teknisk grund — MapLibre/Protomaps/GeoJSON) tillagda. Block 1.2 förtydligad: riktig geografisk karta i egen stil. Öppen fråga 4 löst. På Zivars begäran — kartan fördjupad inför designöverlämningen. |

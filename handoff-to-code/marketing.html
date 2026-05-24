@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sadaqa Sweden — Det muslimska samhällets insamlingsplattform</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  /* HERO */
+  .hero {
+    position: relative;
+    background: var(--paper);
+    padding: 80px 0 120px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.045)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 280px 280px;
+    background-position: center;
+    pointer-events: none;
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(56px, 6.5vw, 96px);
+    line-height: 1.02;
+    letter-spacing: -0.018em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .hero h1 .italic { color: var(--copper-deep); font-weight: 400; }
+  .hero-lead { font-family: var(--font-display); font-weight: 300; font-size: 22px; line-height: 1.5; color: var(--ink-2); margin: 32px 0 40px; max-width: 540px; }
+  .hero-cta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .hero-meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--ink-line);
+    align-items: center;
+  }
+  .hero-meta-row .item {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .hero-meta-row .figure-small {
+    font-family: var(--font-display); font-size: 28px; color: var(--forest); font-weight: 500; line-height: 1; letter-spacing: -0.012em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-meta-row .label { font-size: 12px; color: var(--ink-3); letter-spacing: 0.05em; }
+
+  /* Hero visual — featured campaign card */
+  .hero-card-stack {
+    position: relative;
+    height: 560px;
+  }
+  .hero-card {
+    position: absolute;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-3);
+  }
+  .hero-card-main {
+    inset: 0 24px 24px 0;
+    z-index: 2;
+  }
+  .hero-card-bg {
+    top: 60px; left: -8px;
+    right: 60px; bottom: 60px;
+    background: var(--forest);
+    z-index: 1;
+    transform: rotate(-2deg);
+    box-shadow: var(--shadow-2);
+  }
+  .hero-card-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><g fill='none' stroke='rgba(245,240,228,0.08)' stroke-width='0.5'><path d='M30 0L36 24L60 30L36 36L30 60L24 36L0 30L24 24Z'/></g></svg>");
+    background-size: 180px 180px;
+  }
+  .hero-card-image {
+    height: 320px;
+    background:
+      radial-gradient(800px 400px at 60% 30%, rgba(184, 132, 62, 0.20), transparent 60%),
+      linear-gradient(135deg, #2D5947 0%, #1F4636 50%, #0F2A1F 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: end;
+    padding: 24px;
+  }
+  .hero-card-image::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><g fill='none' stroke='rgba(245,240,228,0.06)' stroke-width='0.5'><path d='M20 0L24 16L40 20L24 24L20 40L16 24L0 20L16 16Z'/></g></svg>");
+    background-size: 100px 100px;
+  }
+  .hero-card-image .ph-label { color: rgba(245, 240, 228, 0.6); }
+  .hero-card-pill-row {
+    position: absolute; top: 24px; left: 24px;
+    display: flex; gap: 8px; z-index: 2;
+  }
+  .hero-card-body {
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .hero-card-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--ink-3);
+  }
+
+  /* SECTIONS */
+  section.std { padding: 120px 0; }
+  section.std.dark { background: var(--forest-deep); color: var(--paper); }
+  section.std.cream { background: var(--paper-soft); }
+  .section-eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-eyebrow .star-mark { color: var(--copper); }
+  .section-eyebrow .label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+  }
+  .dark .section-eyebrow .label { color: var(--copper-warm); }
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(40px, 4.5vw, 64px);
+    letter-spacing: -0.014em;
+    line-height: 1.08;
+    max-width: 800px;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .section-lead { font-family: var(--font-display); font-weight: 300; font-size: 22px; line-height: 1.5; color: var(--ink-2); max-width: 640px; margin-top: 24px; }
+  .dark .section-lead { color: rgba(245, 240, 228, 0.7); }
+
+  /* HOW IT WORKS — 3-step */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--ink-line);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-top: 64px;
+  }
+  .step {
+    background: var(--paper-soft);
+    padding: 48px 40px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    min-height: 380px;
+  }
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 96px;
+    line-height: 0.9;
+    color: var(--copper);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .step-title { font-family: var(--font-display); font-size: 32px; line-height: 1.15; letter-spacing: -0.012em; color: var(--ink); margin: 0; font-weight: 400; text-wrap: balance; }
+  .step-body { font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+
+  /* FEATURED CAMPAIGNS */
+  .campaigns-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+  .campaign {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    transition: all 240ms ease;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column;
+  }
+  .campaign:hover { transform: translateY(-3px); box-shadow: var(--shadow-3); border-color: var(--copper-soft); }
+  .campaign-image {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+  }
+  .campaign-image .ph { width: 100%; height: 100%; }
+  .campaign-image .pills {
+    position: absolute; top: 14px; left: 14px;
+    display: flex; gap: 6px; z-index: 1;
+  }
+  .campaign-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+  .campaign-cat { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--copper-deep); font-weight: 600; }
+  .campaign-title {
+    font-family: var(--font-display);
+    font-size: 22px; line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: -0.008em;
+    color: var(--ink);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .campaign-meta {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .campaign-stats {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--ink-2);
+  }
+  .campaign-stats .amount {
+    font-family: var(--font-mono);
+    color: var(--forest);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* TRUST / GRANSKNING */
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    margin-top: 64px;
+  }
+  .trust-checks {
+    list-style: none; padding: 0; margin: 32px 0 0;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .trust-checks li {
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .trust-checks .check-mark {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(184, 132, 62, 0.18);
+    color: var(--copper-warm);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 28px;
+  }
+  .trust-checks .text {
+    font-size: 16px; line-height: 1.45;
+  }
+  .trust-checks .text strong { color: var(--paper); font-weight: 600; }
+  .dark .trust-checks .text { color: rgba(245, 240, 228, 0.82); }
+
+  .trust-card-stack {
+    position: relative;
+    height: 480px;
+  }
+  .trust-card {
+    position: absolute;
+    background: var(--paper-soft);
+    border-radius: var(--r-xl);
+    padding: 24px;
+    box-shadow: var(--shadow-3);
+    color: var(--ink);
+  }
+  .trust-card-1 { top: 0; left: 0; right: 60px; }
+  .trust-card-2 { top: 200px; left: 40px; right: 0; }
+
+  .trust-check-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .trust-check-row:last-child { border-bottom: 0; }
+  .trust-check-row .ok { color: var(--success); }
+  .trust-check-row .label { font-size: 14px; color: var(--ink-1); flex: 1; }
+  .trust-check-row .note { font-size: 12px; color: var(--ink-3); font-family: var(--font-mono); }
+
+  /* CATEGORIES */
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .category {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    padding: 28px 24px;
+    transition: all 200ms ease;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; gap: 12px;
+    min-height: 140px;
+  }
+  .category:hover {
+    background: var(--forest);
+    color: var(--paper);
+    border-color: var(--forest);
+    transform: translateY(-2px);
+  }
+  .category-cat {
+    font-family: var(--font-display);
+    font-size: 24px;
+    color: var(--ink);
+    font-weight: 400;
+    letter-spacing: -0.008em;
+  }
+  .category:hover .category-cat { color: var(--paper); }
+  .category-count { font-size: 12px; color: var(--ink-3); margin-top: auto; }
+  .category:hover .category-count { color: rgba(245, 240, 228, 0.6); }
+
+  /* CTA FÖR FÖRENINGAR */
+  .cta-band {
+    background: var(--forest);
+    color: var(--paper);
+    border-radius: var(--r-2xl);
+    padding: 80px 64px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-band::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 220px 220px;
+    pointer-events: none;
+  }
+  .cta-band > * { position: relative; z-index: 1; }
+  .cta-band h2 {
+    font-family: var(--font-display); font-size: 48px; line-height: 1.08; font-weight: 400; letter-spacing: -0.014em;
+    color: var(--paper); margin: 0; text-wrap: balance;
+  }
+  .cta-band .lead { color: rgba(245, 240, 228, 0.75); margin-top: 24px; font-size: 18px; }
+
+  /* QUOTE */
+  .quote-section { padding: 140px 0; }
+  .quote {
+    max-width: 920px; margin: 0 auto; text-align: center;
+  }
+  .quote-text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(32px, 3.6vw, 52px);
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    color: var(--ink-1);
+    text-wrap: balance;
+    margin: 0;
+  }
+  .quote-attr {
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+  .quote-mark {
+    color: var(--copper);
+    font-size: 80px;
+    line-height: 0.6;
+    margin-bottom: 24px;
+    font-family: var(--font-display);
+  }
+
+  @media (max-width: 1000px) {
+    .hero-grid, .trust-grid, .cta-band { grid-template-columns: 1fr; gap: 48px; }
+    .steps, .campaigns-grid, .categories { grid-template-columns: 1fr 1fr; }
+    .hero-card-stack { height: 480px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link">Insamlingar</a>
+    <a href="catalog.html" class="nav-link">Föreningar</a>
+    <a href="map.html" class="nav-link">Karta</a>
+    <a href="#" class="nav-link">Hur det fungerar</a>
+    <a href="#" class="nav-link">Sadaqa &amp; Zakat</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="section-eyebrow">
+          <span class="star-mark" id="star-1"></span>
+          <span class="label">SADAQA · ZAKAT · UMMAH</span>
+        </div>
+        <h1>
+          Ge öppet.<br>
+          Bli granskad.<br>
+          <span class="italic">Visa resultatet.</span>
+        </h1>
+        <p class="hero-lead">
+          En svenskspråkig plattform för det muslimska samhällets insamlingar — där pengarna går direkt till insamlaren via Stripe, varje projekt granskas mot islamiska principer innan publicering, och resultatet bevisas öppet.
+        </p>
+        <div class="hero-cta-row">
+          <a href="discovery.html" class="btn btn-primary btn-lg">
+            Utforska insamlingar
+            <span id="cta-arrow-1"></span>
+          </a>
+          <a href="wizard.html" class="btn btn-secondary btn-lg">Starta din egen</a>
+        </div>
+        <div class="hero-meta-row">
+          <div class="item">
+            <div class="figure-small">8,4 mkr</div>
+            <div class="label">samlat in</div>
+          </div>
+          <div class="item">
+            <div class="figure-small">412</div>
+            <div class="label">insamlingar granskade</div>
+          </div>
+          <div class="item">
+            <div class="figure-small">36</div>
+            <div class="label">föreningar</div>
+          </div>
+          <div class="item">
+            <div class="figure-small">100 %</div>
+            <div class="label">till mottagaren</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card-stack">
+        <div class="hero-card hero-card-bg"></div>
+        <div class="hero-card hero-card-main">
+          <div class="hero-card-image">
+            <div class="hero-card-pill-row">
+              <span class="pill pill-dark"><span class="dot dot-pulse" style="background:var(--copper-warm);"></span> Aktiv nu</span>
+              <span class="pill pill-dark">Granskad</span>
+            </div>
+            <span class="ph-label" style="color: rgba(245,240,228,0.6);">Foto: brunn i Mali</span>
+          </div>
+          <div class="hero-card-body">
+            <div class="campaign-cat">Vatten · Mali</div>
+            <h3 class="campaign-title">En brunn för byn Diabaly — 280 personer får rent vatten</h3>
+            <div class="progress mt-8" aria-label="74 % av målet"><div class="progress-bar" style="width: 74%;"></div></div>
+            <div class="campaign-stats">
+              <span><span class="amount">148&nbsp;200&nbsp;kr</span> av 200&nbsp;000&nbsp;kr</span>
+              <span>74 % · 12 dgr kvar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="std cream">
+  <div class="container">
+    <div class="section-eyebrow">
+      <span class="star-mark" id="star-2"></span>
+      <span class="label">Bläddra efter kategori</span>
+    </div>
+    <h2 class="section-title">13 kategorier — så att <em style="font-style: italic; color: var(--copper-deep);">din avsikt</em> hittar rätt projekt.</h2>
+
+    <div class="categories">
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Vatten</div>
+        <div class="category-count">42 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Mat &amp; bistånd</div>
+        <div class="category-count">38 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Sjukvård</div>
+        <div class="category-count">26 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Utbildning</div>
+        <div class="category-count">31 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Mosképrojekt</div>
+        <div class="category-count">19 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Katastrofhjälp</div>
+        <div class="category-count">14 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Flykting</div>
+        <div class="category-count">22 aktiva</div>
+      </a>
+      <a href="discovery.html" class="category">
+        <div class="category-cat">Fastebrytning</div>
+        <div class="category-count">8 aktiva</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="std">
+  <div class="container">
+    <div class="section-eyebrow">
+      <span class="star-mark" id="star-3"></span>
+      <span class="label">Hur det fungerar</span>
+    </div>
+    <h2 class="section-title">Tre steg, en princip:<br>granska först, betala direkt, bevisa öppet.</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">i.</div>
+        <h3 class="step-title">Skapa &amp; bli granskad</h3>
+        <p class="step-body">Beskriv ditt projekt — mottagare, mål, dokument. Granskarna bedömer mot islamiska principer och svensk lagstiftning. Riktmärke: 72 timmar. Inget publiceras innan vi sagt ja.</p>
+        <div class="row aic gap-8 mt-16" style="margin-top: auto;">
+          <span class="pill pill-outline">M2 · M3</span>
+          <span class="xs">~72h SLA</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">ii.</div>
+        <h3 class="step-title">Ta emot direkt via Stripe</h3>
+        <p class="step-body">När du publiceras går varje donation direkt till ditt eget Stripe Connect-konto. Vi rör aldrig pengarna juridiskt — plattformen är en bro, inte en kassa. Avgiften syns öppet.</p>
+        <div class="row aic gap-8" style="margin-top: auto;">
+          <span class="pill pill-outline">M5 · Stripe Connect</span>
+          <span class="xs">0 % plattformsavgift</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">iii.</div>
+        <h3 class="step-title">Bevisa resultatet</h3>
+        <p class="step-body">Tre obligatoriska bevis: start, utbetalning, resultat. Bilder, kvitton, korta ord. Donatorer ser allt. Historiken följer din profil — nästa insamling startar med förtroendet du redan byggt.</p>
+        <div class="row aic gap-8" style="margin-top: auto;">
+          <span class="pill pill-outline">M7 · Transparens</span>
+          <span class="xs">Bevis 3/3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured campaigns -->
+<section class="std cream">
+  <div class="container">
+    <div class="row jcs aie" style="align-items: flex-end;">
+      <div>
+        <div class="section-eyebrow">
+          <span class="star-mark" id="star-4"></span>
+          <span class="label">Pågående just nu</span>
+        </div>
+        <h2 class="section-title">Granskade insamlingar som öppnat de senaste dagarna.</h2>
+      </div>
+      <a href="discovery.html" class="btn btn-secondary">
+        Se alla 132 aktiva
+        <span id="cta-arrow-2"></span>
+      </a>
+    </div>
+
+    <div class="campaigns-grid">
+      <a href="fundraiser.html" class="campaign">
+        <div class="campaign-image">
+          <div class="pills">
+            <span class="pill pill-paper">Granskad</span>
+          </div>
+          <div class="ph" style="width:100%; height:100%;">
+            <span class="ph-label">Foto: bröd-utdelning Aleppo</span>
+          </div>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-cat">Mat · Syrien</div>
+          <h3 class="campaign-title">Iftar-paket till 400 familjer i Aleppo</h3>
+          <div class="progress"><div class="progress-bar" style="width: 92%;"></div></div>
+          <div class="campaign-meta">
+            <div class="campaign-stats">
+              <span><span class="amount">73&nbsp;640&nbsp;kr</span> · 92 %</span>
+              <span>av 80 000 kr</span>
+            </div>
+            <div class="campaign-stats">
+              <span>Förening · Hjälpkraft Sverige</span>
+              <span>2 dgr kvar</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="campaign">
+        <div class="campaign-image">
+          <div class="pills">
+            <span class="pill pill-paper">Granskad</span>
+            <span class="pill pill-copper">Zakat-OK</span>
+          </div>
+          <div class="ph" style="width:100%; height:100%; background: radial-gradient(800px 400px at 30% 20%, rgba(184, 132, 62, 0.18), transparent 60%), radial-gradient(600px 300px at 80% 80%, rgba(45, 89, 71, 0.22), transparent 60%), linear-gradient(135deg, #5C7A6B 0%, #2D5947 60%, #1F4636 100%);">
+            <span class="ph-label">Foto: skola Idlib</span>
+          </div>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-cat">Utbildning · Syrien</div>
+          <h3 class="campaign-title">Skolböcker till 120 barn i Idlib innan terminen</h3>
+          <div class="progress"><div class="progress-bar progress-bar-copper" style="width: 38%;"></div></div>
+          <div class="campaign-meta">
+            <div class="campaign-stats">
+              <span><span class="amount">18&nbsp;200&nbsp;kr</span> · 38 %</span>
+              <span>av 48 000 kr</span>
+            </div>
+            <div class="campaign-stats">
+              <span>Privatperson · Yasmin A.</span>
+              <span>21 dgr kvar</span>
+            </div>
+          </div>
+        </div>
+      </a>
+
+      <a href="fundraiser.html" class="campaign">
+        <div class="campaign-image">
+          <div class="pills">
+            <span class="pill pill-paper">Granskad</span>
+          </div>
+          <div class="ph" style="width:100%; height:100%; background: radial-gradient(800px 400px at 70% 20%, rgba(184, 132, 62, 0.20), transparent 60%), linear-gradient(135deg, #8B6334 0%, #B8843E 50%, #5E4321 100%);">
+            <span class="ph-label">Foto: moskébygge Göteborg</span>
+          </div>
+        </div>
+        <div class="campaign-body">
+          <div class="campaign-cat">Moské · Göteborg</div>
+          <h3 class="campaign-title">Renovering av bönelokalen på Hisingen</h3>
+          <div class="progress"><div class="progress-bar" style="width: 56%;"></div></div>
+          <div class="campaign-meta">
+            <div class="campaign-stats">
+              <span><span class="amount">336&nbsp;000&nbsp;kr</span> · 56 %</span>
+              <span>av 600 000 kr</span>
+            </div>
+            <div class="campaign-stats">
+              <span>Förening · Hisingens Moské</span>
+              <span>34 dgr kvar</span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Trust / Granskning -->
+<section class="std dark">
+  <div class="container">
+    <div class="section-eyebrow">
+      <span class="star-mark" id="star-5"></span>
+      <span class="label">Granskningen</span>
+    </div>
+    <h2 class="section-title" style="color: var(--paper);">Vi granskar varje insamling <em class="italic" style="color: var(--copper-warm);">innan</em> den når någon donator.</h2>
+
+    <div class="trust-grid">
+      <div>
+        <p class="section-lead" style="margin-top: 0;">
+          GoFundMes "publicera först, moderera sen" är ett bedrägerihål. Vi tar den hårdare vägen.
+          Varje projekt går genom en granskare som bedömer det mot tydliga islamiska principer och svensk lag — innan en enda krona kan tas emot.
+        </p>
+        <ul class="trust-checks">
+          <li>
+            <span class="check-mark" id="check-1"></span>
+            <div class="text"><strong>Mottagaren bekräftas.</strong> KYC på privatpersoner via BankID. Föreningar verifieras mot Skatteverket.</div>
+          </li>
+          <li>
+            <span class="check-mark" id="check-2"></span>
+            <div class="text"><strong>Projektet prövas islamiskt.</strong> Tre granskare med olika perspektiv — sunni, shia, neutral fiqh — för det som kräver det.</div>
+          </li>
+          <li>
+            <span class="check-mark" id="check-3"></span>
+            <div class="text"><strong>Pengarna rör vi inte.</strong> Stripe Connect betalar ut direkt till mottagaren. Plattformen är en bro, inte en kassa.</div>
+          </li>
+          <li>
+            <span class="check-mark" id="check-4"></span>
+            <div class="text"><strong>Resultatet bevisas.</strong> Tre obligatoriska bevis — start, utbetalning, resultat. Inga bevis = inga fler insamlingar.</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="trust-card-stack">
+        <div class="trust-card trust-card-1">
+          <div class="row aic jcs mb-16">
+            <span class="eyebrow">Granskning · #SAD-2841</span>
+            <span class="pill pill-success">Godkänd</span>
+          </div>
+          <h4 class="h4 mb-12" style="color: var(--ink);">Iftar-paket till 400 familjer i Aleppo</h4>
+          <div class="trust-check-row">
+            <span class="ok" id="trust-ok-1"></span>
+            <span class="label">Mottagare verifierad</span>
+            <span class="note">BankID</span>
+          </div>
+          <div class="trust-check-row">
+            <span class="ok" id="trust-ok-2"></span>
+            <span class="label">Bilder &amp; dokument äkta</span>
+            <span class="note">3 källor</span>
+          </div>
+          <div class="trust-check-row">
+            <span class="ok" id="trust-ok-3"></span>
+            <span class="label">Mål inom rimligt spann</span>
+            <span class="note">200 kr/pkt</span>
+          </div>
+          <div class="trust-check-row">
+            <span class="ok" id="trust-ok-4"></span>
+            <span class="label">Anti-diskriminering · OK</span>
+            <span class="note">policy v3</span>
+          </div>
+        </div>
+
+        <div class="trust-card trust-card-2">
+          <div class="row aic jcs mb-12">
+            <span class="eyebrow">Transparens-historik</span>
+            <span class="pill pill-copper">3 av 3 bevis</span>
+          </div>
+          <div class="row aic gap-12 mb-12">
+            <div style="flex:1;">
+              <div class="progress"><div class="progress-bar progress-bar-copper" style="width:100%;"></div></div>
+            </div>
+            <span class="xs mono">100%</span>
+          </div>
+          <div class="row aic gap-12">
+            <div style="width:36px; height:36px; border-radius: 50%; background: var(--copper-soft); display:flex; align-items:center; justify-content:center; color: var(--copper-deep);" id="award-star"></div>
+            <div>
+              <div class="h4" style="color: var(--ink); margin: 0;">Trust-poäng 92 / 100</div>
+              <div class="xs mt-4">Baserat på 8 tidigare insamlingar · 100% bevis-rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quote -->
+<section class="quote-section">
+  <div class="container">
+    <div class="quote">
+      <div class="quote-mark">"</div>
+      <p class="quote-text">
+        Den som visar vägen till något gott är som den som gör det.
+      </p>
+      <div class="quote-attr">— Hadith · Muslim 1893</div>
+    </div>
+  </div>
+</section>
+
+<!-- Föreningar CTA -->
+<section class="std" style="padding-top: 0;">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <div class="section-eyebrow">
+          <span class="star-mark" id="star-6" style="color: var(--copper-warm);"></span>
+          <span class="label" style="color: var(--copper-warm);">För föreningar &amp; moskéer</span>
+        </div>
+        <h2>Är ni en muslimsk förening i Sverige? Visa er här.</h2>
+        <p class="lead" style="color: rgba(245, 240, 228, 0.78);">
+          Självregistrera er förening i katalogen. Driv era egna insamlingar. Stötta privatpersoners projekt som collab — er logotyp på deras sida bygger förtroende åt båda håll.
+        </p>
+        <div class="row aic gap-12 mt-32">
+          <a href="catalog.html" class="btn btn-copper btn-lg">Anmäl er förening</a>
+          <a href="#" class="btn btn-ghost btn-lg" style="color: var(--paper);">Läs mer om collab</a>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; flex-direction: column; gap: 12px;">
+          <div class="card card-paper" style="border-color: transparent;">
+            <div class="row aic gap-16">
+              <div style="width: 52px; height: 52px; border-radius: var(--r-md); background: linear-gradient(135deg, var(--copper-warm), var(--copper-deep)); display: flex; align-items: center; justify-content: center; color: var(--paper);">
+                <span id="bld-1"></span>
+              </div>
+              <div>
+                <div class="h4" style="margin: 0;">Hisingens Moské</div>
+                <div class="xs">Göteborg · Verifierad · 4 insamlingar</div>
+              </div>
+            </div>
+          </div>
+          <div class="card card-paper" style="border-color: transparent;">
+            <div class="row aic gap-16">
+              <div style="width: 52px; height: 52px; border-radius: var(--r-md); background: linear-gradient(135deg, var(--forest), var(--forest-deep)); display: flex; align-items: center; justify-content: center; color: var(--paper);">
+                <span id="bld-2"></span>
+              </div>
+              <div>
+                <div class="h4" style="margin: 0;">Hjälpkraft Sverige</div>
+                <div class="xs">Malmö · Verifierad · 12 insamlingar</div>
+              </div>
+            </div>
+          </div>
+          <div class="card card-paper" style="border-color: transparent;">
+            <div class="row aic gap-16">
+              <div style="width: 52px; height: 52px; border-radius: var(--r-md); background: linear-gradient(135deg, #5C7A6B, var(--forest-mid)); display: flex; align-items: center; justify-content: center; color: var(--paper);">
+                <span id="bld-3"></span>
+              </div>
+              <div>
+                <div class="h4" style="margin: 0;">Stockholms Islamiska Centrum</div>
+                <div class="xs">Stockholm · Verifierad · 8 insamlingar</div>
+              </div>
+            </div>
+          </div>
+          <a href="catalog.html" class="row aic gap-8" style="margin-top: 8px; color: var(--paper); font-size: 13px; padding: 4px 12px;">
+            <span class="dim" style="color: rgba(245,240,228,0.55);">+ 33 fler föreningar &amp; moskéer</span>
+            <span id="more-arrow" style="color: var(--copper-warm); margin-left: auto;"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div id="footer-slot"></div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+
+  // Stars (eyebrows)
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('star-' + i);
+    if (el) el.innerHTML = SADAQA.STAR_MINI;
+  }
+  document.getElementById('cta-arrow-1').innerHTML = SADAQA.icon('arrow-right', 18);
+  document.getElementById('cta-arrow-2').innerHTML = SADAQA.icon('arrow-right', 16);
+
+  // Check marks
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('check-' + i).innerHTML = SADAQA.icon('check', 16);
+    const ok = document.getElementById('trust-ok-' + i);
+    if (ok) ok.innerHTML = SADAQA.icon('check-circle', 18);
+  }
+  document.getElementById('award-star').innerHTML = SADAQA.icon('star-filled', 18);
+
+  // Building icons
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('bld-' + i).innerHTML = SADAQA.icon('building', 24);
+  }
+  document.getElementById('more-arrow').innerHTML = SADAQA.icon('arrow-right', 16);
+</script>
+
+</body>
+</html>

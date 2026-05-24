@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skapa insamling — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper-deep); }
+
+  .wiz-shell {
+    min-height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 280px 1fr 360px;
+    background: var(--paper-deep);
+  }
+
+  /* LEFT — step rail */
+  .wiz-rail {
+    background: var(--forest-deep);
+    color: var(--paper);
+    padding: 40px 32px;
+    position: sticky; top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .wiz-rail-title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1.15;
+    margin: 0 0 8px;
+    font-weight: 400;
+    letter-spacing: -0.008em;
+    color: var(--paper);
+  }
+  .wiz-rail-sub {
+    font-size: 12px;
+    color: rgba(245, 240, 228, 0.6);
+    margin-bottom: 32px;
+  }
+
+  .step-rail {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .step-rail::before {
+    content: '';
+    position: absolute;
+    left: 14px; top: 18px; bottom: 18px;
+    width: 1px;
+    background: rgba(245, 240, 228, 0.10);
+  }
+  .step-rail li {
+    display: flex; gap: 14px;
+    padding: 14px 0;
+    cursor: pointer;
+    position: relative;
+  }
+  .step-rail .ind {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--forest-deep);
+    border: 1px solid rgba(245, 240, 228, 0.20);
+    color: rgba(245, 240, 228, 0.55);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    flex: 0 0 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .step-rail li.active .ind {
+    background: var(--copper);
+    color: var(--paper);
+    border-color: var(--copper);
+    box-shadow: 0 0 0 5px rgba(184, 132, 62, 0.18);
+  }
+  .step-rail li.done .ind {
+    background: var(--paper);
+    color: var(--forest);
+    border-color: var(--paper);
+  }
+  .step-rail .label {
+    flex: 1;
+    padding-top: 4px;
+  }
+  .step-rail .label .name {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(245, 240, 228, 0.55);
+  }
+  .step-rail li.active .label .name { color: var(--paper); }
+  .step-rail li.done .label .name { color: rgba(245, 240, 228, 0.7); }
+  .step-rail .label .sub {
+    font-size: 11px;
+    color: rgba(245, 240, 228, 0.4);
+    margin-top: 3px;
+  }
+
+  .wiz-rail-foot {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(245, 240, 228, 0.10);
+    font-size: 12px;
+    color: rgba(245, 240, 228, 0.55);
+    line-height: 1.5;
+  }
+  .wiz-rail-foot .row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .wiz-rail-foot a { color: var(--copper-warm); }
+
+  /* CENTER — main */
+  .wiz-main {
+    padding: 56px 64px 96px;
+    max-width: 800px;
+    background: var(--paper);
+    border-left: 1px solid var(--ink-line);
+    border-right: 1px solid var(--ink-line);
+  }
+  .wiz-main h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.06;
+    letter-spacing: -0.014em;
+    font-weight: 400;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .wiz-main h1 .num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--copper-deep);
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 16px;
+  }
+  .wiz-main .sub {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 40px;
+    max-width: 600px;
+  }
+
+  /* Wiz panes */
+  .wiz-pane { display: none; }
+  .wiz-pane.active { display: block; animation: fadeIn 320ms ease-out both; }
+
+  /* Field section */
+  .field-section {
+    margin-bottom: 40px;
+  }
+  .field-section .head {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 6px;
+    letter-spacing: -0.008em;
+  }
+  .field-section .sub-head {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-bottom: 20px;
+  }
+
+  /* Category grid */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .cat-option {
+    padding: 20px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    background: var(--paper-soft);
+    cursor: pointer;
+    transition: all 150ms ease;
+    text-align: left;
+    display: flex; flex-direction: column;
+    gap: 6px;
+  }
+  .cat-option:hover { border-color: var(--forest); }
+  .cat-option.active {
+    border-color: var(--forest);
+    background: var(--forest-soft);
+    box-shadow: 0 0 0 1px var(--forest);
+  }
+  .cat-option .name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .cat-option .desc { font-size: 11px; color: var(--ink-3); }
+
+  /* Image upload */
+  .upload-area {
+    border: 1.5px dashed var(--ink-line);
+    border-radius: var(--r-lg);
+    background: var(--paper-soft);
+    padding: 48px;
+    text-align: center;
+    transition: all 200ms ease;
+    cursor: pointer;
+  }
+  .upload-area:hover { border-color: var(--forest); background: var(--forest-soft); }
+  .upload-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--copper-deep);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .upload-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .upload-thumb {
+    aspect-ratio: 1;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    position: relative;
+  }
+  .upload-thumb .ph { width: 100%; height: 100%; }
+  .upload-thumb .ph-label { font-size: 10px; }
+  .upload-thumb.cover::after {
+    content: 'Omslag';
+    position: absolute; top: 6px; left: 6px;
+    padding: 3px 8px;
+    background: var(--copper);
+    color: var(--paper);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: var(--r-pill);
+    letter-spacing: 0.04em;
+  }
+  .upload-thumb.empty {
+    background: var(--paper-soft);
+    border: 1px dashed var(--ink-line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+
+  /* Goal type radio */
+  .goal-types {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .goal-type {
+    padding: 20px 24px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    background: var(--paper-soft);
+    cursor: pointer;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .goal-type input { accent-color: var(--forest); margin-top: 2px; }
+  .goal-type.active {
+    border-color: var(--forest);
+    background: var(--forest-soft);
+    box-shadow: 0 0 0 1px var(--forest);
+  }
+  .goal-type .name { font-weight: 600; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+  .goal-type .desc { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+  /* Field grid */
+  .fg { display: grid; gap: 16px; }
+  .fg.cols-2 { grid-template-columns: 1fr 1fr; }
+  .fg.cols-3 { grid-template-columns: 2fr 1fr 1fr; }
+
+  /* Calculator */
+  .calc-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px;
+    background: var(--paper-soft);
+    border-radius: var(--r-md);
+    border: 1px solid var(--ink-line);
+    margin-bottom: 8px;
+  }
+  .calc-row input.inline {
+    width: 80px;
+    height: 36px;
+    padding: 0 10px;
+    font-family: var(--font-mono);
+    text-align: right;
+  }
+  .calc-row .lbl { flex: 1; font-size: 14px; color: var(--ink-1); }
+  .calc-total {
+    margin-top: 16px;
+    padding: 18px 22px;
+    background: var(--forest);
+    color: var(--paper);
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .calc-total .lbl { font-size: 13px; color: rgba(245, 240, 228, 0.7); }
+  .calc-total .amt {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.012em;
+  }
+
+  /* Privacy controls */
+  .privacy-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 18px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    margin-bottom: 8px;
+  }
+  .privacy-row .field-name { flex: 1; font-size: 14px; color: var(--ink-1); font-weight: 500; }
+  .privacy-row .field-val { font-size: 12px; color: var(--ink-3); }
+  .privacy-toggle {
+    display: flex; gap: 4px;
+    background: var(--paper-deep);
+    border-radius: var(--r-pill);
+    padding: 3px;
+  }
+  .privacy-toggle button {
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .privacy-toggle button.active {
+    background: var(--paper);
+    color: var(--forest);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* Submit step */
+  .submit-card {
+    background: var(--forest);
+    color: var(--paper);
+    border-radius: var(--r-xl);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.06)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>");
+    background-size: 180px 180px;
+    pointer-events: none;
+  }
+  .submit-card > * { position: relative; z-index: 1; }
+  .submit-summary { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(245, 240, 228, 0.10); }
+  .submit-summary .row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .submit-summary .row .lbl { color: rgba(245, 240, 228, 0.6); }
+  .submit-summary .row .val { color: var(--paper); font-weight: 500; }
+  .submit-summary .row .val.amt { font-family: var(--font-mono); font-size: 16px; }
+
+  .checklist {
+    list-style: none; padding: 0; margin: 32px 0 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .checklist li {
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14px;
+    color: rgba(245, 240, 228, 0.85);
+  }
+  .checklist .ok {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--copper-soft);
+    color: var(--copper-warm);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 22px;
+  }
+
+  /* Action bar */
+  .wiz-actions {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink-line);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .save-state {
+    font-size: 11px;
+    color: var(--ink-3);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .save-state .dot { background: var(--success); }
+
+  /* RIGHT — preview */
+  .wiz-side {
+    background: var(--paper-deep);
+    padding: 40px 32px;
+    position: sticky; top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+  }
+  .wiz-side h4 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  .preview-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    transform: scale(0.86);
+    transform-origin: top center;
+  }
+  .preview-img { height: 140px; }
+  .preview-img .ph { width: 100%; height: 100%; }
+  .preview-body { padding: 16px; }
+  .preview-cat {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .preview-title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    line-height: 1.2;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 12px;
+  }
+  .preview-progress { height: 4px; }
+  .preview-stats {
+    display: flex; justify-content: space-between;
+    font-size: 11px;
+    margin-top: 8px;
+    color: var(--ink-3);
+  }
+  .preview-stats .amount { color: var(--forest); font-weight: 600; font-family: var(--font-mono); }
+
+  .preview-tip {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .preview-tip .head {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper-deep);
+    font-weight: 600;
+  }
+
+  /* Top minimal nav */
+  .wiz-topnav {
+    height: 64px;
+    background: var(--paper-soft);
+    border-bottom: 1px solid var(--ink-line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .wiz-topnav .right {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 1200px) {
+    .wiz-shell { grid-template-columns: 240px 1fr; }
+    .wiz-side { display: none; }
+  }
+  @media (max-width: 800px) {
+    .wiz-shell { grid-template-columns: 1fr; }
+    .wiz-rail { display: none; }
+    .wiz-main { padding: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<header class="wiz-topnav">
+  <span id="wordmark-slot"></span>
+  <div class="right">
+    <span class="save-state">
+      <span class="dot"></span>
+      Sparas automatiskt · senast 14:23
+    </span>
+    <button class="btn btn-ghost btn-sm">Spara &amp; stäng</button>
+    <a href="account.html" class="btn btn-secondary btn-sm">Mina insamlingar</a>
+  </div>
+</header>
+
+<div class="wiz-shell">
+  <!-- LEFT rail -->
+  <aside class="wiz-rail">
+    <div class="wiz-rail-title">Ny insamling</div>
+    <div class="wiz-rail-sub">Utkast · 4 av 5 steg ifyllda</div>
+    <ul class="step-rail" id="step-rail">
+      <li class="done" data-go="1">
+        <span class="ind">1</span>
+        <div class="label">
+          <div class="name">Identitet</div>
+          <div class="sub">Du som driver</div>
+        </div>
+      </li>
+      <li class="done" data-go="2">
+        <span class="ind">2</span>
+        <div class="label">
+          <div class="name">Projektet</div>
+          <div class="sub">Vad &amp; varför</div>
+        </div>
+      </li>
+      <li class="done" data-go="3">
+        <span class="ind">3</span>
+        <div class="label">
+          <div class="name">Mottagare</div>
+          <div class="sub">Vart pengarna går</div>
+        </div>
+      </li>
+      <li class="active" data-go="4">
+        <span class="ind">4</span>
+        <div class="label">
+          <div class="name">Mål &amp; tid</div>
+          <div class="sub">Belopp och datum</div>
+        </div>
+      </li>
+      <li data-go="5">
+        <span class="ind">5</span>
+        <div class="label">
+          <div class="name">Granska &amp; skicka</div>
+          <div class="sub">Sista koll</div>
+        </div>
+      </li>
+    </ul>
+    <div class="wiz-rail-foot">
+      <div class="row">
+        <span id="rail-shield"></span>
+        <span style="color: rgba(245,240,228,0.85);">Alla utkast är privata</span>
+      </div>
+      Inget syns publikt förrän en granskare har godkänt din ansökan. Riktmärke: <strong style="color: var(--paper);">72 timmar</strong>.
+      <br><br>
+      Behöver du hjälp? <a href="mailto:support@sadaqasweden.se">support@sadaqasweden.se</a>
+    </div>
+  </aside>
+
+  <!-- CENTER -->
+  <main class="wiz-main">
+    <!-- STEP 1 -->
+    <div class="wiz-pane" data-pane="1">
+      <h1><span class="num">STEG 1 AV 5 · IDENTITET</span>Vem driver insamlingen?</h1>
+      <p class="sub">Det här syns publikt på insamlingens sida — det är vad donatorerna ser om dig. Du behöver BankID för att verifieras.</p>
+
+      <div class="field-section">
+        <div class="head">Du är inloggad som</div>
+        <div class="card" style="background: var(--paper-soft); display: flex; align-items: center; gap: 16px; padding: 18px 22px;">
+          <div class="fr-avatar" style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--forest-mid), var(--forest)); color: var(--paper); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 18px;">YA</div>
+          <div style="flex: 1;">
+            <div style="font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px;">
+              Yasmin Adan
+              <span id="vrf-1" style="color: var(--copper-deep);"></span>
+              <span class="xs" style="color: var(--copper-deep); font-weight: 500;">BankID-verifierad</span>
+            </div>
+            <div class="xs">Stockholm · konto sedan jan 2025 · 8 tidigare insamlingar</div>
+          </div>
+          <span class="pill pill-success">Trust-poäng 92</span>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Driver du i eget namn eller för en förening?</div>
+        <div class="goal-types">
+          <label class="goal-type active">
+            <input type="radio" name="ego" checked>
+            <div>
+              <div class="name">Som privatperson</div>
+              <div class="desc">Du är ansvarig. KYC via BankID gäller. Du kan ändå lägga till en förening som collab.</div>
+            </div>
+          </label>
+          <label class="goal-type">
+            <input type="radio" name="ego">
+            <div>
+              <div class="name">Som förening</div>
+              <div class="desc">Du representerar en registrerad förening. Vi verifierar mot Skatteverket.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Lägg till en förening som stöttar (collab)</div>
+        <div class="sub-head">Frivilligt. Föreningens logotyp visas på insamlingen och bygger förtroende åt båda håll.</div>
+        <div class="card" style="background: var(--paper-soft); display: flex; align-items: center; gap: 16px; padding: 16px 20px;">
+          <div style="width: 40px; height: 40px; border-radius: var(--r-md); background: linear-gradient(135deg, var(--forest), var(--forest-deep)); color: var(--paper); display: flex; align-items: center; justify-content: center;" id="hjk"></div>
+          <div style="flex: 1;">
+            <div style="font-weight: 600; color: var(--ink);">Hjälpkraft Sverige</div>
+            <div class="xs">Malmö · har godkänt collab-förfrågan · 12 tidigare insamlingar</div>
+          </div>
+          <button class="btn btn-ghost btn-sm">Ta bort</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="wiz-pane" data-pane="2">
+      <h1><span class="num">STEG 2 AV 5 · PROJEKTET</span>Vad ska du samla in till?</h1>
+      <p class="sub">Var konkret. "En brunn för byn Diabaly — 280 personer får rent vatten" är bättre än "vattenprojekt i Mali". Donatorer vill se vad som händer.</p>
+
+      <div class="field-section">
+        <div class="head">Kategori</div>
+        <div class="sub-head">Välj den som passar bäst. Granskaren kan justera om vi tycker en annan passar.</div>
+        <div class="cat-grid">
+          <button class="cat-option active">
+            <span class="name">Vatten</span>
+            <span class="desc">Brunnar, filter, distribution</span>
+          </button>
+          <button class="cat-option"><span class="name">Mat &amp; bistånd</span><span class="desc">Paket, utdelning, kök</span></button>
+          <button class="cat-option"><span class="name">Sjukvård</span><span class="desc">Mediciner, vård, operation</span></button>
+          <button class="cat-option"><span class="name">Utbildning</span><span class="desc">Skolor, böcker, stipendier</span></button>
+          <button class="cat-option"><span class="name">Mosképrojekt</span><span class="desc">Bygge, renovering, drift</span></button>
+          <button class="cat-option"><span class="name">Katastrofhjälp</span><span class="desc">Akut respons, krisstöd</span></button>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Titel</div>
+        <div class="field">
+          <input class="input input-lg" value="En brunn för byn Diabaly — 280 personer får rent vatten">
+          <div class="help">Max 90 tecken. Säg vad, var, för vem.</div>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Storyn</div>
+        <div class="sub-head">Skriv som du pratade med en vän. Varför det här? Vad har du för koppling? Vad händer med pengarna?</div>
+        <textarea class="textarea" style="min-height: 200px;">Byn Diabaly i centrala Mali har 280 invånare, varav 140 är barn under 12 år. Närmaste rena vattenkälla ligger fyra kilometer bort — barnen som hämtar vatten missar skolan, kvinnorna går två gånger om dagen, och under torrperioden räcker det inte.
+
+En djupbrunn med handpump kostar i Mali cirka 180 000 kr inklusive borrning, betongring, pumpinstallation och utbildning av två lokala underhållstekniker...</textarea>
+        <div class="help mt-8">487 / 4 000 tecken · sparas automatiskt</div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Bilder</div>
+        <div class="sub-head">Minst 1 bild, max 8. Den första blir omslagsbild. Bilder bekräftas i granskningen — använd dina egna eller bilder du har rätt att använda.</div>
+        <div class="upload-grid">
+          <div class="upload-thumb cover"><div class="ph"><span class="ph-label">brunn-1.jpg</span></div></div>
+          <div class="upload-thumb"><div class="ph" style="background: linear-gradient(135deg, #5C7A6B, #2D5947);"><span class="ph-label">brunn-2.jpg</span></div></div>
+          <div class="upload-thumb"><div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">karta.jpg</span></div></div>
+          <div class="upload-thumb empty">
+            <span id="plus-1"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="wiz-pane" data-pane="3">
+      <h1><span class="num">STEG 3 AV 5 · MOTTAGARE</span>Vart går pengarna?</h1>
+      <p class="sub">Det här är det viktigaste fältet i hela ansökan. Granskaren behöver veta att mottagaren existerar och kan ta emot.</p>
+
+      <div class="field-section">
+        <div class="head">Vem tar emot pengarna direkt?</div>
+        <div class="goal-types">
+          <label class="goal-type"><input type="radio" name="recv"><div><div class="name">Jag själv (insamlaren)</div><div class="desc">Du tar emot, du betalar ut. Du är ansvarig för bevis.</div></div></label>
+          <label class="goal-type active"><input type="radio" name="recv" checked><div><div class="name">En organisation i fält</div><div class="desc">Pengarna går rakt till en lokal hjälporganisation.</div></div></label>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Mottagande organisation</div>
+        <div class="fg cols-2">
+          <div class="field">
+            <label class="label label-required">Namn</label>
+            <input class="input" value="Wells of Hope Mali">
+          </div>
+          <div class="field">
+            <label class="label">Org.id i landet</label>
+            <input class="input" value="MA-NGO-2019-0341">
+          </div>
+          <div class="field">
+            <label class="label label-required">Land</label>
+            <input class="input" value="Mali">
+          </div>
+          <div class="field">
+            <label class="label">Hemsida</label>
+            <input class="input" value="wellsofhopemali.org">
+          </div>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Dokument som styrker mottagaren</div>
+        <div class="sub-head">Privat — bara granskaren ser dem. Minst två dokument för utländska mottagare.</div>
+        <div class="card" style="background: var(--paper-soft); padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <div class="receipt-block" style="margin: 0;">
+            <span style="color: var(--ink-3);" id="doc-1"></span>
+            <span style="flex:1; font-family: var(--font-mono); font-size: 12px;">Registreringsbevis_WellsOfHope_2024.pdf</span>
+            <span class="xs">312 KB</span>
+            <button class="btn btn-ghost btn-sm">Ta bort</button>
+          </div>
+          <div class="receipt-block" style="margin: 0;">
+            <span style="color: var(--ink-3);" id="doc-2"></span>
+            <span style="flex:1; font-family: var(--font-mono); font-size: 12px;">Referensprojekt_3-brunnar_2023.pdf</span>
+            <span class="xs">1.2 MB</span>
+            <button class="btn btn-ghost btn-sm">Ta bort</button>
+          </div>
+          <button class="upload-area" style="padding: 24px; margin-top: 8px;">
+            <span class="xs">Klicka för att lägga till ett dokument till (max 10 MB · PDF, bild)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="wiz-pane active" data-pane="4">
+      <h1><span class="num">STEG 4 AV 5 · MÅL &amp; TID</span>Hur stort, hur länge?</h1>
+      <p class="sub">Beräkna realistiskt. Stora belopp som inte når målet är ingen tjänst åt någon. Mindre belopp som överträffas bygger förtroende.</p>
+
+      <div class="field-section">
+        <div class="head">Hur räknar du målet?</div>
+        <div class="goal-types">
+          <label class="goal-type active"><input type="radio" name="goalt" checked><div><div class="name">Totalt belopp</div><div class="desc">"180 000 kr för en brunn"</div></div></label>
+          <label class="goal-type"><input type="radio" name="goalt"><div><div class="name">Per enhet</div><div class="desc">"500 kr × 400 mat-paket"</div></div></label>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Räkna fram målet</div>
+        <div class="sub-head">Bygg det öppet. Donatorer ser denna nedbrytning — den skapar förtroende.</div>
+        <div class="calc-row">
+          <span class="lbl">Borrning &amp; brunn (180 000 kr)</span>
+          <input class="input inline" value="180 000">
+          <span class="xs">kr</span>
+        </div>
+        <div class="calc-row">
+          <span class="lbl">Buffert för transport &amp; oförutsedda (10 %)</span>
+          <input class="input inline" value="18 000">
+          <span class="xs">kr</span>
+        </div>
+        <div class="calc-row">
+          <span class="lbl">Extra pump till grannbyn (om över)</span>
+          <input class="input inline" value="2 000">
+          <span class="xs">kr</span>
+        </div>
+        <button class="btn btn-ghost btn-sm mt-12">
+          <span id="add-row" style="display:inline-flex; align-items:center;"></span> Lägg till rad
+        </button>
+        <div class="calc-total">
+          <span class="lbl">Insamlingsmål</span>
+          <span class="amt">200 000 kr</span>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Tidplan</div>
+        <div class="fg cols-2">
+          <div class="field">
+            <label class="label">Insamlingen pågår till</label>
+            <input class="input" value="14 juni 2026">
+          </div>
+          <div class="field">
+            <label class="label">Resultatet ska visas senast</label>
+            <input class="input" value="30 september 2026">
+          </div>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Vad händer om vi når <em>över</em> målet?</div>
+        <div class="goal-types">
+          <label class="goal-type active"><input type="radio" name="over" checked><div><div class="name">Pengar går till relaterat projekt</div><div class="desc">"En andra brunn i grannbyn Massala (240 invånare)"</div></div></label>
+          <label class="goal-type"><input type="radio" name="over"><div><div class="name">Pengarna refunderas proportionellt</div><div class="desc">Donatorer får tillbaka över-andelen</div></div></label>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Vad händer om vi <em>inte</em> når målet?</div>
+        <div class="goal-types">
+          <label class="goal-type active"><input type="radio" name="under" checked><div><div class="name">Ge ändå — projektet kör delvis</div><div class="desc">Donatorerna får välja vid donation. Standardläge.</div></div></label>
+          <label class="goal-type"><input type="radio" name="under"><div><div class="name">Refund om under 80 % av målet</div><div class="desc">Kräver att inga pengar tagits ut ännu</div></div></label>
+        </div>
+      </div>
+
+      <div class="field-section">
+        <div class="head">Per-fält integritet</div>
+        <div class="sub-head">Du styr vad som visas publikt. Granskaren ser allt.</div>
+        <div class="privacy-row">
+          <span class="field-name">Mottagarens dokument</span>
+          <span class="field-val">Endast för granskning</span>
+          <div class="privacy-toggle">
+            <button class="active">Privat</button>
+            <button>Publik</button>
+          </div>
+        </div>
+        <div class="privacy-row">
+          <span class="field-name">Plats (byns namn &amp; region)</span>
+          <span class="field-val">Visas öppet på sidan</span>
+          <div class="privacy-toggle">
+            <button>Privat</button>
+            <button class="active">Publik</button>
+          </div>
+        </div>
+        <div class="privacy-row">
+          <span class="field-name">Ditt efternamn</span>
+          <span class="field-val">Bara förnamn + initial visas</span>
+          <div class="privacy-toggle">
+            <button>Privat</button>
+            <button class="active">Publik</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="wiz-pane" data-pane="5">
+      <h1><span class="num">STEG 5 AV 5 · SKICKA</span>Granska och skicka för granskning</h1>
+      <p class="sub">Sista titten innan vi tar över. När du skickar in får du en bekräftelse och ärendet hamnar i granskningskön.</p>
+
+      <div class="submit-card">
+        <div class="row aic gap-12 mb-16">
+          <span class="pill pill-dark"><span class="dot" style="background: var(--copper-warm);"></span> Klar att skickas</span>
+          <span class="xs" style="color: rgba(245, 240, 228, 0.6);">Riktmärke: granskning klar inom 72 timmar</span>
+        </div>
+        <h2 class="h2" style="color: var(--paper); margin: 0;">En brunn för byn Diabaly — 280 personer får rent vatten</h2>
+        <div class="submit-summary">
+          <div class="row"><span class="lbl">Insamlare</span><span class="val">Yasmin Adan · BankID-verifierad</span></div>
+          <div class="row"><span class="lbl">Collab</span><span class="val">Hjälpkraft Sverige</span></div>
+          <div class="row"><span class="lbl">Kategori</span><span class="val">Vatten · Mali</span></div>
+          <div class="row"><span class="lbl">Mottagare</span><span class="val">Wells of Hope Mali</span></div>
+          <div class="row"><span class="lbl">Insamlingsmål</span><span class="val amt">200 000 kr</span></div>
+          <div class="row"><span class="lbl">Pågår till</span><span class="val">14 juni 2026 · 18 dagar</span></div>
+          <div class="row"><span class="lbl">Dokument bifogade</span><span class="val">5 (3 publika, 2 privata för granskning)</span></div>
+        </div>
+        <ul class="checklist">
+          <li><span class="ok" id="cl-1"></span> Identitet verifierad via BankID</li>
+          <li><span class="ok" id="cl-2"></span> Storyn fyller minst 400 tecken</li>
+          <li><span class="ok" id="cl-3"></span> Mottagarens dokument bifogade</li>
+          <li><span class="ok" id="cl-4"></span> Målet är nedbrutet öppet</li>
+          <li><span class="ok" id="cl-5"></span> Tidplan inom rimligt spann (≤ 90 dgr)</li>
+        </ul>
+      </div>
+
+      <div class="card mt-32" style="background: var(--paper-soft);">
+        <div class="row aic gap-16 mb-16">
+          <span style="width: 36px; height: 36px; border-radius: 50%; background: var(--copper-soft); color: var(--copper-deep); display: flex; align-items: center; justify-content: center;" id="info-icon"></span>
+          <div class="h4" style="margin: 0;">Vad händer nu?</div>
+        </div>
+        <ol style="padding-left: 20px; margin: 0; font-size: 14px; line-height: 1.7; color: var(--ink-2);">
+          <li>Insamlingen hamnar i granskningskön — du får bekräftelse via e-post.</li>
+          <li>En granskare läser ärendet inom <strong>72 timmar</strong>. Vi bedömer mot islamiska principer och svensk lag.</li>
+          <li>Vi kan be om kompletteringar. Du svarar direkt i ärendet — som ett samtal.</li>
+          <li>När vi godkänner går insamlingen live. Stripe-utbetalningar är aktiva från första donationen.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="wiz-actions">
+      <button class="btn btn-ghost" id="back-btn"><span id="back-arrow"></span> Tillbaka</button>
+      <div class="row aic gap-12">
+        <span class="save-state">
+          <span class="dot dot-success"></span>
+          Utkast sparat
+        </span>
+        <button class="btn btn-primary btn-lg" id="fwd-btn">
+          <span id="fwd-text">Fortsätt till granska</span>
+          <span id="fwd-icon"></span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- RIGHT — preview -->
+  <aside class="wiz-side">
+    <h4>Hur den ser ut publikt</h4>
+    <div class="preview-card">
+      <div class="preview-img">
+        <div class="ph"><span class="ph-label">Foto: brunn i Mali</span></div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-cat">Vatten · Mali</div>
+        <h3 class="preview-title">En brunn för byn Diabaly — 280 personer får rent vatten</h3>
+        <div class="progress preview-progress"><div class="progress-bar" style="width: 0%;"></div></div>
+        <div class="preview-stats">
+          <span><span class="amount">0 kr</span> · 0 %</span>
+          <span>av 200 000 kr</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-tip">
+      <div class="head">
+        <span id="tip-bulb"></span>
+        Tips
+      </div>
+      Donatorer reagerar starkast på konkreta tal: "280 personer", "180 000 kr för borrning", "innan ramadan". Vaga belopp på vaga projekt fångar inte hjärtat — eller granskaren.
+    </div>
+
+    <div class="preview-tip">
+      <div class="head">
+        <span id="tip-shield"></span>
+        Granskningens fokus
+      </div>
+      Granskaren ställer tre frågor: <strong>Är mottagaren verklig?</strong> <strong>Är projektet förenligt med islamiska principer?</strong> <strong>Är beloppet rimligt för det som ska göras?</strong>
+    </div>
+  </aside>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html', size: 18 });
+  document.getElementById('rail-shield').innerHTML = SADAQA.icon('shield', 14);
+  document.getElementById('vrf-1').innerHTML = SADAQA.icon('shield-check', 14);
+  document.getElementById('hjk').innerHTML = SADAQA.icon('building', 18);
+  document.getElementById('doc-1').innerHTML = SADAQA.icon('document', 16);
+  document.getElementById('doc-2').innerHTML = SADAQA.icon('document', 16);
+  document.getElementById('plus-1').innerHTML = SADAQA.icon('plus', 18);
+  document.getElementById('add-row').innerHTML = SADAQA.icon('plus', 12);
+  document.getElementById('info-icon').innerHTML = SADAQA.icon('info', 16);
+  document.getElementById('tip-bulb').innerHTML = SADAQA.icon('sparkles', 12);
+  document.getElementById('tip-shield').innerHTML = SADAQA.icon('shield-check', 12);
+  document.getElementById('back-arrow').innerHTML = SADAQA.icon('arrow-left', 14);
+  document.getElementById('fwd-icon').innerHTML = SADAQA.icon('arrow-right', 16);
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('cl-' + i).innerHTML = SADAQA.icon('check', 12);
+  }
+
+  // Step navigation
+  let current = 4;
+  function goStep(n) {
+    current = n;
+    document.querySelectorAll('.wiz-pane').forEach(p => {
+      p.classList.toggle('active', parseInt(p.dataset.pane) === n);
+    });
+    document.querySelectorAll('#step-rail li').forEach((li, idx) => {
+      const i = idx + 1;
+      li.classList.toggle('active', i === n);
+      li.classList.toggle('done', i < n);
+      const ind = li.querySelector('.ind');
+      if (i < n) ind.innerHTML = SADAQA.icon('check', 12);
+      else ind.textContent = i;
+    });
+    const fwd = document.getElementById('fwd-text');
+    const back = document.getElementById('back-btn');
+    if (n === 5) {
+      fwd.textContent = 'Skicka för granskning';
+    } else if (n === 4) {
+      fwd.textContent = 'Fortsätt till granska';
+    } else {
+      fwd.textContent = 'Nästa steg';
+    }
+    back.style.visibility = n === 1 ? 'hidden' : 'visible';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('#step-rail li').forEach(li => {
+    li.addEventListener('click', () => goStep(parseInt(li.dataset.go)));
+  });
+  document.getElementById('back-btn').addEventListener('click', () => goStep(Math.max(current - 1, 1)));
+  document.getElementById('fwd-btn').addEventListener('click', () => goStep(Math.min(current + 1, 5)));
+
+  // Misc interactions
+  document.querySelectorAll('.cat-option').forEach(o => {
+    o.addEventListener('click', () => {
+      document.querySelectorAll('.cat-option').forEach(b => b.classList.remove('active'));
+      o.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.goal-type').forEach(g => {
+    g.addEventListener('click', () => {
+      const group = g.parentElement;
+      group.querySelectorAll('.goal-type').forEach(b => b.classList.remove('active'));
+      g.classList.add('active');
+      g.querySelector('input').checked = true;
+    });
+  });
+  document.querySelectorAll('.privacy-toggle').forEach(pt => {
+    pt.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.preventDefault();
+        pt.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

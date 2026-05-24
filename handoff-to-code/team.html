@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper); }
+  .t-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .t-side { background: var(--forest-deep); color: var(--paper); padding: 24px 0; position: sticky; top: 0; height: 100vh; }
+  .t-side-head { padding: 4px 24px 20px; border-bottom: 1px solid rgba(245, 240, 228, 0.08); margin-bottom: 16px; }
+  .t-side-head .tag { display: inline-flex; gap: 6px; align-items: center; margin-top: 12px; padding: 3px 10px; background: rgba(184, 132, 62, 0.15); color: var(--copper-warm); border-radius: var(--r-pill); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+  .t-nav { padding: 0 12px; }
+  .t-nav a { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--r-md); font-size: 13px; color: rgba(245, 240, 228, 0.75); }
+  .t-nav a:hover { background: rgba(245, 240, 228, 0.06); color: var(--paper); }
+  .t-nav a.active { background: rgba(245, 240, 228, 0.10); color: var(--paper); box-shadow: inset 2px 0 0 var(--copper); }
+  .t-nav .sec { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245, 240, 228, 0.4); padding: 16px 12px 8px; }
+
+  .t-main { padding: 40px 48px 64px; }
+
+  .h-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+  .h-row h1 { font-family: var(--font-display); font-size: 44px; font-weight: 400; letter-spacing: -0.014em; margin: 0; }
+
+  /* Team grid */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+  .team-card {
+    background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-xl);
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative;
+  }
+  .team-av {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 24px; font-weight: 500;
+  }
+  .team-av.zivar { background: linear-gradient(135deg, var(--copper-warm), var(--copper-deep)); color: var(--paper); }
+  .team-av.brother1 { background: linear-gradient(135deg, var(--forest-mid), var(--forest)); color: var(--paper); }
+  .team-av.brother2 { background: linear-gradient(135deg, #5C7A6B, var(--forest)); color: var(--paper); }
+  .team-av.granskare1 { background: linear-gradient(135deg, #8B6334, #5E4321); color: var(--paper); }
+  .team-av.granskare2 { background: linear-gradient(135deg, #2D6B4F, #1F4636); color: var(--paper); }
+  .team-av.tech { background: linear-gradient(135deg, #1F4636, #0F2A1F); color: var(--paper); }
+
+  .team-name { font-family: var(--font-display); font-size: 22px; line-height: 1.15; font-weight: 500; margin: 0; }
+  .team-role { font-size: 12px; color: var(--copper-deep); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+  .team-meta { font-size: 13px; color: var(--ink-2); line-height: 1.5; padding-top: 12px; border-top: 1px solid var(--ink-line); margin-top: 6px; }
+  .team-status {
+    position: absolute; top: 28px; right: 28px;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: var(--ink-3);
+  }
+  .team-status .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .team-status.online .dot { background: var(--success); }
+  .team-status.away .dot { background: var(--copper); }
+  .team-status.offline .dot { background: var(--ink-line); }
+  .team-stats {
+    display: flex; gap: 16px;
+    padding-top: 12px; border-top: 1px solid var(--ink-line);
+    font-size: 12px;
+  }
+  .team-stats .stat { display: flex; flex-direction: column; gap: 2px; }
+  .team-stats .num { font-family: var(--font-display); font-size: 20px; color: var(--forest); font-weight: 500; line-height: 1; }
+  .team-stats .lbl { font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* Activity panel */
+  .activity-panel {
+    background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-xl);
+    padding: 28px;
+  }
+  .act-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .act-head h3 { font-family: var(--font-display); font-size: 20px; margin: 0; font-weight: 500; }
+  .act-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--ink-line); }
+  .act-item:last-child { border-bottom: 0; }
+  .act-av { width: 32px; height: 32px; border-radius: 50%; flex: 0 0 32px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  .act-body { flex: 1; }
+  .act-line { font-size: 13px; line-height: 1.5; color: var(--ink-1); }
+  .act-line strong { font-weight: 600; }
+  .act-time { font-size: 11px; color: var(--ink-4); margin-top: 2px; font-family: var(--font-mono); }
+  .act-action { font-size: 11px; color: var(--copper-deep); }
+  .act-icon-tag {
+    display: inline-flex; gap: 4px; align-items: center;
+    background: var(--copper-soft); color: var(--copper-deep);
+    padding: 2px 8px; border-radius: var(--r-pill);
+    font-size: 11px;
+  }
+
+  /* Role matrix */
+  .role-matrix {
+    background: var(--forest); color: var(--paper);
+    border-radius: var(--r-xl); padding: 28px;
+    margin-top: 24px;
+  }
+  .role-matrix h3 { font-family: var(--font-display); font-size: 20px; color: var(--paper); margin: 0 0 20px; }
+  .matrix-table { width: 100%; }
+  .matrix-table th { text-align: left; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(245, 240, 228, 0.6); font-weight: 600; padding: 8px 12px; border-bottom: 1px solid rgba(245, 240, 228, 0.10); }
+  .matrix-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(245, 240, 228, 0.06); }
+  .matrix-table .perm-yes { color: var(--copper-warm); font-weight: 600; }
+  .matrix-table .perm-no { color: rgba(245, 240, 228, 0.3); }
+  .matrix-table .role-name { font-weight: 600; color: var(--paper); }
+</style>
+</head>
+<body>
+
+<div class="t-shell">
+  <aside class="t-side">
+    <div class="t-side-head">
+      <span id="wordmark-slot"></span>
+      <span class="tag"><span id="users-i"></span> Team · intern arbetsyta</span>
+    </div>
+    <div class="t-nav">
+      <a href="#" class="active"><span id="i-1"></span> Översikt</a>
+      <a href="review.html"><span id="i-2"></span> Mitt granskningsskift</a>
+      <a href="#"><span id="i-3"></span> Vem gör vad</a>
+      <a href="#"><span id="i-4"></span> Roller &amp; behörigheter</a>
+      <a href="#"><span id="i-5"></span> Skift &amp; SLA</a>
+      <div class="sec">Verktyg</div>
+      <a href="admin.html"><span id="i-6"></span> Drift-vyn</a>
+      <a href="review.html"><span id="i-7"></span> Granskningskön</a>
+      <a href="#"><span id="i-8"></span> Intern wiki</a>
+      <a href="auth.html"><span id="i-9"></span> Logga ut</a>
+    </div>
+  </aside>
+
+  <main class="t-main">
+    <div class="h-row">
+      <div>
+        <h1>Teamet bakom Sadaqa Sweden</h1>
+        <div class="muted">Sex personer. En vakthavande granskare just nu. SLA: <strong style="color: var(--forest);">100 %</strong> denna vecka.</div>
+      </div>
+      <div class="row gap-8">
+        <button class="btn btn-secondary"><span id="add-i"></span> Bjud in</button>
+        <button class="btn btn-primary">Mitt skift</button>
+      </div>
+    </div>
+
+    <!-- Team cards -->
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-status online"><span class="dot"></span> Online · skift 14–18</div>
+        <div class="team-av zivar">Z</div>
+        <div>
+          <div class="team-role">Grundare · super-admin</div>
+          <h3 class="team-name">Zivar Mahmod</h3>
+        </div>
+        <div class="team-meta">Står för helheten — vision, granskning vid stora ärenden, externa relationer. BankID-verifierad sedan dag 1.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">142</span><span class="lbl">granskningar</span></div>
+          <div class="stat"><span class="num">98 %</span><span class="lbl">SLA-träff</span></div>
+          <div class="stat"><span class="num">6</span><span class="lbl">eskaleringar löst</span></div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-status online"><span class="dot"></span> Online · på #SAD-2841</div>
+        <div class="team-av brother1">A</div>
+        <div>
+          <div class="team-role">Granskare · fiqh</div>
+          <h3 class="team-name">Ahmed Nuur</h3>
+        </div>
+        <div class="team-meta">Bror sedan barnsben. Studerat fiqh i 8 år. Tar de ärenden som rör islamiskt komplicerade frågor.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">86</span><span class="lbl">granskningar</span></div>
+          <div class="stat"><span class="num">100 %</span><span class="lbl">SLA-träff</span></div>
+          <div class="stat"><span class="num">22</span><span class="lbl">fiqh-konsult</span></div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-status away"><span class="dot"></span> Pausad · tillbaka 16:00</div>
+        <div class="team-av brother2">S</div>
+        <div>
+          <div class="team-role">Granskare · KYC</div>
+          <h3 class="team-name">Salma Khalid</h3>
+        </div>
+        <div class="team-meta">Specialiserad på identitet och dokument-äkthet. Hon hittar fejk-papper snabbare än någon annan.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">71</span><span class="lbl">granskningar</span></div>
+          <div class="stat"><span class="num">100 %</span><span class="lbl">SLA-träff</span></div>
+          <div class="stat"><span class="num">4</span><span class="lbl">bedrägeri-stopp</span></div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-status offline"><span class="dot"></span> Offline</div>
+        <div class="team-av granskare1">F</div>
+        <div>
+          <div class="team-role">Förenings-stöd</div>
+          <h3 class="team-name">Faisal Omar</h3>
+        </div>
+        <div class="team-meta">Hjälper nya föreningar registrera sig, samtalar med moskéer, granskar collab-förfrågningar.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">36</span><span class="lbl">föreningar inskrivna</span></div>
+          <div class="stat"><span class="num">12</span><span class="lbl">collab-fall</span></div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-status online"><span class="dot"></span> Online</div>
+        <div class="team-av granskare2">L</div>
+        <div>
+          <div class="team-role">Support &amp; donator-frågor</div>
+          <h3 class="team-name">Layla Ben Salem</h3>
+        </div>
+        <div class="team-meta">Första kontakten för donatorer som har frågor om kvitto, refunds, eller hur plattformen funkar.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">218</span><span class="lbl">ärenden</span></div>
+          <div class="stat"><span class="num">2 t</span><span class="lbl">snittsvar</span></div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-status away"><span class="dot"></span> Pausad</div>
+        <div class="team-av tech">M</div>
+        <div>
+          <div class="team-role">Teknik · DevOps</div>
+          <h3 class="team-name">Mahmud Reza</h3>
+        </div>
+        <div class="team-meta">Driften — Cloudflare, Supabase, Stripe-integration. Skriver inte koden, men ser till att den lever.</div>
+        <div class="team-stats">
+          <div class="stat"><span class="num">99,99 %</span><span class="lbl">uptime</span></div>
+          <div class="stat"><span class="num">0</span><span class="lbl">incidenter</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px;">
+      <!-- Activity feed -->
+      <div class="activity-panel">
+        <div class="act-head">
+          <h3>Vad teamet gör just nu</h3>
+          <span class="pill pill-paper">Senaste 24 t</span>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: rgba(184, 132, 62, 0.2); color: var(--copper-deep);">Z</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Zivar M.</strong> skickade en iteration på <strong>#SAD-2841</strong> — bad om Stripe-konto för Wells of Hope.</div>
+            <div class="act-time">14:14 · 8 min sedan</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: var(--forest-soft); color: var(--forest);">A</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Ahmed N.</strong> nickade på eskalering <span class="act-icon-tag">#SAD-2841 · 200k kr</span>. Inväntar Salma K.</div>
+            <div class="act-time">14:02 · 22 min sedan</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: var(--success-soft); color: var(--success);">L</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Layla B.</strong> löste 3 donator-ärenden — kvitto-omsändning x2, refund-fråga x1.</div>
+            <div class="act-time">13:48 · 36 min sedan</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: var(--copper-soft); color: var(--copper-deep);">F</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Faisal O.</strong> publicerade förenings-profilen för <strong>Uppsala Islamiska Stiftelse</strong>.</div>
+            <div class="act-time">11:14 · 3 t sedan</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: var(--forest); color: var(--paper);">S</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Salma K.</strong> avslog #SAD-2834 — fejk-registreringsbevis. Insamlaren bannlyst i 12 mån.</div>
+            <div class="act-time">09:22 · 5 t sedan</div>
+          </div>
+        </div>
+        <div class="act-item">
+          <div class="act-av" style="background: rgba(31, 70, 54, 0.1); color: var(--forest);">M</div>
+          <div class="act-body">
+            <div class="act-line"><strong>Mahmud R.</strong> deployade ny version av Stripe-webhook-handlern. Stresstestad.</div>
+            <div class="act-time">07:14 · 7 t sedan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role matrix -->
+      <div class="role-matrix">
+        <h3>Vem får göra vad</h3>
+        <table class="matrix-table">
+          <thead>
+            <tr><th>Roll</th><th>Granska</th><th>Avslå</th><th>Refund</th></tr>
+          </thead>
+          <tr>
+            <td class="role-name">Super-admin</td>
+            <td class="perm-yes">Ja</td><td class="perm-yes">Ja</td><td class="perm-yes">Ja</td>
+          </tr>
+          <tr>
+            <td class="role-name">Granskare</td>
+            <td class="perm-yes">Ja</td><td class="perm-yes">Ja*</td><td class="perm-no">Nej</td>
+          </tr>
+          <tr>
+            <td class="role-name">Förenings-stöd</td>
+            <td class="perm-yes">Förening</td><td class="perm-no">Nej</td><td class="perm-no">Nej</td>
+          </tr>
+          <tr>
+            <td class="role-name">Support</td>
+            <td class="perm-no">Nej</td><td class="perm-no">Nej</td><td class="perm-yes">≤ 500 kr</td>
+          </tr>
+          <tr>
+            <td class="role-name">Teknik</td>
+            <td class="perm-no">Nej</td><td class="perm-no">Nej</td><td class="perm-no">Nej</td>
+          </tr>
+        </table>
+        <p class="xs" style="color: rgba(245, 240, 228, 0.6); margin-top: 16px;">
+          * Avslag av belopp över 100 000 kr kräver två granskare. Eskaleringar går alltid till super-admin för slutgodkännande.
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html', light: true, size: 18 });
+  document.getElementById('users-i').innerHTML = SADAQA.icon('users', 12);
+  document.getElementById('add-i').innerHTML = SADAQA.icon('plus', 14);
+  const ic = ['dashboard','briefcase','users','shield','clock','bar','inbox','document','log-out'];
+  ic.forEach((n, i) => { document.getElementById('i-' + (i+1)).innerHTML = SADAQA.icon(n, 15); });
+</script>
+
+</body>
+</html>
