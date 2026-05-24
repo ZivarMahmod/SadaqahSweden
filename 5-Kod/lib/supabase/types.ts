@@ -962,6 +962,42 @@ export type Database = {
           },
         ]
       }
+      innehall_andringslogg: {
+        Row: {
+          anteckning: string | null
+          gammal_data: Json | null
+          handelse_typ: Database["public"]["Enums"]["innehall_handelse_typ"]
+          id: string
+          nar: string
+          ny_data: Json | null
+          objekt_id: string
+          objekt_typ: Database["public"]["Enums"]["innehall_objekt_typ"]
+          vem: string | null
+        }
+        Insert: {
+          anteckning?: string | null
+          gammal_data?: Json | null
+          handelse_typ: Database["public"]["Enums"]["innehall_handelse_typ"]
+          id?: string
+          nar?: string
+          ny_data?: Json | null
+          objekt_id: string
+          objekt_typ: Database["public"]["Enums"]["innehall_objekt_typ"]
+          vem?: string | null
+        }
+        Update: {
+          anteckning?: string | null
+          gammal_data?: Json | null
+          handelse_typ?: Database["public"]["Enums"]["innehall_handelse_typ"]
+          id?: string
+          nar?: string
+          ny_data?: Json | null
+          objekt_id?: string
+          objekt_typ?: Database["public"]["Enums"]["innehall_objekt_typ"]
+          vem?: string | null
+        }
+        Relationships: []
+      }
       innehalls_redigerare: {
         Row: {
           anteckning: string | null
@@ -3290,6 +3326,16 @@ export type Database = {
         | "annat"
       event_upprepning: "vecka" | "manad"
       granskning_beslut: "godkann" | "begar_andring" | "avvisa"
+      innehall_handelse_typ:
+        | "skapad"
+        | "andrad"
+        | "publicerad"
+        | "avpublicerad"
+        | "last"
+        | "last_upp"
+        | "verifierad"
+        | "raderad"
+      innehall_objekt_typ: "innehallssida" | "faq_post"
       innehall_sidtyp: "informativ" | "juridisk"
       innehall_status: "utkast" | "publicerad" | "kommer_snart"
       innehall_verifieringsstatus:
@@ -3575,6 +3621,17 @@ export const Constants = {
       ],
       event_upprepning: ["vecka", "manad"],
       granskning_beslut: ["godkann", "begar_andring", "avvisa"],
+      innehall_handelse_typ: [
+        "skapad",
+        "andrad",
+        "publicerad",
+        "avpublicerad",
+        "last",
+        "last_upp",
+        "verifierad",
+        "raderad",
+      ],
+      innehall_objekt_typ: ["innehallssida", "faq_post"],
       innehall_sidtyp: ["informativ", "juridisk"],
       innehall_status: ["utkast", "publicerad", "kommer_snart"],
       innehall_verifieringsstatus: [
