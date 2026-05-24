@@ -1,8 +1,147 @@
+# SESSION-GOAL — Steg 18 (M19) + härdning SX1–SX5 + tidigare körningar
+
+**Senaste körning (SX1–SX5):** `../2-Byggplan/17-Goal-Steg-18-fixar.md` —
+körd autonomt 2026-05-24. **ALLA SX1–SX5 KLARA, pushade.**
+
+Tidigare passet samma dag: Steg 18 / M19 Innehåll & FAQ S1–S8.
+
+**Plattformen är nu verifierat färdig.** Inget nästa byggsteg.
+
+---
+
+## Status — Härdningspass SX1–SX5 (efter Steg 18)
+
+**✅ ALLA KLARA** — pushade till `main` som fem separata commits
+(`fix(sx1)`…`fix(sx5)`). Migrations 0060, 0061, 0062.
+
+### Steg 0 — synka arbetskopian
+
+`git status` ren mot HEAD, `globals.css` (431 rader) + `layout.tsx` (54
+rader) verifierade hela. Ingen åtgärd krävdes.
+
+### SX1 — Riktig Markdown-DOM-sanering (medel)
+
+Tidigare lager: bara regex-blocklista vid skrivning ovanpå `marked.parse`.
+Render-vägen oskyddad — en bypass kunde släppa rå HTML/JS rakt in i
+`dangerouslySetInnerHTML`. SX1 byter mot riktig DOM-sanitering.
+
+`lib/innehall/markdown.ts`:
+- `validateMarkdown` (lager 1) behållen — vänligt felmeddelande vid
+  skriv-försök med uppenbara HTML/JS-mönster.
+- `renderMarkdown` saniterar nu output med **sanitize-html** (pure JS
+  via htmlparser2 — edge-safe på Cloudflare Workers utan jsdom).
+- Strikt allowlist: bara strukturella element (p, br, hr, headings, list,
+  blockquote, a, code, pre, table, em/strong/u/s/del/ins). Inga
+  style/onerror/iframe/script/data: passerar.
+- Länkar tvångs-attribueras `rel="noopener noreferrer"` + `target="_blank"`.
+- `allowedSchemes = http/https/mailto/tel` — javascript:/data: blockerade.
+
+`lib/innehall/markdown.test.ts` (12 test, körs via `npm run test:markdown`):
+script-tagg, onerror, javascript:, data:text/html, iframe, style → alla
+blockerade. Vanliga rubriker/listor/länkar renderas korrekt + säkra
+attribut. Lager 2-test simulerar bypass av write-validering genom direkt
+sanitize-html-anrop med dirty input.
+
+Alla 12 fall passerar. npm build grön.
+
+### SX2 — Stäng private-funktioner mot PUBLIC permanent (låg)
+
+Migration 0060. GX1 (0051) städade tidigare 47 funktioner, men varje
+nytt byggsteg ärvde Postgres default-EXECUTE TO PUBLIC. Steg 18:s 22 nya
+private-funktioner föll i samma hål. Inte exploaterbart (GX1:s
+anon-USAGE-revoke håller) men SAKERHETSREGLER-avvikelsen återkom.
+
+1. `REVOKE ALL ON FUNCTION private.* FROM PUBLIC, anon` via pg_proc-loop.
+2. `GRANT EXECUTE TO authenticated, service_role` på alla non-trigger
+   funktioner. Triggers behöver inte EXECUTE (kör som ägaren under DEFINER).
+3. `ALTER DEFAULT PRIVILEGES IN SCHEMA private REVOKE EXECUTE ON
+   FUNCTIONS FROM PUBLIC` — framtida funktioner får aldrig PUBLIC-grant
+   per default. **Stoppar återfallet en gång för alla.**
+
+Verifierat live-DB:
+- anon EXECUTE-count: **0** (förv 0) ✓
+- authenticated EXECUTE-count: 86
+- total private-funktioner: 115 (29 är triggers)
+
+Inloggade flöden opåverkade. Security Advisor ingen ny WARN/ERROR.
+
+### SX3 — Spärra fri redigering av juridiska sidor (låg)
+
+Migration 0061. S2:s `publicera_sida` + `avpublicera_sida` hade juridisk-
+spärr; den allmänna `innehall_uppdatera_sida` saknade den — UI gömde
+knappen, men DB-nivån var oskyddad om RPC:n kallades direkt.
+
+`private.innehall_uppdatera_sida` raise:ar nu om `sidtyp='juridisk'`.
+Versioneringsflödet (`juridisk_skapa_version` + `juridisk_publicera_version`)
+är enda vägen.
+
+Också rättad vilseledande kommentar i 0059-headern (referensen till
+`juridisk_lista_versioner` som aldrig skapades — historik läses via
+vanlig SELECT mot `juridisk_version`, RLS filtrerar publicerad/arkiverad
+för publik och allt för superadmin).
+
+### SX4 — Test-luckor S3 + S4 (låg)
+
+Två testfiler i `supabase/tests/`:
+
+**s3_redigerare_las.sql** (tx-rollback, BEGIN/ROLLBACK):
+- Test 1: konto utan beviljad rätt avvisas av `innehall_kraver_skrivratt`.
+- Test 2: efter `bevilja_innehalls_redigerare` passerar samma konto.
+- Test 3: granted editor som anropar RPC mot **LÅST** rad blockeras av
+  S1:s last-trigger (check_violation).
+
+Använder service_role GUC-bypass för admin_niva-set (kringgår
+profiles_skydda_falt), simulerar authenticated via
+`request.jwt.claim.sub` + `SET LOCAL ROLE authenticated`.
+
+**s4_andringslogg_append_only.sql:**
+- Test 1: `has_table_privilege` bevisar anon + authenticated saknar
+  INSERT/UPDATE/DELETE.
+- Test 2: trigger-pipeline skriver 6 logg-rader för INSERT + 4×UPDATE +
+  DELETE.
+- Test 3: handelse_typ-klassificering korrekt
+  (skapad/andrad/publicerad/last).
+
+Båda verifierade gröna mot live-DB.
+
+### SX5 — `zivar.mahmod@corevo.se` till superadmin
+
+Migration 0062. Speglar H5 (0039). Service_role GUC-bypass släpper
+igenom profiles_skydda_falt-triggern utan permanent hål. Idempotent
+(UPDATE WHERE IS DISTINCT FROM mål).
+
+Verifierat post-migration:
+- `zivar.mahmod@corevo.se` → `roll=admin`, `admin_niva=superadmin` ✓
+- `admin@corevo.se` → oförändrat (beredskaps-/reservkonto) ✓
+
+Vid första inloggning på admin/superadmin-ytan möts Zivar av 2FA-enroll
+(H1 enforcement) — förväntat.
+
+### Beslut tagna autonomt under SX1–SX5
+
+| Beslut | Motivering |
+|---|---|
+| sanitize-html istället för isomorphic-dompurify | Briefen föreslog DOMPurify "fungerar server-side", men `isomorphic-dompurify` kräver jsdom som inte är edge-safe (Cloudflare Workers). sanitize-html använder htmlparser2 — pure JS, fungerar i edge-runtime utan DOM-lib. Samma utfall (strikt allowlist-baserad sanitering), bättre runtime-passform. |
+| Behåll write-validering som lager 1 | "Vattentät" render-sanering är lager 2 (icke-förhandlingsbar). Lager 1 ger superadmin ett vänligt felmeddelande direkt vid skriv-försök istället för att tyst strippa. Kostnaden noll, fördelen tydlig UX. |
+| sanitize-html `transformTags` lägger rel + target på alla länkar | Vanlig hygien — `target="_blank"` utan `rel="noopener noreferrer"` är tabnabbing-risk. Saniteraren tvingar fram det automatiskt. |
+| ALTER DEFAULT PRIVILEGES istället för manuell list-per-funktion | GX1 listade individuella funktioner och vi fastnade i återfallet. Default-privilege-changen är permanent — varje framtida `CREATE FUNCTION` i `private` skipar PUBLIC-grant automatiskt. |
+| Spärr i `innehall_uppdatera_sida` istället för i alla call-sites | DB-nivå är sista skyddet. UI kunde gömma knappen och RPC kunde fortfarande kallas direkt (t.ex. via service_role eller med fel klient). Spärr i RPC:n täcker alla vägar. |
+| Test 3 i S3-test använder RPC-anrop, inte direct UPDATE | S1 saknar RLS UPDATE-policy → direct UPDATE filtreras till 0 rader (inte exception). RPC går via DEFINER och triggar last-triggern korrekt. Testet bevisar då vad det ska bevisa. |
+| Idempotent SX5 trots att zivar redan var superadmin live | Migrations-ledger behöver SX5-raden för reproducerbar replay från ny databas. UPDATE WHERE IS DISTINCT FROM gör att om körd igen blir det 0 rader, ingen biverkning. |
+
+### Säkerhetsadvisor — efter SX1–SX5
+
+Samma uppsättning som efter S8. **Inga nya WARN/ERROR från någon
+SX-migration.** Kvarvarande är pre-existerande (mission RLS, 4×SECURITY
+DEFINER-RPCs från Steg 3/10, leaked password protection — Zivar-uppföljning).
+
+---
+
+# Tidigare körningar (bevarade)
+
 # SESSION-GOAL — Steg 18 (M19) + tidigare körningar
 
-**Senaste körning (S1–S8):** `../2-Byggplan/15-Goal-Steg-18-innehall-faq.md` —
-körd autonomt 2026-05-24. **ALLA S1–S8 KLARA, pushade.**
-**Steg 18 = M19 Innehåll & FAQ. Sista byggsteget — plattformen är kodfärdig.**
+**Steg 18 / M19 Innehåll & FAQ. Sista byggsteget — plattformen är kodfärdig.**
 
 Tidigare passet samma dag: GX1–GX3 (fix-pass 2), FX1–FX6 (fix-pass 1),
 Steg 17 F1–F10 (federation), härdning H1–H5, Steg 12–16, rubrik-överlapp
