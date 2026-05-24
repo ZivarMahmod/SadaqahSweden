@@ -1,3 +1,302 @@
+# SESSION-GOAL — Steg 17 (federationen, F1–F10) + tidigare körningar
+
+**Senaste körning (Steg 17):** `../2-Byggplan/12-Goal-Steg-17-federation.md` —
+körd autonomt 2026-05-24. **ALLA F1–F10 KLARA, pushade.**
+**Tidigare:** härdning H1–H5 (samma dag), Steg 12–16 (samma dag).
+**Stopp:** efter F10. Starta INTE Steg 18 (innehåll & FAQ).
+
+---
+
+## Status — Steg 17 (M18 federation)
+
+**✅ ALLA KLARA** — pushade till `main` som tio separata commits
+(`feat(f1)`…`feat(f10)`). Migrations 0041–0047.
+
+### F1 — Admin-nivåer + region-scopad RLS (säkerhetskritisk)
+
+Fundamentet. Migration 0041:
+- Seed `admin@corevo.se` → `admin_niva='superadmin'` (idempotent, GUC-bypass).
+- Session-cached helpers: `private.aktuell_admin_niva()`,
+  `private.aktuell_region_kod()` (sql STABLE SECURITY DEFINER — samma form
+  som `aktuell_roll`, en lookup per query inte per rad).
+- Guards: `private.require_superadmin()`, `private.kraver_region_atkomst(text)`.
+- RLS region-scope på granskning, granskning_handelse, insamling
+  (granskar-grenarna). Mönster: `admin_niva IS NULL eller 'superadmin'` →
+  ser allt; `region_admin/medhjalpare` → bara matchande region_kod.
+  NULL-region-rader → bara superadmin/nationellt team.
+- Pengaingrepp → **superadmin-only**: `admin_initiera_refund_donation/insamling`,
+  `admin_stang_insamling`, `admin_satt_skyddad_identitet`.
+- Region-scope-guards på `admin_pausa/aterstall_insamling`,
+  `admin_avfard_larm`, `fatta_granskar_beslut`,
+  `fatta_event_granskar_beslut`, `tilldela_granskning`,
+  `uppdatera_granskning_anteckningar`. Bevarar befintliga RPC-kroppar;
+  bara guard-blocket byts ut.
+- Nya superadmin-only RPCs: `admin_satt_admin_niva`,
+  `admin_satt_admin_region` + public INVOKER-wrappers.
+- Index: `profiles_admin_niva_idx`, `profiles_admin_region_kod_idx`
+  (partial där NOT NULL).
+- **Test:** `supabase/tests/f1_region_scope.sql` (BEGIN/ROLLBACK) skapar
+  två region-admins + insamlingar i två län (01 Stockholm, 14 Västra
+  Götaland), simulerar varje admins session via `set_config + SET LOCAL
+  ROLE authenticated`, asserter att cross-region SELECT returnerar 0
+  rader och att `require_superadmin` raise:ar för region-admin.
+  Verifierat — alla asserts gröna.
+
+### F2 — Distribuerad granskningskö
+
+Bygger emergent på F1:s RLS. Migration 0042:
+- `public.region_ko_oversikt()` (SECURITY INVOKER) — per-region
+  aggregat (öppna, SLA-brott, eskalerade, äldsta inskickning,
+  snitt-väntetid). RLS från F1 filtrerar: region-admin/medhjälpare ser
+  bara egen region; superadmin/nationellt team ser alla. NULL-region
+  hamnar i superadmins kö — exakt vad brief specar.
+
+UI:
+- `/admin`: ny "Kön per region"-panel.
+- `/granskning`: region-pill per rad (län-namn eller "Superadmins kö").
+
+Auto-tilldelning och kö-routning är emergent från RLS — ingen ny logik
+i M3 behövdes. Insamling utan region_kod syns bara för
+superadmin/nationellt team; inget glapp möjligt.
+
+### F3 — Skydden: jäv, andra-granskning, stickprov, överklagande
+
+Migration 0043 + UI. Stort scope.
+
+**Jäv:** `granskning.jav_markerad/skal/av/at` + `markera_jav`-RPC som
+lyfter ärendet (tilldelad_granskare_id=NULL) och loggar i
+granskning_handelse. UI-knapp "Markera jäv & lämna ifrån mig" på
+beslutspanelen.
+
+**Känslig + andra-granskning:** `insamling.kanslig` + `admin_satt_kanslig`-
+RPC (region-scoped). Helper `private.kraver_andra_granskning()` returnerar
+true vid kanslig=true ELLER målbelopp ≥ 500 000 kr i öre. Hård gating av
+godkänn-besluten vid 2:a-granskning ligger vilande — flaggan + helper
+finns, full multi-granskar-mekanik byggs när M3-flödet utökas (utanför
+F3:s scope, batchad uppföljning).
+
+**Stickprov:** `public.stickprov_avvikande_granskare()` (INVOKER-wrapper
+runt private DEFINER med `require_superadmin` internt). Listar granskare
+med ≥5 beslut och >60% avvisningsandel.
+
+**Överklagande:** ny tabell `public.overklagande` med enum
+`overklagande_status` + UNIQUE-index per insamling (1 ggn-regeln). RLS:
+insamlare ser egen; superadmin/nationellt team ser alla (region-admin
+ser ingen — det är de vars beslut överklagas; jävsskydd inbyggt).
+RPCs: `lamna_overklagande` (insamlare av avvisad insamling, en gång) +
+`superadmin_avgor_overklagande` (riv upp → insamling tillbaka till
+under_granskning + ny granskning-runda, eller bekräfta avslaget).
+
+UI:
+- `/konto/insamling/[id]`: OverklagandeForm visas när status=avvisad
+  och ingen befintlig överklagan; befintlig visas med status.
+- `/admin/overklaganden`: superadmin-vy med inkomna + avgjorda
+  överklaganden. Panel med riv-upp / bekräfta-knappar.
+
+### F4 — Anmäl förening: kontaktperson + separat förenings-konto
+
+Bygger på M10:s befintliga anmäl-/granskar-kö (Steg 11). Migration 0044:
+- `organisation.kontaktperson_namn`, `kontaktperson_epost`,
+  `forenings_konto_user_id` (FK auth.users), `forenings_konto_aktiverat_at`.
+- `binda_forenings_konto`-RPC: granskare/admin sätter
+  `profiles.ar_organisation=true`, kopplar `organisation.profil_id` +
+  `forenings_konto_user_id`, publicerar katalog_status.
+
+UI:
+- Anmäl-form: nya kontaktperson-fält (obligatoriska).
+- Granskar-panel: ny "Aktivera förenings-konto"-knapp efter publicering.
+  Server action skapar separat Auth-user via Supabase Auth Admin API
+  (`createUser`), genererar magic-link (visas för granskare att kopiera
+  om Supabase SMTP inte når fram), binder kontot via RPC. Hanterar
+  e-post-konflikt (existerande user återanvänds).
+
+### F5 — Regional föreningsprofil + emblem
+
+Migration 0045:
+- `organisation.ar_region_admin` (denormaliserad boolean) + partial index.
+- Backfill: föreningar vars konto har `admin_niva='region_admin'`.
+- Trigger `private.profiles_synk_region_admin_emblem` på AFTER UPDATE
+  OF admin_niva — synkar `org.ar_region_admin` när superadmin
+  utser/avsätter via F1:s `admin_satt_admin_niva`.
+
+UI:
+- `/foreningar` (katalog): "Region-admin"-pill på kort när
+  `ar_region_admin=true`. Region-admin-föreningar sorteras först.
+- `/foreningar/[publicId]` (detalj): "Region-admin — godkänd
+  samarbetspartner"-pill bredvid verifieringsnivån.
+
+Härleds automatiskt — ingen separat "emblem"-toggle som kan glömmas.
+
+### F6 — Subdomäner & inloggning
+
+Host-baserad routning i middleware. Subdomänen är en INGÅNG, inte
+säkerhetsgränsen — F1:s RLS är säkerheten i djupet.
+
+`middleware.ts`:
+- Detekterar host (`sadaqahsweden.se` / `regionaladmin` / `superadmin`).
+- Publik domän + path `/admin|/granskning|/team` → 308 redirect till
+  `regionaladmin`-subdomänen. Publika sidan exponerar inga
+  admin-ingångar.
+- Admin-subdomänernas rotväg `/` → 307 redirect `/admin` (delad
+  landning). Båda leder till samma `/admin`-vy; `admin_niva` styr vad
+  som syns.
+- AAL2-grinden från H1 gäller alla hosts.
+
+`lib/host.ts`: `aktuellHostTyp()` + `arAdminHost()` helpers för Server
+Components.
+
+`site-nav.tsx`: `arGranskare`-villkoret kräver nu `visaInternaLankar=true`
+(host ≠ publik). Granskar-/admin-/team-länkar visas bara på
+admin-subdomäner (eller okänd host i dev/preview).
+
+**Batchad uppföljning:** DNS för subdomäner (Cloudflare custom domains)
+— Zivar.
+
+### F7 — Pausbar team-roll (skriver om M17 två-konto-modell)
+
+Migration 0046:
+- `profiles.team_roll_pausad_at` + `team_roll_pausad_skal`.
+- `aktuell_roll()`: pausad → 'insamlare' (alla RLS-policys ärver).
+- `aktuell_admin_niva()/region_kod()`: pausad → NULL.
+- `profiles_skydda_falt`: blockerar direkt UPDATE av
+  team_roll_pausad_at; bara via RPCs.
+- `pausa_team_roll(p_skal)`: egen användare, raw roll måste vara
+  granskare/admin.
+- `aterstall_team_roll()`: blockeras om `team_inaktiverad_at` är satt
+  (hård offboarding går inte att själv-återställa).
+
+`lib/auth.ts aktuellAnvandare()` speglar DB-helpern — `me.roll` blir
+'insamlare' när pausad så server components ser samma som RLS.
+
+UI: `/konto/profil` ny Team-roll-sektion för team-konton (även när
+pausade), med skäl-fält + pausa/återuppta-knappar.
+
+### F8 — 2FA obligatoriskt för alla inloggade konton
+
+Utvidgar H1:s AAL2-enforcement.
+
+`lib/auth.ts kraver()`: MFA-checken körs nu för alla inloggade —
+insamlare och förening också. Insamlare utan enrollad faktor redirectas
+till `/team/2fa-setup` vid första kraver()-skyddade route.
+
+`middleware.ts INTERN_PREFIX`: utökat med `/konto`, `/insamling`,
+`/stripe/onboarding`. Insamlarens kontohandlingar gateas bakom aal2.
+`/insamlingar/*` (publik katalog + donations-flödet) är medvetet
+utanför — gäst-donation och inloggad donation fungerar utan MFA.
+
+`/team/2fa-setup` är nu roll-agnostisk (gamla "bara team"-restriktionen
+borttagen).
+
+Återställningsvägen från H1 (admin nollställer MFA-faktor) gäller även
+insamlar-konton — samma mekanik.
+
+### F9 — Insamlare-onboarding: synlig pending-status
+
+Härleder pending från `(stripe_account_id IS NOT NULL AND
+stripe_onboarding_klar = false)`. Webhook `account.updated` flippar
+status automatiskt sedan Steg 5 — det som saknades var den synliga
+statusen.
+
+UI:
+- `/konto`: "Stripe-verifiering pågår"-Card för insamlare/förening i
+  pending. Visar förklarande text + länk till `/stripe/onboarding`.
+  Också en "Ej startad"-variant för insamlare som inte påbörjat
+  onboarding än.
+- `/admin`: ny "Stripe-pending insamlare"-panel listar pågående
+  onboardings (RLS-filtrerat per region).
+
+### F10 — Donationshistorik i profil (privat default)
+
+Migration 0047:
+- `profiles.visa_donations_publikt` boolean DEFAULT false.
+- `antal_publika_donationer(uuid)` — INVOKER-wrapper runt private
+  DEFINER. Returnerar 0 om profilen ej slagit på öppen vy; annars
+  `count(*)` av bekräftade donationer.
+
+UI:
+- `/konto/donationer`: ny privat lista av egna donationer (RLS via
+  `donation_select_egen`). Toggle för "Öppen vy: PÅ/AV". Bekräftelse-
+  dialog vid PÅ.
+- `/konto`: länk "Mina donationer".
+- `/profil/[publicId]` (publik): "{N} donationer"-pill i hero när
+  profilen valt öppen vy. Ingen summa, ingen lista — bara antal.
+
+Gäst-donationer (utan konto) berörs inte; ingen `donator_id`, inget
+att spara.
+
+### Säkerhetsadvisor — efter F1–F10
+
+Före + efter: samma uppsättning advisorer som efter H5. **Inga nya
+WARN/ERROR från någon F-migration.** Kvarvarande är pre-existerande:
+- INFO: `public.mission` RLS utan policy.
+- WARN × 4: `fatta_granskar_beslut`, `skicka_insamling_for_granskning`,
+  `tilldela_granskning`, `uppdatera_granskning_anteckningar` — SECURITY
+  DEFINER callable av authenticated (pre-existerande från Steg 3/10).
+- WARN: Leaked password protection disabled — Zivar-uppföljning.
+
+Alla mina nya public RPCs är INVOKER-wrappers runt private DEFINER
+(samma mönster som markera_jav, admin_satt_kanslig,
+stickprov_avvikande_granskare etc) — undviker 0029-WARN.
+
+### Beslut tagna autonomt under Steg 17
+
+| Beslut | Motivering |
+|---|---|
+| `aktuell_admin_niva()/region_kod()` som `sql STABLE SECURITY DEFINER` (inte plpgsql) | Speglar `aktuell_roll()` exakt → samma session-caching i query-planen. Per-row plpgsql skulle re-querya profiles för varje rad. (Advisor-rådet under F1.) |
+| `stickprov_avvikande_granskare` flyttad till `private.` + INVOKER-wrapper i `public.` | Annars 0029 SECURITY DEFINER-WARN. Matchar mönstret för markera_jav, admin_satt_kanslig, lamna_overklagande, superadmin_avgor_overklagande etc. |
+| Andra-granskning: flagga + helper i v1, ingen hård gating av godkänn-besluten | F3:s scope rörde redan jäv + känslig + stickprov + överklagande. Hård multi-granskar-mekanik kräver en stor M3-omstrukturering — batcha till när M3 utökas. Helper + flagga finns för superadmin att kunna agera manuellt. |
+| Pausad team-roll mappas via helpers, inte genom att flytta `profiles.roll` | "Originalrollen" bevaras → enkelt att återuppta. Alla RLS-policys använder redan `aktuell_roll()` så pausen blir säker på DB-nivå utan att röra någon policy. |
+| F8: ta bort roll-restriktion på `/team/2fa-setup` istället för att skapa parallella `/konto/2fa-setup` | Samma Supabase MFA-flöde, samma kod, ingen anledning att dubbla. Bara villkoret runt redirect-kontrollen behövde lossas. |
+| F4: separat förenings-konto via `auth.admin.createUser` + `generateLink`, returnera magic-länken till granskaren | Resend saknas (batchad uppföljning). Brief säger granskaren får "skicka invite till kontaktperson" — magic-link visad för manuell kopiering = robust fallback. När SMTP-providern är kopplad får kontaktpersonen e-posten automatiskt. |
+| F2: emergent kö-routning från RLS, inget M3-omstrukturerings-pass | Brief: "Granskningskön filtreras på region via F1:s RLS. M3:s auto-tilldelning körs inom regionen." RLS gör det fritt — ingen ny tilldelningsalgoritm behövs. |
+| F5: `organisation.ar_region_admin` denormaliserad + synk-trigger på profiles.admin_niva | Brief: "härled emblemet från admin_niva på förenings-profilen så det inte blir ett fält som kan glömmas bort". Trigger ger samma effekt utan N+1-query för publika katalogen. |
+| F10: anon får kalla `antal_publika_donationer` (returnerar 0 om profil inte valt öppet) | Publika `/profil/[publicId]`-sidan måste fungera utan inloggning. Funktionen avslöjar inget om profiler som inte valt öppet. |
+
+---
+
+## Batchade uppföljningar (efter F1–F10)
+
+Listan från H5 uppdaterad. Inget av detta blockerar federationen.
+
+1. **DNS för subdomäner** — `regionaladmin.sadaqahsweden.se` +
+   `superadmin.sadaqahsweden.se` ska pekas och kopplas som custom
+   domains i Cloudflare. Försökte via `wrangler`/Cloudflare-API i
+   sandlådan: inte inloggad mot Zivars konto. Manuellt steg.
+2. **Utse riktiga region-admins** — federationen tänds region för
+   region; vilka moskéer/personer som blir region-admins är Zivars
+   förtroendebeslut, operativt efter bygget. Koden klarar noll
+   region-admins (allt i superadmins kö) — det är det normala
+   utgångsläget.
+3. **Beredskaps-superadmin** — minst ett konto till bör ha
+   `admin_niva='superadmin'` som bus-factor-skydd. Schemat tillåter
+   det (F1) — vem det blir är en föreningsfråga. Aktivera via
+   `admin_satt_admin_niva`-RPC.
+4. **Full multi-granskar-mekanik (andra-granskning)** — F3 lägger
+   flagga + helper; hård gating av godkänn-besluten vid >500k eller
+   känslig kräver en M3-omstrukturering (flergranskar-beslut, hold-
+   tills-2-godkända-state). Aktivera när M3-flödet utökas eller
+   första kanslig insamling kommer in.
+5. **RESEND_API_KEY** — fortsatt vilande. Påverkar nu också F4:s
+   förenings-invite (magic-link visas manuellt tills SMTP är på).
+6. **Leaked password protection** — Supabase dashboard, Auth →
+   Password security. Pre-existerande Security Advisor-WARN.
+7. **Karta-basemap till produktion** — byt från OpenFreeMap till
+   självhostad Protomaps PMTiles på Cloudflare R2.
+8. **Team-e-post** — Cloudflare Email Routing för
+   `namn@sadaqahsweden.se`.
+
+---
+
+## Föregående körningar (verifierat tidigare)
+
+Steg 0–16 byggda, verifierade och pushade. Härdning H1–H5 körd
+2026-05-24. Pengaflödet (Steg 5–7) end-to-end-verifierat i Stripe
+testläge.
+
+---
+
+# Tidigare körningar (bevarade)
+
 # SESSION-GOAL — Härdning H1–H5 + Steg 12–16
 
 **Senaste körning (härdning):** `../2-Byggplan/10-Goal-Hardning.md` — körd autonomt 2026-05-24.
