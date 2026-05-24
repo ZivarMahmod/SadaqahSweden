@@ -85,6 +85,18 @@ export async function kraver(
     redirect("/konto-fryst");
   }
 
+  // M17: team-konton (granskare/admin med totp_kravs=true) får inte nå
+  // skyddade routes innan TOTP är aktiverat. Undantag: 2FA-setup-sidan själv
+  // och accept-invite-flödet.
+  if (
+    me.profil.totp_kravs &&
+    !me.profil.totp_aktiverad &&
+    tillatnaRoller &&
+    tillatnaRoller.length > 0
+  ) {
+    redirect("/team/2fa-setup");
+  }
+
   return me;
 }
 

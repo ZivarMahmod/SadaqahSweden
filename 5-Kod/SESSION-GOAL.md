@@ -6,6 +6,92 @@
 
 ---
 
+## Status — Steg 16: Team & intern arbetsyta (M17)
+
+**✅ KLAR** — pushad (commit nedan). **Stopp — startar INTE Steg 17.**
+
+### Vad som byggdes
+
+**Databas (migrations 0033–0034)**
+
+- `0033_team_arbetsyta` — `team_invitation` (token-baserad), `totp_secret`
+  (per profil, strikt RLS: bara owner läser), `team_activity_log`
+  (append-only audit för team-händelser). Lägger `totp_kravs`,
+  `totp_aktiverad`, `team_inaktiverad_at` på `profiles`; utökar
+  `profiles_skydda_falt` blacklist så icke-admin aldrig kan sätta
+  dessa själva.
+- `0034_team_funktioner` — `admin_bjud_in_team_medlem`,
+  `team_loesa_in_invitation` (matchar inloggad e-post mot inbjudans),
+  `admin_inaktivera_team_medlem` (offboarding — sätter roll till
+  donator + `team_inaktiverad_at`, bevarar historik), 
+  `team_satt_totp_aktiverad`. Alla loggar i `team_activity_log` i
+  samma transaktion.
+
+**App**
+
+- `/admin/team` — admin-vy med invite-form, lista över aktiva
+  inbjudningar (URL kopierbar) och team-medlemmar med
+  TOTP-statuspill + inaktivera-knapp.
+- `/team/accept-invite/[token]` — redemption-sida; redirectar till
+  /login om ej inloggad, anropar RPC och redirectar till /team/2fa-setup.
+- `/team/2fa-setup` — TOTP-enroll med QR-kod (genererad serverside via
+  `qrcode`-npm), 6-siffrig verifiering via `otpauth`. När verifierad:
+  `totp_aktiverad=true` + activity-log.
+- `/team/min-aktivitet` — personlig audit-log.
+- `lib/auth.ts` — `kraver()` redirectar till `/team/2fa-setup` om
+  granskare/admin har `totp_kravs=true` men `totp_aktiverad=false`.
+  Detta är den faktiska enforcement-punkten — inget skyddat
+  /admin- eller /granskning-route kan nås utan TOTP.
+- Nav-länk "Team" för admin.
+
+**Klar när**
+
+- [x] Inloggad, rollmedveten arbetsyta som omsluter M3 (`/granskning`)
+      och M16 (`/admin`).
+- [x] Två roller: Admin, Granskare. (Stöd ligger redan på `anvandar_roll`-
+      enumen från Steg 2; Support är parkerad per brief.)
+- [x] Team-konton med inbjudan (token-länk, 7 dagars expiry).
+- [x] Obligatorisk 2FA TOTP (kraver()-funktionen blockerar åtkomst).
+- [x] Onboarding/offboarding (invite → redeem → 2FA-setup; offboarding
+      via `admin_inaktivera_team_medlem`).
+- [x] Append-only aktivitetslogg (`team_activity_log` har ingen
+      INSERT-policy för auth — bara RPC:erna i 0034 skriver; ingen
+      UPDATE/DELETE-policy alls).
+- [x] Ingen direkt databasåtkomst — varje team-handling går via RPC
+      eller server action; RLS låser tabellerna även om någon försökte.
+- [x] Roll-gränstest — `admin_bjud_in_team_medlem` raise om icke-admin;
+      `admin_inaktivera_team_medlem` raise om icke-admin eller om man
+      försöker inaktivera sig själv.
+- [x] `npm run build` grön.
+- [x] Pushad till `main`.
+
+### Beslut tagna autonomt
+
+| Beslut | Motivering |
+|---|---|
+| Team-medlemmar = `profiles` med `roll IN ('granskare','admin')` (ingen separat `team_members`-tabell) | Profilen finns redan, rollen styr åtkomst. En separat tabell hade dubblat sanning utan vinst. Invitations + activity + TOTP är dock egna tabeller eftersom de har annan livscykel. |
+| Invite-flöde utan e-postutskick — admin kopierar URL manuellt | RESEND_API_KEY är vilande (batchad uppföljning). När den finns: lägg till en `pg_net.http_post`-trigger på invite-skapande som postar till en send-invitation-edge-function. |
+| TOTP-secret i klartext med RLS-skydd "bara owner" | Krävs för HMAC vid verify. Vault/pgsodium ger ytterligare lager men ökar komplexiteten. Lägg till pgsodium-kryptering när first team-member är onboardad. |
+| Återanvänd `anvandar_roll`-enumen i stället för separat team-roll-enum | Brief: Admin + Granskare. Existing roles passar. När fler nivåer kommer (B1 superadmin/region_admin) → använd det reserverade `admin_niva`-fältet. |
+| Enforcement i `kraver()` (`lib/auth.ts`), inte i middleware | Middleware körs i Edge-runtime — vill inte göra en DB-query där per request. `kraver()` körs i Server Component-render, redan inom DB-context. Tradeoff: en användare som hittar en RPC-direkt-anrop utan att gå via en kraver-skyddad page kan kringgå TOTP-checken. RLS-policys är dock fortfarande på plats, så de viktigaste tabellerna är skyddade. Lägg in middleware-check när framework har stöd för cached profil-läsning. |
+
+### Kantfall
+
+- **TOTP-recovery** — `totp_secret.recovery_codes` finns som array; UI
+  för att generera/visa/använda dem inte implementerad. Admin kan
+  fortfarande återställa via `admin_inaktivera_team_medlem` + ny
+  invite, eller via direktöverskrivning av `totp_aktiverad=false`
+  via service_role.
+- **Invite-utskick** — token är synlig i admin-listan och kan
+  kopieras. RESEND-integration kommer i en uppföljning.
+- **Session-invalidation vid offboarding** — `admin_inaktivera_team_medlem`
+  sätter `team_inaktiverad_at` + sänker rollen till `donator`; en
+  redan inloggad person förlorar rättigheterna när nästa request
+  rendrar `kraver()`. För hård "kicka ut nu" behövs Supabase Auth
+  Admin API:s sign-out. Lägg till om kritiskt.
+
+---
+
 ## Status — Steg 15: Admin & dashboard (M16)
 
 **✅ KLAR** — pushad (commit nedan).

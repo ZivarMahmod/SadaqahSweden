@@ -1944,6 +1944,9 @@ export type Database = {
           stad: string | null
           stripe_account_id: string | null
           stripe_onboarding_klar: boolean
+          team_inaktiverad_at: string | null
+          totp_aktiverad: boolean
+          totp_kravs: boolean
           updated_at: string
           visa_stad: boolean
           visa_total_summa: boolean
@@ -1969,6 +1972,9 @@ export type Database = {
           stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
+          team_inaktiverad_at?: string | null
+          totp_aktiverad?: boolean
+          totp_kravs?: boolean
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -1994,6 +2000,9 @@ export type Database = {
           stad?: string | null
           stripe_account_id?: string | null
           stripe_onboarding_klar?: boolean
+          team_inaktiverad_at?: string | null
+          totp_aktiverad?: boolean
+          totp_kravs?: boolean
           updated_at?: string
           visa_stad?: boolean
           visa_total_summa?: boolean
@@ -2201,6 +2210,204 @@ export type Database = {
           {
             foreignKeyName: "refunds_initierad_av_fkey"
             columns: ["initierad_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_activity_log: {
+        Row: {
+          beskrivning: string
+          created_at: string
+          detaljer: Json
+          id: string
+          ip_hash: string | null
+          profile_id: string | null
+          typ: Database["public"]["Enums"]["team_aktivitet_typ"]
+          utfort_av: string | null
+        }
+        Insert: {
+          beskrivning: string
+          created_at?: string
+          detaljer?: Json
+          id?: string
+          ip_hash?: string | null
+          profile_id?: string | null
+          typ: Database["public"]["Enums"]["team_aktivitet_typ"]
+          utfort_av?: string | null
+        }
+        Update: {
+          beskrivning?: string
+          created_at?: string
+          detaljer?: Json
+          id?: string
+          ip_hash?: string | null
+          profile_id?: string | null
+          typ?: Database["public"]["Enums"]["team_aktivitet_typ"]
+          utfort_av?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_activity_log_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_activity_log_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_activity_log_utfort_av_fkey"
+            columns: ["utfort_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_activity_log_utfort_av_fkey"
+            columns: ["utfort_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_invitation: {
+        Row: {
+          avbruten_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          inbjuden_av: string
+          noteringar: string | null
+          redeemed_at: string | null
+          redeemed_av: string | null
+          roll: Database["public"]["Enums"]["anvandar_roll"]
+          token: string
+        }
+        Insert: {
+          avbruten_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          inbjuden_av: string
+          noteringar?: string | null
+          redeemed_at?: string | null
+          redeemed_av?: string | null
+          roll: Database["public"]["Enums"]["anvandar_roll"]
+          token?: string
+        }
+        Update: {
+          avbruten_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          inbjuden_av?: string
+          noteringar?: string | null
+          redeemed_at?: string | null
+          redeemed_av?: string | null
+          roll?: Database["public"]["Enums"]["anvandar_roll"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitation_inbjuden_av_fkey"
+            columns: ["inbjuden_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitation_inbjuden_av_fkey"
+            columns: ["inbjuden_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitation_redeemed_av_fkey"
+            columns: ["redeemed_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitation_redeemed_av_fkey"
+            columns: ["redeemed_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      totp_secret: {
+        Row: {
+          aktiverad_at: string | null
+          ateranvant_otp_skydd: string | null
+          created_at: string
+          profile_id: string
+          recovery_codes: string[]
+          secret_base32: string
+          senaste_verifiering_at: string | null
+          skapad_av: string | null
+          updated_at: string
+        }
+        Insert: {
+          aktiverad_at?: string | null
+          ateranvant_otp_skydd?: string | null
+          created_at?: string
+          profile_id: string
+          recovery_codes?: string[]
+          secret_base32: string
+          senaste_verifiering_at?: string | null
+          skapad_av?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aktiverad_at?: string | null
+          ateranvant_otp_skydd?: string | null
+          created_at?: string
+          profile_id?: string
+          recovery_codes?: string[]
+          secret_base32?: string
+          senaste_verifiering_at?: string | null
+          skapad_av?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "totp_secret_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "totp_secret_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "totp_secret_skapad_av_fkey"
+            columns: ["skapad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "totp_secret_skapad_av_fkey"
+            columns: ["skapad_av"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2522,6 +2729,18 @@ export type Database = {
         Args: { p_larm_id: string; p_motivering: string }
         Returns: undefined
       }
+      admin_bjud_in_team_medlem: {
+        Args: {
+          p_email: string
+          p_noteringar?: string
+          p_roll: Database["public"]["Enums"]["anvandar_roll"]
+        }
+        Returns: string
+      }
+      admin_inaktivera_team_medlem: {
+        Args: { p_motivering: string; p_profile_id: string }
+        Returns: undefined
+      }
       admin_pausa_insamling: {
         Args: { p_insamling_id: string; p_motivering: string }
         Returns: undefined
@@ -2642,6 +2861,11 @@ export type Database = {
         Args: { p_collab_id: string; p_godkand: boolean }
         Returns: undefined
       }
+      team_loesa_in_invitation: {
+        Args: { p_token: string }
+        Returns: Database["public"]["Enums"]["anvandar_roll"]
+      }
+      team_satt_totp_aktiverad: { Args: never; Returns: undefined }
       tilldela_granskning: {
         Args: { p_granskning_id: string }
         Returns: undefined
@@ -2788,6 +3012,18 @@ export type Database = {
         | "admin_beslut"
         | "donator_begaran"
       refund_status: "pending" | "succeeded" | "failed" | "canceled"
+      team_aktivitet_typ:
+        | "invite_skapad"
+        | "invite_redeemed"
+        | "invite_avbruten"
+        | "roll_befordrad"
+        | "roll_inaktiverad"
+        | "roll_aterstalld"
+        | "totp_aktiverad"
+        | "totp_aterstalld"
+        | "login_team"
+        | "session_invalidated"
+        | "annat"
       transfer_status: "pending" | "paid" | "reversed" | "failed"
       webhook_event_status: "received" | "processed" | "error" | "skipped"
     }
@@ -3060,6 +3296,19 @@ export const Constants = {
         "donator_begaran",
       ],
       refund_status: ["pending", "succeeded", "failed", "canceled"],
+      team_aktivitet_typ: [
+        "invite_skapad",
+        "invite_redeemed",
+        "invite_avbruten",
+        "roll_befordrad",
+        "roll_inaktiverad",
+        "roll_aterstalld",
+        "totp_aktiverad",
+        "totp_aterstalld",
+        "login_team",
+        "session_invalidated",
+        "annat",
+      ],
       transfer_status: ["pending", "paid", "reversed", "failed"],
       webhook_event_status: ["received", "processed", "error", "skipped"],
     },

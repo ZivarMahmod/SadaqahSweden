@@ -79,6 +79,15 @@ export async function SiteNav() {
               >
                 Admin
               </Link>
+              {me.roll === "admin" && (
+                <Link
+                  href="/admin/team"
+                  className="text-sm font-semibold transition-colors"
+                  style={{ color: "var(--color-copper-deep)" }}
+                >
+                  Team
+                </Link>
+              )}
             </>
           )}
         </nav>
