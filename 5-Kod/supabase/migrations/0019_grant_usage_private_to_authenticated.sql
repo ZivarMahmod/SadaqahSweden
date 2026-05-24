@@ -1,0 +1,22 @@
+-- =====================================================================
+-- Sadaqah Sweden — Migration 0019
+-- Bugfix: GRANT USAGE ON SCHEMA private TO authenticated.
+--
+-- Bakgrund: Public RPC-wrappers (t.ex. public.fatta_granskar_beslut,
+-- public.skicka_insamling_for_granskning, public.tilldela_granskning)
+-- är SECURITY INVOKER och anropar private.<funktion>(). Anroparen
+-- (authenticated) har EXECUTE på private-funktionen (per individuell
+-- GRANT), men saknar USAGE på private-schemat — vilket gör att schema-
+-- qualified anrop misslyckas med "permission denied for schema private".
+--
+-- Konsekvens: granskare kan inte godkänna insamlingar via PostgREST RPC,
+-- insamlare kan inte skicka in till granskning. Hela CP3-flödet blockerat.
+--
+-- Hittad under verifiering Steg 5–7, CP3 (granska + godkänn).
+--
+-- Säkerhet: USAGE betyder bara att schemat är synligt; individuella
+-- funktioner skyddas fortfarande av sina egna EXECUTE-grants
+-- (REVOKE FROM anon/PUBLIC är intakt). Service_role har redan USAGE.
+-- =====================================================================
+
+GRANT USAGE ON SCHEMA private TO authenticated;

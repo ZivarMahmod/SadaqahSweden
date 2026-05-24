@@ -1,0 +1,23 @@
+-- =====================================================================
+-- Sadaqah Sweden — Migration 0021
+-- Bugfix: GRANT EXECUTE ON private.gen_public_id(integer) TO
+-- service_role, authenticated.
+--
+-- Bakgrund: 0001 satte REVOKE från PUBLIC/anon/authenticated men ingen
+-- GRANT till service_role eller authenticated. Funktionen används som
+-- DEFAULT på public_id-kolumnerna i profiles, insamling, granskning,
+-- donation och organisation. Default-expressions körs i anroparens
+-- role-kontext. När en edge-funktion gör INSERT via service_role-JWT
+-- (PostgREST), kraschar default-evalueringen med "permission denied for
+-- function gen_public_id" — donation-rader kunde inte skapas.
+--
+-- Hittad under verifiering Steg 5–7, CP4 (gäst-donation,
+-- create-payment-intent skapar donation).
+--
+-- Säkerhet: funktionen genererar bara slumpmässiga base32-ID:n. Att ge
+-- service_role och authenticated EXECUTE-rätt är säkert; den lägger
+-- ingen privilegierad logik. Anon förblir REVOKE'd (gäst-donationer
+-- görs via edge-funktion med service_role-klient, inte direkt PostgREST).
+-- =====================================================================
+
+GRANT EXECUTE ON FUNCTION private.gen_public_id(integer) TO service_role, authenticated;
