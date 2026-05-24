@@ -328,6 +328,63 @@ export type Database = {
           },
         ]
       }
+      geo_aggregat: {
+        Row: {
+          aktiva_antal: number
+          avslutade_levererade: number
+          beraknad_at: string
+          id: string
+          insamlat_summa_ore: number
+          insamlingar_antal: number
+          kategori_id: string | null
+          omrade_kod: string
+          omrade_typ: string
+          under_troskel: boolean
+          verifierade_insamlare: number
+        }
+        Insert: {
+          aktiva_antal?: number
+          avslutade_levererade?: number
+          beraknad_at?: string
+          id?: string
+          insamlat_summa_ore?: number
+          insamlingar_antal?: number
+          kategori_id?: string | null
+          omrade_kod: string
+          omrade_typ: string
+          under_troskel?: boolean
+          verifierade_insamlare?: number
+        }
+        Update: {
+          aktiva_antal?: number
+          avslutade_levererade?: number
+          beraknad_at?: string
+          id?: string
+          insamlat_summa_ore?: number
+          insamlingar_antal?: number
+          kategori_id?: string | null
+          omrade_kod?: string
+          omrade_typ?: string
+          under_troskel?: boolean
+          verifierade_insamlare?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "geo_aggregat_kategori_id_fkey"
+            columns: ["kategori_id"]
+            isOneToOne: false
+            referencedRelation: "kategori"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "geo_aggregat_omrade_kod_fkey"
+            columns: ["omrade_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
+          },
+        ]
+      }
       granskning: {
         Row: {
           arende_typ: string
@@ -338,6 +395,7 @@ export type Database = {
           insamling_id: string
           inskickad_at: string
           interna_anteckningar: string | null
+          region_kod: string | null
           runda: number
           sla_deadline: string | null
           tilldelad_granskare_id: string | null
@@ -352,6 +410,7 @@ export type Database = {
           insamling_id: string
           inskickad_at?: string
           interna_anteckningar?: string | null
+          region_kod?: string | null
           runda?: number
           sla_deadline?: string | null
           tilldelad_granskare_id?: string | null
@@ -366,6 +425,7 @@ export type Database = {
           insamling_id?: string
           inskickad_at?: string
           interna_anteckningar?: string | null
+          region_kod?: string | null
           runda?: number
           sla_deadline?: string | null
           tilldelad_granskare_id?: string | null
@@ -378,6 +438,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "insamling"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "granskning_region_kod_fkey"
+            columns: ["region_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
           },
           {
             foreignKeyName: "granskning_tilldelad_granskare_id_fkey"
@@ -470,6 +537,8 @@ export type Database = {
           id: string
           insamlar_adress: string | null
           insamlar_adress_publik: boolean
+          insamlar_kommun_kod: string | null
+          insamlar_lan_kod: string | null
           insamlar_region: string | null
           insamlar_stad: string
           insamlat_netto_ore: number
@@ -518,6 +587,8 @@ export type Database = {
           id?: string
           insamlar_adress?: string | null
           insamlar_adress_publik?: boolean
+          insamlar_kommun_kod?: string | null
+          insamlar_lan_kod?: string | null
           insamlar_region?: string | null
           insamlar_stad: string
           insamlat_netto_ore?: number
@@ -566,6 +637,8 @@ export type Database = {
           id?: string
           insamlar_adress?: string | null
           insamlar_adress_publik?: boolean
+          insamlar_kommun_kod?: string | null
+          insamlar_lan_kod?: string | null
           insamlar_region?: string | null
           insamlar_stad?: string
           insamlat_netto_ore?: number
@@ -630,6 +703,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "insamling_insamlar_kommun_kod_fkey"
+            columns: ["insamlar_kommun_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
+          },
+          {
+            foreignKeyName: "insamling_insamlar_lan_kod_fkey"
+            columns: ["insamlar_lan_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
           },
           {
             foreignKeyName: "insamling_mission_id_fkey"
@@ -1179,6 +1266,47 @@ export type Database = {
           },
         ]
       }
+      plats_taxonomi: {
+        Row: {
+          created_at: string
+          iso_3166_2: string | null
+          kod: string
+          kort_namn: string
+          namn: string
+          niva: string
+          parent_kod: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          iso_3166_2?: string | null
+          kod: string
+          kort_namn: string
+          namn: string
+          niva: string
+          parent_kod?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          iso_3166_2?: string | null
+          kod?: string
+          kort_namn?: string
+          namn?: string
+          niva?: string
+          parent_kod?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plats_taxonomi_parent_kod_fkey"
+            columns: ["parent_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
+          },
+        ]
+      }
       profil_badge: {
         Row: {
           antal: number
@@ -1224,6 +1352,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_niva: string | null
+          admin_region_kod: string | null
           ar_organisation: boolean
           avatar_url: string | null
           bankid_verifierad: boolean
@@ -1247,6 +1377,8 @@ export type Database = {
           visningsnamn: string
         }
         Insert: {
+          admin_niva?: string | null
+          admin_region_kod?: string | null
           ar_organisation?: boolean
           avatar_url?: string | null
           bankid_verifierad?: boolean
@@ -1270,6 +1402,8 @@ export type Database = {
           visningsnamn: string
         }
         Update: {
+          admin_niva?: string | null
+          admin_region_kod?: string | null
           ar_organisation?: boolean
           avatar_url?: string | null
           bankid_verifierad?: boolean
@@ -1292,7 +1426,15 @@ export type Database = {
           visa_total_summa?: boolean
           visningsnamn?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_admin_region_kod_fkey"
+            columns: ["admin_region_kod"]
+            isOneToOne: false
+            referencedRelation: "plats_taxonomi"
+            referencedColumns: ["kod"]
+          },
+        ]
       }
       refunds: {
         Row: {
@@ -1716,6 +1858,7 @@ export type Database = {
         Args: { p_beslut: string; p_motivering?: string; p_org_id: string }
         Returns: undefined
       }
+      k_anonymity_troskel: { Args: never; Returns: number }
       markera_alla_notiser_lasta: { Args: never; Returns: number }
       markera_notis_last: { Args: { p_notis_id: string }; Returns: undefined }
       posta_resultat_bevis: {
@@ -1724,6 +1867,11 @@ export type Database = {
       }
       posta_uppdatering: {
         Args: { p_insamling_id: string; p_text: string }
+        Returns: string
+      }
+      rakna_om_geo_aggregat: { Args: never; Returns: number }
+      sakerstall_transfer_group: {
+        Args: { p_insamling_id: string }
         Returns: string
       }
       skicka_insamling_for_granskning: {

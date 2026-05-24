@@ -47,3 +47,6 @@ next-env.d.ts
 .dev.vars
 .dev.vars.*
 cloudflare-env.d.ts
+
+# auto-genererad seed (källkod = scripts/fetch-sverige-geo.mjs)
+scripts/*.sql.generated

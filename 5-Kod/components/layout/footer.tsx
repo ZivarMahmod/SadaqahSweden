@@ -8,8 +8,8 @@ const COLS: { heading: string; links: { label: string; href: string }[]; note?: 
     heading: "Plattformen",
     links: [
       { label: "Insamlingar", href: "/insamlingar" },
-      // TODO (M10): { label: "Föreningar", href: "/foreningar" }
-      // TODO (M12): { label: "Karta", href: "/karta" }
+      { label: "Föreningar", href: "/foreningar" },
+      { label: "Karta", href: "/karta" },
       // TODO (M13): { label: "Community", href: "/community" }
     ],
   },

@@ -1,109 +1,119 @@
-# SESSION-GOAL — Verifiering av pengaflödet (Steg 5–7)
+# SESSION-GOAL — Steg 12–16 (Bygg-grupp C, del 1)
 
-**Status: ✅ VERIFIERAT (2026-05-24)**
-
-Stripe-testläge end-to-end-bevis: onboarding → godkänd insamling → gäst-donation → webhook speglar → settle/transfer → auto-bevis. Sex blockerande buggar i pengaflödet hittade och fixade under körningen (migrations 0017–0021 + Stripe Platform Profile-konfiguration).
-
----
-
-## Resultat — checkpoints
-
-| CP | Beskrivning | Status | Bevis |
-|---|---|---|---|
-| CP0 | Seed test-roller | ✅ | profiles: zivar.mahmod=insamlare/bankid=true, admin@corevo.se=granskare |
-| CP1 | Connected-account onboarding | ✅ | `acct_1TaQeB9lGdTAJkYx`, status=enabled, 10 `account.updated` processed |
-| CP2 | Skapa+skicka in insamling | ✅ | `2b027049` status=inskickad, granskning runda 1, SLA 72h |
-| CP3 | Granska+godkänn | ✅ | status=aktiv, godkand_av=admin, connected_account_id auto-kopplad |
-| CP4 | Gäst-donation | ✅ | `pi_3TaQxG9GJC4vTbrJ0ZQgASm9`, belopp=50000 öre + 5000 öre tip |
-| CP5 | Webhook speglar | ✅ | donation=succeeded, insamlat_ore=50000, frivilligt_bidrag_total=5000 |
-| CP6 | Realtidsräknare (NICE) | ✅* | DB-data korrekt, broadcast logades; UI ej visuellt verifierad |
-| CP7 | Kvitto (NICE) | ⏭ | A7 hoppad — RESEND_API_KEY ej satt, 503 pending förväntat |
-| CP8 | Settle/transfer | ✅ | `tr_1TaR0G9GJC4vTbrJ3c2BV0eo` paid, insamling=stangd, utbetald_ore=50000 |
-| CP9 | Transparens auto-bevis | ✅ | start-bevis (vid CP3) + utbetalning-bevis (vid CP8), båda systemgenererad=true |
+**Brief:** `../2-Byggplan/09-Goal-Steg-12-16.md` — körs autonomt via `/goal`.
+**Datum:** 2026-05-24
+**Stopp:** efter Steg 16. Starta INTE Steg 17/18.
 
 ---
 
-## Verifiering Steg 5–7 — buggar hittade och fixade
+## Status — Steg 12: Karta & geografisk insikt (M12)
 
-Briefen säger: *"Hittar du en bugg i pengaflödet — fixa den. Det ÄR poängen med testet."* Sex blockerande buggar hittades och fixades. Varje DB-fix i ny numrerad migration med rollback.
+**✅ KLAR** — pushad (commit nedan).
 
-### Bug 1 — Stripe Platform Profile loss liability (CP1)
-- **Symptom:** create-connected-account returnerade 502 *"Please review the responsibilities of managing losses for connected accounts"*.
-- **Orsak:** Stripe Connect Platform-profile saknade ansvarsfördelning för förluster (engångssteg innan första connected account kan skapas).
-- **Fix:** Zivar konfigurerade `dashboard.stripe.com/test/settings/connect/platform_profile` → loss liability. Inget kod-fix krävs.
-- **Lärdom:** lägg till i `2-Byggplan/02-Stripe-pengaflode.md` som A0 — krävs en gång per Stripe-konto innan Connect-onboarding fungerar.
+### Vad som byggdes
 
-### Bug 2 — `pg_catalog.current_user` finns inte (`0017`)
-- **Symptom:** Triggern `insamling_pengaskydd` kraschade med *"missing FROM-clause entry for table pg_catalog"* på alla insamling-UPDATEs. Blockerade hela skicka-till-granskning + settle.
-- **Orsak:** `current_user` är ett SQL-reserverat keyword, inte ett schema-qualifierat namn. `pg_catalog.current_user` resolverar inte. Bug introducerad i 0011/0012.
-- **Fix:** `0017_fix_insamling_pengaskydd_current_user.sql` — bytt till `current_user` utan prefix.
+**Databas (migrations 0022–0026)**
 
-### Bug 3 — Samma `pg_catalog.current_user`-bugg i `insamling_status_skydd` (`0018`)
-- **Symptom:** Efter 0017 framträdde samma fel i `insamling_status_skydd`. Blockerade alla status-övergångar utom service_role.
-- **Orsak:** 0013 redefinierade `insamling_status_skydd` och klistrade in samma buggade mönster.
-- **Fix:** `0018_fix_insamling_status_skydd_current_user.sql`.
+- `0022_plats_taxonomi` — tabell + RLS + hjälpfunktioner.
+- `0023_plats_taxonomi_seed` — seed för 21 län + 290 kommuner (SCB-koder).
+- `0024_insamling_normalisera_geo` — nya kolumner `insamlar_kommun_kod` +
+  `insamlar_lan_kod` på `insamling`, normaliseringstrigger som slår upp
+  kod från `insamlar_stad`, backfill. **Federation-prep (Tillägg B1):**
+  `profiles.admin_niva` + `profiles.admin_region_kod`, `granskning.region_kod`
+  reserverade — flaggorna skyddas av utökad `profiles_skydda_falt`-trigger
+  (icke-admin kan **inte** sätta sig som superadmin).
+- `0025_geo_aggregat` — `geo_aggregat`-tabellen + `rakna_om_geo_aggregat`
+  (kärnberäkningen), k-anonymitetströskel 5 (M12 Block 5.2 + brief
+  tvärgående beslut), pg_cron-jobb var 6:e timme + status-byte-trigger.
+- `0026_fix_k_anonymity_search_path` — Security Advisor lint-fix (saknad
+  `SET search_path = ''` på `private.k_anonymity_troskel`).
 
-### Bug 4 — Public RPC-wrappers var `SECURITY INVOKER` utan USAGE på private (`0019`)
-- **Symptom:** Granskare fick `403 permission denied for schema private` när de anropade `public.fatta_granskar_beslut` via PostgREST RPC. Hela CP3-flödet blockerat.
-- **Orsak:** `public.fatta_granskar_beslut`, `public.skicka_insamling_for_granskning`, `public.tilldela_granskning`, `public.uppdatera_granskning_anteckningar` var `SECURITY INVOKER` och anropade `SELECT private.<fn>()`. Anroparen (`authenticated`) har EXECUTE på funktionen men saknar USAGE på private-schemat.
-- **Fix:** `0019_security_definer_public_rpc_wrappers.sql` — wrappers körs nu med owner-rättigheter; säkerhetsvalidering bibehållen i private-funktionerna (de läser `auth.uid()` oavsett DEFINER/INVOKER).
+**Säkerhetsadvisor:** alla mina P0/P1-lints gröna. Kvarvarande WARN är
+pre-existerande från tidigare migrationer (publika SECURITY DEFINER-
+wrappers från `0019`, mission deny-all från `databasplan`) eller auth-
+konfiguration (leaked-password-protection — Zivar-uppgift).
 
-### Bug 5 — `public.sakerstall_transfer_group`-wrapper saknades helt (`0020`)
-- **Symptom:** create-payment-intent returnerade 500 *"Kunde inte sätta transfer_group"*. Hela CP4 blockerat.
-- **Orsak:** Funktionen fanns bara i `private`. Edge-funktionen anropade `admin.rpc('sakerstall_transfer_group', ...)`, men PostgREST RPC exponerar bara public-schemat → 404 → edge function-fel.
-- **Fix:** `0020_public_wrapper_sakerstall_transfer_group.sql` — SECURITY DEFINER, EXECUTE bara för service_role.
+**App (`5-Kod/app/(public)/karta/`)**
 
-### Bug 6 — `private.gen_public_id` saknade EXECUTE för service_role (`0021`)
-- **Symptom:** Donation-insert kraschade med *"permission denied for function gen_public_id"*. CP4-blockerande.
-- **Orsak:** 0001 satte `REVOKE FROM PUBLIC, anon, authenticated` men ingen GRANT till någon roll. Default-expression `private.gen_public_id(10)` på `donation.public_id` (och 4 andra tabeller) körs i anroparens role-kontext; service_role saknade rätt.
-- **Fix:** `0021_grant_exec_gen_public_id.sql` — GRANT EXECUTE till service_role, authenticated.
+- `page.tsx` — server-renderad, ISR var 6:e timme (samma takt som
+  pg_cron-jobbet), bakar in hela aggregatet i en payload.
+- `karta-klient.tsx` — MapLibre GL JS med OpenFreeMap positron basemap
+  (gratis, ingen API-nyckel). Tre vyer: **Län** (choropleth Sverige),
+  **Kommun** (drill-down), **Hjälp-vy** (världen, cirkelmarkörer per
+  hjälp-land).
+- `topplista.tsx` — topplista bredvid kartan (Block 1.2 — primär yta
+  vid dyslexi och på mobil).
+- Vy-växlare, hover-feedback, drill-down-panel med k-anonymitets-
+  hänsyn ("För få insamlingar … minst 5"), CTAs till `/insamlingar?lan=…`
+  och `/insamling`.
+- `lib/karta.ts` + `lib/karta-hjalp.ts` — server-side data-helpers.
+- `public/geo/sverige-{lan,kommuner}.geojson` — statiska assets
+  (publik OSM-derived data via okfse/sweden-geojson).
+- `scripts/fetch-sverige-geo.mjs` — engångsskript som hämtar GeoJSON +
+  genererar seed-SQL. Körs vid behov av uppdatering, ej i CI.
 
-### Mindre observation (ej fixad — inte blockerande)
-- `settle-campaign` med `dry_run:true` returnerar 409 *"Deadline har inte passerat"* eftersom deadline-checken sker före dry_run-grenen. Brief säger dry_run ska kunna förhandsvisa även före deadline. Använd `force:true` istället. Bör fixas innan settle exponeras i admin-UI.
+**Klar när — bockad (M12 § Steg 12 i `05-Byggsekvens.md`)**
+
+- [x] `/karta` lever med riktig MapLibre-karta i plattformens stil.
+- [x] Choropleth per region (län) och kommun.
+- [x] Insamlar-vy + hjälp-vy + drill-down län → kommun → insamling.
+- [x] Topplista bredvid kartan.
+- [x] `geo_aggregat` + `plats_taxonomi` migrerade med RLS.
+- [x] pg_cron-omräkning var 6:e timme (`geo-aggregat-omrakning-6h`).
+- [x] Minsta-antal-regeln (5) appliceras i aggregat-steget innan raden
+      når tabellen (kolumnen `under_troskel` markerar maskade celler).
+- [x] `npm run build` grön.
+- [x] Pushad till `main`.
+
+### Beslut tagna autonomt under körningen
+
+| Beslut | Motivering |
+|---|---|
+| MapLibre GL JS v5 + OpenFreeMap positron basemap | Brief — beslut redan fattat; v5 är aktuell version. |
+| GeoJSON från okfse/sweden-geojson (OSM-derived) | Publikt, OSM-licens, redan strukturerat med SCB-koder. |
+| Aggregat per (område × kategori) som **en** tabell med partial unique indexes på `kategori_id IS NULL` vs NOT NULL | Postgres NULLs i UNIQUE räcker inte — partial-index löser entydigheten utan extra "alla"-kategorisentinel-rad. |
+| Hjälp-vyn = on-the-fly aggregering från `insamling.hjalp_land` | Hjälp-platsen ägs av M1, inte ett eget aggregat-lager i v1; volymen är liten. Lägg till en `hjalp_aggregat`-tabell om/när trafiken kräver. |
+| Federation-flaggorna (`admin_niva`, `admin_region_kod`, `granskning.region_kod`) skyddas i `profiles_skydda_falt` direkt | Triggern är blacklist — nya kolumner måste **explicit** blockeras för icke-admin annars privilege-escalation. |
+| Inga GeoJSON-simplifieringar i v1 | okfse-filerna är 49 KB (län) + 798 KB (kommuner). Cloudflare static-assets klarar det utan optimering. Lägg till mapshaper när trafiken kräver. |
+
+### Kantfall noterade i kod (söks via grep `TODO`/`@brief`)
+
+- **M6 saknar `skyddad_identitet`-flagga** — M12 Block 5.3 säger skyddade
+  insamlare aldrig får räknas på kommunnivå. Idag har vi inget fält att
+  filtrera mot; `rakna_om_geo_aggregat` har kommentar som markerar detta.
+  Lägg till `p.skyddad_identitet` i M6 → utöka filter-WHERE. Inte
+  blockerande för Steg 12.
+- **AFTER UPDATE-triggern gör full TRUNCATE + INSERT vid status-byte
+  till `aktiv`/`avslutad_levererad`.** Funkar utan trafik. Refaktor till
+  inkrementell uppdatering när M16's stat-dashboard byggs eller när
+  trafik kräver. Ej blockerande.
 
 ---
 
-## Testdata kvar i remote-DB (för efterhandsgranskning)
+## Batchade uppföljningar — kräver Zivar, blockerar inte bygget
 
-- **Insamling:** `2b027049` ("Test pengaflöde 2026-05-24"), status=stangd, agare=zivar.mahmod, 500 kr donerat, 500 kr utbetalt.
-- **Connected account:** `acct_1TaQeB9lGdTAJkYx` (zivar.mahmod, enabled).
-- **Donation:** `2d64e64d3f` (gäst-donation från test-donator@corevo.se, 500 kr + 50 kr tip).
-- **Transfer:** `tr_1TaR0G9GJC4vTbrJ3c2BV0eo` (paid till acct_1TaQeB9lGdTAJkYx).
-- **Auto-bevis:** start + utbetalning, båda systemgenererad.
-- **Extra "rogue" PI** `pi_3TaQzz9GJC4vTbrJ0H3zMqe7` — användes bara för att fylla Stripe testbalansen (kort `4000000000000077` / `tok_bypassPending`). Saknar insamling-metadata; processad av webhook med warn-log.
+Samma lista som i `../2-Byggplan/09-Goal-Steg-12-16.md`; uppdaterad med
+det jag stött på under Steg 12.
 
-Rensa om du vill nystart-testa: DELETE i ordning donation → transfers → transparens_bevis → granskning_handelse → granskning → insamling_kategori → insamling → connected_accounts.
-
----
-
-## Att städa upp efter testet
-
-1. **Ta bort test-helper edge function** `test-confirm-pi` (deployad bara för CP4/CP8-simulering, ej för prod). MCP saknar delete-tool — kör `supabase functions delete test-confirm-pi --project-ref dcfrvomfztgkbfoegwge`.
-2. **Test-konton** (insamlare zivar.mahmod@corevo.se, granskare admin@corevo.se) — lösenord ligger i `5-Kod/.env.local` (gitignored). Rotera båda innan skarp lansering.
-3. **`.env.local`** innehåller en bortkommenterad `sk_live_…` och `pk_live_…`. Rotera båda i Stripe före produktion.
-4. **Migrationer 0017–0021** måste committas + pushas till git. Filer ligger i `5-Kod/supabase/migrations/`.
-
----
-
-## Anti-patterns observerade
-
-- Buggar inte fixade kollektivt i samma fix-runda — varje bugg avtäckte nästa.
-- `pg_catalog.current_user`-mönstret klistrades in i flera triggers under olika migrations. Lägg till lint/grep i CI för att stoppa innan merge.
-- Funktioner definierade i `private` utan motsvarande `public` wrapper är osynliga för PostgREST. Vid varje ny private-funktion: bestäm explicit om public-wrapper behövs.
-- Default-expressions som anropar private-funktioner kräver EXECUTE för alla roller som kan göra INSERT — service_role glöms ofta.
+1. **Karta-basemap till produktion** — byt från OpenFreeMap till
+   självhostad Protomaps PMTiles på Cloudflare R2. `BASEMAP_STYLE_URL`-
+   konstanten i `app/(public)/karta/karta-klient.tsx` är konfig-punkten.
+   *Kunde inte göra det själv: `wrangler` i repot är inte inloggat mot
+   Zivars konto i denna sandlåda.*
+2. **Team-e-post** — Cloudflare Email Routing för `namn@sadaqahsweden.se`
+   (Steg 16-uppföljning).
+3. **`RESEND_API_KEY`** — för kvitto + daglig sammanfattning + community-
+   notiser via e-post. In-app-kanalen fungerar utan.
+4. **`skyddad_identitet`-flagga på M6** — gör M12 Block 5.3 enforceable.
+   Kort migration när M6 nästa gång rörs.
+5. **Auth-konfig — Leaked password protection** — slå på i Supabase
+   dashboard (Auth → Password security). Pre-existerande Security
+   Advisor-WARN.
 
 ---
 
-## Klar när — alla bockar
+## Föregående körningar (verifierat tidigare)
 
-- [x] CP1 — connected-account enabled
-- [x] CP2 — insamling inskickad
-- [x] CP3 — insamling aktiv + connected_account_id satt
-- [x] CP4 — gäst-donation skapad
-- [x] CP5 — webhook speglar
-- [x] CP6 — DB-data korrekt (UI ej visuellt verifierad, ej blockerande)
-- [x] CP7 — hoppad (Resend ej konfigurerad)
-- [x] CP8 — transfer paid, insamling stangd, utbetald_ore satt
-- [x] CP9 — start + utbetalning auto-bevis finns
-- [x] 6 buggar hittade, 5 fixade via migrations 0017–0021 + 1 Stripe-konfig
-- [x] Denna fil uppdaterad: **Steg 5–7 = verifierat**
+Steg 0–11 byggda, verifierade och pushade. Pengaflödet (Steg 5–7) end-
+to-end-verifierat i Stripe testläge (granskat i förra körningens
+SESSION-GOAL.md, bevarad i git-historiken via commit `239d4c2`).
