@@ -962,6 +962,56 @@ export type Database = {
           },
         ]
       }
+      innehalls_redigerare: {
+        Row: {
+          anteckning: string | null
+          beviljad_at: string
+          beviljad_av: string
+          profil_id: string
+        }
+        Insert: {
+          anteckning?: string | null
+          beviljad_at?: string
+          beviljad_av: string
+          profil_id: string
+        }
+        Update: {
+          anteckning?: string | null
+          beviljad_at?: string
+          beviljad_av?: string
+          profil_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "innehalls_redigerare_beviljad_av_fkey"
+            columns: ["beviljad_av"]
+            isOneToOne: false
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "innehalls_redigerare_beviljad_av_fkey"
+            columns: ["beviljad_av"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "innehalls_redigerare_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: true
+            referencedRelation: "profil_publik"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "innehalls_redigerare_profil_id_fkey"
+            columns: ["profil_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       innehallssida: {
         Row: {
           brodtext: string
@@ -2939,6 +2989,10 @@ export type Database = {
         Args: { p_profile_id: string }
         Returns: number
       }
+      aterkalla_innehalls_redigerare: {
+        Args: { p_profil_id: string }
+        Returns: undefined
+      }
       aterstall_team_roll: { Args: never; Returns: undefined }
       avvisa_resultat_bevis: {
         Args: { p_bevis_id: string; p_motivering: string }
@@ -2955,6 +3009,10 @@ export type Database = {
           p_typ: Database["public"]["Enums"]["collab_typ"]
         }
         Returns: string
+      }
+      bevilja_innehalls_redigerare: {
+        Args: { p_anteckning?: string; p_profil_id: string }
+        Returns: undefined
       }
       binda_forenings_konto: {
         Args: { p_org_id: string; p_user_id: string }
@@ -3058,6 +3116,10 @@ export type Database = {
         Args: { p_insamling_id: string; p_skal: string }
         Returns: string
       }
+      las_faq: { Args: { p_id: string }; Returns: undefined }
+      las_innehallssida: { Args: { p_id: string }; Returns: undefined }
+      las_upp_faq: { Args: { p_id: string }; Returns: undefined }
+      las_upp_innehallssida: { Args: { p_id: string }; Returns: undefined }
       markera_alla_notiser_lasta: { Args: never; Returns: number }
       markera_jav: {
         Args: { p_granskning_id: string; p_skal: string }
