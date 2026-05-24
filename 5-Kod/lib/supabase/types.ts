@@ -2670,6 +2670,26 @@ export type Database = {
         Args: { p_motivering: string; p_profile_id: string }
         Returns: undefined
       }
+      admin_initiera_refund_donation: {
+        Args: {
+          p_donation_id: string
+          p_anledning: Database["public"]["Enums"]["refund_anledning"]
+          p_motivering: string
+        }
+        Returns: string
+      }
+      admin_initiera_refund_insamling: {
+        Args: {
+          p_insamling_id: string
+          p_anledning: Database["public"]["Enums"]["refund_anledning"]
+          p_motivering: string
+        }
+        Returns: number
+      }
+      forhandsberakna_refund_insamling: {
+        Args: { p_insamling_id: string }
+        Returns: { antal: number; summa_ore: number }[]
+      }
       admin_pausa_insamling: {
         Args: { p_insamling_id: string; p_motivering: string }
         Returns: undefined

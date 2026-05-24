@@ -91,6 +91,7 @@ export default async function AdminDriftoversikt() {
           <nav className="flex flex-wrap gap-2">
             <LinkButton href="/admin/larm" variant="ghost" size="sm">Larm</LinkButton>
             <LinkButton href="/admin/logg" variant="ghost" size="sm">Ingreppslogg</LinkButton>
+            <LinkButton href="/admin/verktyg" variant="ghost" size="sm">Verktyg</LinkButton>
             <LinkButton href="/admin/statistik" variant="ghost" size="sm">Statistik</LinkButton>
             <LinkButton href="/granskning" variant="ghost" size="sm">Granskningskö</LinkButton>
           </nav>
