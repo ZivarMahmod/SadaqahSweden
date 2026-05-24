@@ -184,9 +184,8 @@ GRANT  EXECUTE ON FUNCTION public.stickprov_avvikande_granskare() TO authenticat
 -- 4. Överklagande-tabell + RPCs
 -- ---------------------------------------------------------------------
 
-CREATE TYPE IF NOT EXISTS public.overklagande_status AS ENUM
-  ('inkommit', 'avgjord_uppriven', 'avgjord_bekraftad');
-
+-- PostgreSQL stöder inte `CREATE TYPE IF NOT EXISTS`. Idempotensen löses
+-- via DO-block + EXCEPTION WHEN duplicate_object.
 DO $$ BEGIN
   CREATE TYPE public.overklagande_status AS ENUM ('inkommit','avgjord_uppriven','avgjord_bekraftad');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
