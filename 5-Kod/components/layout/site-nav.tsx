@@ -23,6 +23,9 @@ export async function SiteNav() {
   // även om en team-medlem är inloggad. Admin-länkar visas bara på
   // admin-subdomänen (eller okänd host i dev/preview).
   const visaInternaLankar = hostTyp !== "publik";
+  // Admin-subdomänen har bara logga-in-yta. "Skapa konto"-knappen göms helt;
+  // team-konton tilldelas manuellt av superadmin.
+  const visaSkapaKonto = hostTyp !== "admin";
   const arInsamlare =
     !!me && (me.roll === "insamlare" || me.roll === "forening" || me.roll === "admin");
   const arGranskare =
@@ -147,9 +150,11 @@ export async function SiteNav() {
               <Link href="/login" className="btn btn-ghost btn-sm">
                 Logga in
               </Link>
-              <Link href="/registrera" className="btn btn-primary btn-sm">
-                Skapa konto
-              </Link>
+              {visaSkapaKonto && (
+                <Link href="/registrera" className="btn btn-primary btn-sm">
+                  Skapa konto
+                </Link>
+              )}
             </>
           )}
         </div>

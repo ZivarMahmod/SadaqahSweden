@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { arAdminHost } from "@/lib/host";
+import { SIGNUP_LOCKED } from "./signup-lock";
 
 export type AuthResult =
   | { ok: true }
@@ -39,6 +41,22 @@ export async function loggaIn(formData: FormData): Promise<AuthResult> {
 }
 
 export async function registrera(formData: FormData): Promise<AuthResult> {
+  // Admin-subdomänen får aldrig skapa konton — team-konton provisioneras
+  // bara manuellt av superadmin. Hård gate även om någon POST:ar direkt.
+  if (await arAdminHost()) {
+    return {
+      ok: false,
+      message: "Kontoskapande sker inte här. Team-konton tilldelas av administratör.",
+    };
+  }
+
+  if (SIGNUP_LOCKED) {
+    return {
+      ok: false,
+      message: "Kontoskapande är tillfälligt avstängt. Öppnar vid lansering.",
+    };
+  }
+
   const epost = String(formData.get("epost") ?? "").trim();
   const losenord = String(formData.get("losenord") ?? "");
   const visningsnamn = String(formData.get("visningsnamn") ?? "").trim();

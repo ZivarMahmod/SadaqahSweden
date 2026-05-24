@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { aktuellAnvandare } from "@/lib/auth";
+import { arAdminHost } from "@/lib/host";
 import { LoginForm } from "./login-form";
 
 export const metadata = {
@@ -13,6 +14,9 @@ export const metadata = {
 export default async function LoginPage() {
   const me = await aktuellAnvandare();
   if (me) redirect("/konto");
+
+  // Admin-subdomänen har bara logga-in-yta — ingen registrera-länk.
+  const arAdmin = await arAdminHost();
 
   return (
     <>
@@ -51,9 +55,11 @@ export default async function LoginPage() {
         className="mt-8 flex flex-wrap items-center gap-6 pt-6 text-xs"
         style={{ borderTop: "1px solid var(--color-ink-line)", color: "var(--color-ink-3)" }}
       >
-        <Link href="/registrera" style={{ color: "var(--color-forest)", textDecoration: "underline" }}>
-          Skapa konto
-        </Link>
+        {!arAdmin && (
+          <Link href="/registrera" style={{ color: "var(--color-forest)", textDecoration: "underline" }}>
+            Skapa konto
+          </Link>
+        )}
         <span className="ml-auto">
           Behöver hjälp?{" "}
           <a
