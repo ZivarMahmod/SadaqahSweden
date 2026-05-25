@@ -23,7 +23,7 @@ export function Alert({ tone = "info", title, children, role = "status" }: Alert
   return (
     <div
       role={role}
-      className="rounded-[14px] border px-4 py-3 text-sm"
+      className="rounded-[var(--sr-2)] border px-4 py-3 text-sm"
       style={{ background: s.bg, color: s.color, borderColor: s.border }}
     >
       {title && <div className="font-semibold mb-1">{title}</div>}

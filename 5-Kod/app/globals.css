@@ -159,12 +159,12 @@ body {
   gap: 8px;
   height: 44px;
   padding: 0 22px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--sr-2);
   font-family: var(--font-sans);
   font-weight: 600;
   font-size: 14px;
-  letter-spacing: 0.005em;
-  transition: all 180ms ease;
+  letter-spacing: 0.01em;
+  transition: all 160ms ease;
   white-space: nowrap;
   cursor: pointer;
   border: 0;
@@ -224,9 +224,9 @@ body {
 .card {
   background: var(--color-paper-soft);
   border: 1px solid var(--color-ink-line);
-  border-radius: var(--radius-xl);
+  border-radius: var(--sr-3);
   padding: 28px;
-  transition: all 200ms ease;
+  transition: all 180ms ease;
 }
 .card-tight { padding: 20px; }
 .card-loose { padding: 40px; }
@@ -254,7 +254,7 @@ body {
   padding: 0 16px;
   background: var(--color-paper-soft);
   border: 1px solid var(--color-ink-line);
-  border-radius: var(--radius-md);
+  border-radius: var(--sr-2);
   font-family: var(--font-sans);
   font-size: 15px;
   color: var(--color-ink);
@@ -284,12 +284,12 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: var(--radius-pill);
-  font-size: 12px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--sr-1);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.04em;
   background: var(--color-forest-soft);
   color: var(--color-forest);
   border: 1px solid transparent;
@@ -324,13 +324,13 @@ body {
   height: 6px;
   width: 100%;
   background: var(--color-paper-deep);
-  border-radius: var(--radius-pill);
+  border-radius: var(--sr-1);
   overflow: hidden;
 }
 .progress-bar {
   height: 100%;
   background: var(--color-forest);
-  border-radius: var(--radius-pill);
+  border-radius: 0;
   transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .progress-bar-copper { background: var(--color-copper); }
