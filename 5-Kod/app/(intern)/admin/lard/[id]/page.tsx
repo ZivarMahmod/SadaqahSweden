@@ -6,8 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/innehall/markdown";
 import { uppdateraLardAction, raderaLardAction } from "../actions";
 
-export const runtime = "edge";
-
 export default async function RedigeraLardPage({ params }: { params: Promise<{ id: string }> }) {
   const me = await kraver(["admin"]);
   if (me.profil.admin_niva !== "superadmin") redirect("/admin");

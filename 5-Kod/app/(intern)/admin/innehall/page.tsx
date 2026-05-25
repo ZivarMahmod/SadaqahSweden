@@ -6,8 +6,6 @@ import { redirect } from "next/navigation";
 import { kraver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-export const runtime = "edge";
-
 const STATUS_LABEL: Record<string, string> = {
   utkast: "Utkast",
   publicerad: "Publicerad",

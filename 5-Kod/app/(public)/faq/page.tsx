@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/innehall/markdown";
 import { FaqKlient } from "./faq-klient";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 export default async function FaqPage() {

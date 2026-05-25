@@ -12,8 +12,6 @@ import {
   publiceraJuridiskVersionAction,
 } from "../actions";
 
-export const runtime = "edge";
-
 export default async function RedigeraSidaPage({ params }: { params: Promise<{ id: string }> }) {
   const me = await kraver(["admin"]);
   if (me.profil.admin_niva !== "superadmin") redirect("/admin");

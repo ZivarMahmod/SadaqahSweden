@@ -4,8 +4,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/innehall/markdown";
 
-export const runtime = "edge";
-
 export default async function PublikLardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();

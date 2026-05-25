@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 import { kraver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
-export const runtime = "edge";
-
 export default async function LardListPage() {
   const me = await kraver(["admin"]);
   if (me.profil.admin_niva !== "superadmin") redirect("/admin");

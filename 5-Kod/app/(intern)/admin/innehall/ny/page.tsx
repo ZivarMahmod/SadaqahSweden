@@ -4,8 +4,6 @@ import { redirect } from "next/navigation";
 import { kraver } from "@/lib/auth";
 import { skapaSidaAction } from "../actions";
 
-export const runtime = "edge";
-
 export default async function NySidaPage() {
   const me = await kraver(["admin"]);
   if (me.profil.admin_niva !== "superadmin") redirect("/admin");

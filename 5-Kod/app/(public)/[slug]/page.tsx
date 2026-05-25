@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase/server";
 import { renderMarkdown } from "@/lib/innehall/markdown";
 import { VerifieratMarke } from "@/components/verifierat-marke";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 // Reserverade slugs som har en egen statisk route — får aldrig kapas av
