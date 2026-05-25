@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { verifieraOchAktiveraTotp } from "./actions";
@@ -34,7 +35,7 @@ export function Setup2faForm({ factorId }: { factorId: string }) {
         <p className="mt-2 text-sm" style={{ color: "var(--color-ink-2)" }}>
           Du är nu i en aal2-session och kan använda team-verktygen.
         </p>
-        <a href="/admin" className="btn btn-primary btn-sm mt-4 inline-flex">Till arbetsytan</a>
+        <Link href="/admin" className="btn btn-primary btn-sm mt-4 inline-flex">Till arbetsytan</Link>
       </div>
     );
   }

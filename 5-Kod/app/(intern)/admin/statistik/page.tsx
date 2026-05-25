@@ -1,6 +1,7 @@
 // M16 — Intern statistik. Bredare än den publika; visar interna mått som
 // granskningsutfall, mål-nåelse, wizard-avhopp.
 
+import Link from "next/link";
 import { kraver } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Container, Section } from "@/components/ui/container";
@@ -110,7 +111,7 @@ export default async function AdminStatistik() {
         </div>
 
         <p className="mt-10 text-xs" style={{ color: "var(--color-ink-3)" }}>
-          För publik statistik: <a href="/statistik" style={{ textDecoration: "underline", color: "var(--color-forest)" }}>/statistik</a> (k-anon 5).
+          För publik statistik: <Link href="/statistik" style={{ textDecoration: "underline", color: "var(--color-forest)" }}>/statistik</Link> (k-anon 5).
         </p>
       </Container>
     </Section>
