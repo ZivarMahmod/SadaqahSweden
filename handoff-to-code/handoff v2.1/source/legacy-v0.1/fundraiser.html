@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>En brunn för byn Diabaly — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  /* Layout */
+  .fr-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 64px;
+    padding: 48px 0 96px;
+  }
+  .fr-main { min-width: 0; }
+  .fr-side { position: sticky; top: 96px; align-self: start; }
+
+  /* Breadcrumb */
+  .crumb {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--ink-3);
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+  .crumb a { color: var(--ink-3); }
+  .crumb a:hover { color: var(--forest); }
+  .crumb .sep { opacity: 0.4; }
+
+  /* Hero image */
+  .fr-hero {
+    height: 480px;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .fr-hero .ph { width: 100%; height: 100%; }
+  .fr-pills {
+    position: absolute; top: 20px; left: 20px;
+    display: flex; gap: 8px; z-index: 2;
+  }
+  .fr-thumbs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+  .fr-thumb {
+    height: 80px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 200ms ease;
+  }
+  .fr-thumb.active { border-color: var(--copper); box-shadow: var(--shadow-1); }
+  .fr-thumb .ph { width: 100%; height: 100%; }
+  .fr-thumb .ph-label { font-size: 10px; }
+
+  /* Title block */
+  .fr-cat {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--copper-deep); font-weight: 600;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .fr-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 4vw, 56px);
+    line-height: 1.06;
+    letter-spacing: -0.014em;
+    font-weight: 400;
+    margin: 0 0 24px;
+    text-wrap: balance;
+  }
+  .fr-byline {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--ink-line);
+    border-bottom: 1px solid var(--ink-line);
+    margin-bottom: 40px;
+  }
+  .fr-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--forest-mid), var(--forest));
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .fr-byline-text { flex: 1; }
+  .fr-byline .name {
+    font-weight: 600; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .fr-byline .name .verified { color: var(--copper-deep); }
+  .fr-byline .meta { font-size: 12px; color: var(--ink-3); }
+  .fr-byline-collab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: var(--copper-soft);
+    border-radius: var(--r-pill);
+    font-size: 12px;
+    color: var(--copper-deep);
+    font-weight: 600;
+  }
+
+  /* Tabs */
+  .fr-tabs {
+    display: flex; gap: 32px;
+    border-bottom: 1px solid var(--ink-line);
+    margin-bottom: 32px;
+    position: sticky; top: 72px;
+    background: var(--paper);
+    z-index: 10;
+  }
+  .fr-tab {
+    padding: 16px 0;
+    font-size: 14px; font-weight: 500;
+    color: var(--ink-3);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .fr-tab.active { color: var(--forest); border-bottom-color: var(--copper); }
+  .fr-tab .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-4);
+  }
+
+  /* Content blocks */
+  .fr-section {
+    padding: 24px 0 48px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .fr-section:last-child { border-bottom: 0; }
+  .fr-section h3 {
+    font-family: var(--font-display);
+    font-size: 28px; line-height: 1.18;
+    font-weight: 400; letter-spacing: -0.012em;
+    margin: 0 0 20px;
+  }
+  .fr-prose {
+    font-size: 17px; line-height: 1.7;
+    color: var(--ink-1);
+  }
+  .fr-prose p { margin: 0 0 20px; text-wrap: pretty; }
+
+  /* Quote pulled out */
+  .fr-pullquote {
+    border-left: 2px solid var(--copper);
+    padding: 8px 0 8px 24px;
+    margin: 32px 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--forest);
+  }
+
+  /* Recipient block */
+  .recipient {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 32px;
+  }
+  .recipient .label {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 6px;
+  }
+  .recipient .value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.008em;
+  }
+
+  /* Updates timeline */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    margin-top: 24px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 11px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--ink-line);
+  }
+  .timeline-item { position: relative; padding-bottom: 32px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-dot {
+    position: absolute; left: -32px; top: 6px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--ink-line);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-3);
+  }
+  .timeline-item.proof .timeline-dot {
+    background: var(--copper-soft);
+    border-color: var(--copper);
+    color: var(--copper-deep);
+  }
+  .timeline-item.completed .timeline-dot {
+    background: var(--success-soft);
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .timeline-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px; color: var(--ink-3); }
+  .timeline-title {
+    font-family: var(--font-display);
+    font-size: 20px; font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.008em;
+    margin: 0 0 8px;
+  }
+  .timeline-body { font-size: 15px; color: var(--ink-2); line-height: 1.55; }
+  .timeline-photos {
+    display: flex; gap: 8px; margin-top: 14px;
+  }
+  .timeline-photo {
+    flex: 1; height: 120px;
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  .timeline-photo .ph { width: 100%; height: 100%; }
+  .timeline-photo .ph-label { font-size: 10px; }
+
+  /* Receipts inline */
+  .receipt-block {
+    background: var(--paper-deep);
+    border-radius: var(--r-md);
+    padding: 14px 18px;
+    margin-top: 14px;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 13px;
+    border: 1px dashed var(--ink-line);
+  }
+  .receipt-block .icon { color: var(--ink-3); }
+  .receipt-block .name { flex: 1; font-family: var(--font-mono); font-size: 12px; }
+  .receipt-block .size { color: var(--ink-3); font-size: 11px; }
+
+  /* SIDE — donation panel */
+  .donate-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+  }
+  .donate-card-head {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .donate-amount-display {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .donate-amount-current {
+    font-family: var(--font-display);
+    font-size: 42px;
+    font-weight: 500;
+    color: var(--forest);
+    letter-spacing: -0.012em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .donate-amount-of {
+    color: var(--ink-3); font-size: 14px;
+  }
+  .donate-percent {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--copper-deep);
+  }
+  .donate-bar { margin: 14px 0 18px; height: 8px; }
+  .donate-stats {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--ink-3);
+    padding-top: 12px;
+    border-top: 1px solid var(--ink-line);
+    margin-top: 14px;
+  }
+  .donate-stats strong { color: var(--ink); font-weight: 600; }
+
+  .donate-card-body { padding: 24px 28px 28px; }
+  .donate-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .donate-preset {
+    height: 52px;
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    background: var(--paper);
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--ink);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .donate-preset:hover { border-color: var(--forest); }
+  .donate-preset.active {
+    background: var(--forest);
+    color: var(--paper);
+    border-color: var(--forest);
+  }
+  .donate-custom { position: relative; margin-top: 12px; }
+  .donate-custom input {
+    height: 56px;
+    font-size: 22px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--ink);
+    padding-right: 60px;
+    text-align: left;
+  }
+  .donate-custom .kr {
+    position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--ink-3);
+  }
+  .donate-unit-note {
+    font-size: 12px; color: var(--ink-3);
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* Recent donors */
+  .donors {
+    padding: 20px 28px 28px;
+    border-top: 1px solid var(--ink-line);
+  }
+  .donor-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    font-size: 13px;
+    border-bottom: 1px dashed var(--ink-line);
+  }
+  .donor-row:last-child { border-bottom: 0; }
+  .donor-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--copper-soft);
+    color: var(--copper-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .donor-info { flex: 1; }
+  .donor-name { font-weight: 500; color: var(--ink-1); }
+  .donor-msg { font-size: 12px; color: var(--ink-3); font-style: italic; margin-top: 2px; }
+  .donor-amount { font-family: var(--font-mono); font-weight: 600; color: var(--forest); font-variant-numeric: tabular-nums; }
+  .donor-time { font-size: 11px; color: var(--ink-4); margin-left: 8px; }
+
+  /* Smaller side cards */
+  .side-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-xl);
+    padding: 24px;
+    margin-top: 16px;
+  }
+
+  /* Comments / dua section */
+  .dua-row {
+    display: flex; gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .dua-row:last-child { border-bottom: 0; }
+  .dua-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--paper-deep);
+    color: var(--ink-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex: 0 0 36px;
+  }
+  .dua-body { flex: 1; }
+  .dua-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .dua-name { font-size: 13px; font-weight: 600; color: var(--ink-1); }
+  .dua-time { font-size: 11px; color: var(--ink-4); }
+  .dua-text { font-size: 14px; color: var(--ink-2); line-height: 1.5; font-style: italic; }
+  .dua-reactions {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .dua-reaction {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--ink-3);
+    padding: 4px 10px;
+    background: var(--paper);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-pill);
+  }
+  .dua-reaction .arabic {
+    font-family: var(--font-display);
+    color: var(--copper-deep);
+    font-weight: 500;
+  }
+
+  @media (max-width: 1000px) {
+    .fr-grid { grid-template-columns: 1fr; }
+    .recipient { grid-template-columns: 1fr; }
+    .fr-thumbs { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link active">Insamlingar</a>
+    <a href="catalog.html" class="nav-link">Föreningar</a>
+    <a href="map.html" class="nav-link">Karta</a>
+    <a href="#" class="nav-link">Hur det fungerar</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Breadcrumb -->
+  <div class="crumb" style="margin-top: 32px;">
+    <a href="marketing.html">Hem</a>
+    <span class="sep">/</span>
+    <a href="discovery.html">Insamlingar</a>
+    <span class="sep">/</span>
+    <a href="discovery.html">Vatten</a>
+    <span class="sep">/</span>
+    <span>En brunn för byn Diabaly</span>
+  </div>
+
+  <div class="fr-grid">
+    <!-- MAIN -->
+    <div class="fr-main">
+      <!-- Hero image -->
+      <div class="fr-hero">
+        <div class="fr-pills">
+          <span class="pill pill-paper"><span class="dot dot-success"></span> Granskad &amp; aktiv</span>
+          <span class="pill pill-copper">Zakat-OK</span>
+          <span class="pill pill-paper">Collab · Hjälpkraft Sverige</span>
+        </div>
+        <div class="ph" style="width:100%; height:100%;">
+          <span class="ph-label">Foto: brunn i Mali · 1 av 5</span>
+        </div>
+      </div>
+
+      <!-- Thumbnails -->
+      <div class="fr-thumbs">
+        <div class="fr-thumb active"><div class="ph"><span class="ph-label">Foto 1</span></div></div>
+        <div class="fr-thumb"><div class="ph" style="background: linear-gradient(135deg, #5C7A6B, #2D5947);"><span class="ph-label">Foto 2</span></div></div>
+        <div class="fr-thumb"><div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">Foto 3</span></div></div>
+        <div class="fr-thumb"><div class="ph-paper" style="width:100%; height:100%;"><span class="ph-label">Dokument</span></div></div>
+        <div class="fr-thumb"><div class="ph" style="background: linear-gradient(135deg, #1F4636, #0F2A1F);"><span class="ph-label">Karta</span></div></div>
+      </div>
+
+      <!-- Title block -->
+      <span class="fr-cat">Vatten · Mali · Diabaly-byn</span>
+      <h1 class="fr-title">En brunn för byn Diabaly — 280 personer får rent vatten</h1>
+
+      <!-- Byline -->
+      <div class="fr-byline">
+        <div class="fr-avatar">YA</div>
+        <div class="fr-byline-text">
+          <div class="name">
+            Yasmin Adan
+            <span class="verified" id="verified-1"></span>
+            <span class="xs" style="font-weight: 400;">BankID-verifierad insamlare</span>
+          </div>
+          <div class="meta">Stockholm · 8 tidigare insamlingar · Trust-poäng 92/100</div>
+        </div>
+        <div class="fr-byline-collab">
+          <span id="collab-icon"></span>
+          Stöttad av Hjälpkraft Sverige
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="fr-tabs">
+        <div class="fr-tab active"><span class="num">01</span> Storyn</div>
+        <div class="fr-tab"><span class="num">02</span> Mottagare</div>
+        <div class="fr-tab"><span class="num">03</span> Bevis &amp; uppdateringar <span class="pill pill-copper" style="height: 18px; padding: 0 6px; font-size: 10px;">3</span></div>
+        <div class="fr-tab"><span class="num">04</span> Granskning</div>
+        <div class="fr-tab"><span class="num">05</span> Dua &amp; samtal <span class="xs">· 24</span></div>
+      </div>
+
+      <!-- Story -->
+      <div class="fr-section">
+        <h3>Varför Diabaly</h3>
+        <div class="fr-prose">
+          <p>
+            Byn Diabaly i centrala Mali har <strong>280 invånare</strong>, varav 140 är barn under 12 år. Närmaste rena vattenkälla ligger fyra kilometer bort — barnen som hämtar vatten missar skolan, kvinnorna går två gånger om dagen, och under torrperioden räcker det inte. Förra året var nio barn allvarligt sjuka i diarré som följd.
+          </p>
+
+          <div class="fr-pullquote">
+            Vi har inte vatten. Vi har en väg till vatten. Skillnaden är vad jag vill ändra på.
+          </div>
+
+          <p>
+            En djupbrunn med handpump kostar i Mali <strong>cirka 180&nbsp;000 kr</strong> inklusive borrning, betongring, pumpinstallation och utbildning av två lokala underhållstekniker. Jag har räknat fram budgeten tillsammans med <em>Wells of Hope Mali</em>, en lokal organisation som har byggt 14 brunnar i regionen sedan 2019 och vars dokumentation jag har granskat.
+          </p>
+
+          <p>
+            Insamlingen är på <strong>200&nbsp;000 kr</strong> — extramarginal för transporter och oförutsedda kostnader. Allt som blir över går till en andra pump i grannbyn Massala (240 invånare). Det stora målet är att rent vatten finns på plats <strong>innan ramadan 1447</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Recipient -->
+      <div class="fr-section">
+        <h3>Mottagare &amp; pengaflöde</h3>
+        <div class="recipient">
+          <div>
+            <div class="label">Pengarna går till</div>
+            <div class="value">Wells of Hope Mali</div>
+            <div class="xs mt-4">Lokal organisation · Org.id MA-NGO-2019-0341 · Verifierad genom dokumentation + tre referensprojekt</div>
+          </div>
+          <div>
+            <div class="label">Hur pengarna betalas ut</div>
+            <div class="value">Direkt via Stripe Connect</div>
+            <div class="xs mt-4">Sadaqa Sweden rör aldrig pengarna juridiskt. Wells of Hope tar emot direkt på sitt registrerade konto i Mali.</div>
+          </div>
+          <div>
+            <div class="label">Tidplan</div>
+            <div class="value">Insamling avslutas 14 jun</div>
+            <div class="xs mt-4">Borrning juni–juli · Installation aug · Driftsättning sep 2026</div>
+          </div>
+          <div>
+            <div class="label">Avgift &amp; transparens</div>
+            <div class="value">0 % plattformsavgift</div>
+            <div class="xs mt-4">Stripe-avgift 1,4 % + 1,80 kr per donation. Vi tar inget mer.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Updates -->
+      <div class="fr-section">
+        <h3>Bevis &amp; uppdateringar</h3>
+        <div class="row aic gap-12 mb-16">
+          <span class="pill pill-copper">3 av 3 obligatoriska bevis komplett</span>
+          <span class="xs">Visas i ordning · uppdateras allt eftersom</span>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item proof">
+            <div class="timeline-dot" id="dot-1"></div>
+            <div class="timeline-meta">
+              <span class="pill pill-copper" style="height: 22px; padding: 0 10px; font-size: 11px;">Start-bevis · obligatoriskt</span>
+              <span>27 maj 2026 · 11:42</span>
+            </div>
+            <h4 class="timeline-title">Borrningen är beställd</h4>
+            <p class="timeline-body">Wells of Hope har skickat in offert och tidplan. Borrutrustningen anländer Diabaly måndag 1 juni. Lokala myndighetstillstånd är på plats sedan vecka 18.</p>
+            <div class="timeline-photos">
+              <div class="timeline-photo"><div class="ph"><span class="ph-label">Foto: borr-rig</span></div></div>
+              <div class="timeline-photo"><div class="ph" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span class="ph-label">Tillstånd</span></div></div>
+              <div class="timeline-photo"><div class="ph-paper" style="width:100%; height:100%;"><span class="ph-label">Offert</span></div></div>
+            </div>
+            <div class="receipt-block">
+              <span class="icon" id="ic-receipt-1"></span>
+              <span class="name">Offert_WellsOfHope_2026-05-27.pdf</span>
+              <span class="size">312 KB</span>
+              <span class="xs" style="color: var(--copper-deep);">Verifierad</span>
+            </div>
+          </div>
+
+          <div class="timeline-item proof">
+            <div class="timeline-dot" id="dot-2"></div>
+            <div class="timeline-meta">
+              <span class="pill pill-copper" style="height: 22px; padding: 0 10px; font-size: 11px;">Utbetalnings-bevis · obligatoriskt</span>
+              <span>03 jun 2026 · 09:15</span>
+            </div>
+            <h4 class="timeline-title">Första utbetalning · 90 000 kr till Wells of Hope</h4>
+            <p class="timeline-body">Förskott för borrning och material. Stripe-transfer #pi_3OZk... slutförd. Resterande 90 000 kr betalas ut vid driftsättning.</p>
+            <div class="receipt-block">
+              <span class="icon" id="ic-receipt-2"></span>
+              <span class="name">Stripe-transfer_2026-06-03.pdf</span>
+              <span class="size">84 KB</span>
+              <span class="xs" style="color: var(--copper-deep);">Verifierad</span>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot" id="dot-3"></div>
+            <div class="timeline-meta">
+              <span class="pill pill-paper" style="height: 22px; padding: 0 10px; font-size: 11px;">Resultat-bevis · väntar</span>
+              <span>förväntat sep 2026</span>
+            </div>
+            <h4 class="timeline-title">Brunnen driftsatt &amp; barn dricker</h4>
+            <p class="timeline-body">När pumpen är installerad och vattenprov visar drickbart vatten — bilder, prov-rapport, och röster från byn publiceras här.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDE -->
+    <aside class="fr-side">
+      <div class="donate-card">
+        <div class="donate-card-head">
+          <div class="donate-amount-display">
+            <span class="donate-amount-current">148&nbsp;200&nbsp;kr</span>
+            <span class="donate-amount-of">av 200&nbsp;000&nbsp;kr</span>
+          </div>
+          <div class="donate-percent">
+            <span id="trending"></span>
+            <span><strong>74 %</strong> — 12 dgr kvar · senaste timmen +2 200 kr</span>
+          </div>
+          <div class="progress donate-bar"><div class="progress-bar" style="width: 74%;"></div></div>
+          <div class="donate-stats">
+            <div><strong>241</strong> donatorer</div>
+            <div><strong>620 kr</strong> snitt</div>
+            <div><strong>12 dgr</strong> kvar</div>
+          </div>
+        </div>
+
+        <div class="donate-card-body">
+          <div class="label mb-12">Välj belopp</div>
+          <div class="donate-presets">
+            <button class="donate-preset">200</button>
+            <button class="donate-preset active">500</button>
+            <button class="donate-preset">1 000</button>
+            <button class="donate-preset">2 000</button>
+            <button class="donate-preset">5 000</button>
+            <button class="donate-preset">Annat</button>
+          </div>
+          <div class="donate-custom">
+            <input type="text" class="input" value="500" placeholder="500">
+            <span class="kr">kr</span>
+          </div>
+          <div class="donate-unit-note">
+            <span id="info-icon"></span>
+            500 kr räcker till en kvadratmeter betongring för brunnen
+          </div>
+
+          <a href="donate.html" class="btn btn-primary btn-lg btn-block mt-16">
+            Donera 500 kr <span id="donate-arrow"></span>
+          </a>
+          <div class="row jcc mt-12">
+            <button class="btn btn-ghost btn-sm" style="font-size: 12px;">
+              <span id="bookmark-icon"></span> Spara · 142 har sparat
+            </button>
+          </div>
+        </div>
+
+        <div class="donors">
+          <div class="row aic jcs mb-12">
+            <div class="label" style="margin: 0;">Senaste donatorerna</div>
+            <a href="#" class="xs" style="color: var(--copper-deep);">Visa alla 241 ↗</a>
+          </div>
+
+          <div class="donor-row">
+            <div class="donor-avatar">FH</div>
+            <div class="donor-info">
+              <div class="donor-name">Fatima H. <span class="donor-time">3 min sedan</span></div>
+              <div class="donor-msg">"För min mor — må Allah belöna varje droppe"</div>
+            </div>
+            <div class="donor-amount">1 200 kr</div>
+          </div>
+          <div class="donor-row">
+            <div class="donor-avatar">A</div>
+            <div class="donor-info">
+              <div class="donor-name">Anonym <span class="donor-time">11 min sedan</span></div>
+              <div class="donor-msg">"Allahumma barik"</div>
+            </div>
+            <div class="donor-amount">500 kr</div>
+          </div>
+          <div class="donor-row">
+            <div class="donor-avatar">MK</div>
+            <div class="donor-info">
+              <div class="donor-name">Mohammed K. <span class="donor-time">37 min sedan</span></div>
+            </div>
+            <div class="donor-amount">2 500 kr</div>
+          </div>
+          <div class="donor-row">
+            <div class="donor-avatar">SM</div>
+            <div class="donor-info">
+              <div class="donor-name">Sara M. <span class="donor-time">1 tim sedan</span></div>
+              <div class="donor-msg">"Sadaqah jariyah, in shaa Allah"</div>
+            </div>
+            <div class="donor-amount">300 kr</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share -->
+      <div class="side-card">
+        <div class="row aic jcs mb-12">
+          <div class="label" style="margin: 0;">Dela</div>
+          <span class="xs">Hjälp denna nå målet</span>
+        </div>
+        <div class="row gap-8">
+          <button class="btn btn-secondary btn-sm flex-1">WhatsApp</button>
+          <button class="btn btn-secondary btn-sm flex-1">Kopiera länk</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- Footer -->
+<div id="footer-slot"></div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+  document.getElementById('verified-1').innerHTML = SADAQA.icon('shield-check', 14);
+  document.getElementById('collab-icon').innerHTML = SADAQA.icon('users', 14);
+  document.getElementById('trending').innerHTML = SADAQA.icon('trending', 14);
+  document.getElementById('info-icon').innerHTML = SADAQA.icon('info', 12);
+  document.getElementById('donate-arrow').innerHTML = SADAQA.icon('arrow-right', 18);
+  document.getElementById('bookmark-icon').innerHTML = SADAQA.icon('heart', 12);
+  document.getElementById('dot-1').innerHTML = SADAQA.icon('check', 12);
+  document.getElementById('dot-2').innerHTML = SADAQA.icon('check', 12);
+  document.getElementById('dot-3').innerHTML = SADAQA.icon('clock', 12);
+  document.getElementById('ic-receipt-1').innerHTML = SADAQA.icon('file-check', 16);
+  document.getElementById('ic-receipt-2').innerHTML = SADAQA.icon('file-check', 16);
+
+  // donate preset toggling
+  document.querySelectorAll('.donate-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.donate-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const val = btn.textContent.trim();
+      if (val !== 'Annat') {
+        document.querySelector('.donate-custom input').value = val;
+      }
+    });
+  });
+
+  // tabs (visual only — they all show the same content for the catalog)
+  document.querySelectorAll('.fr-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.fr-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // thumbnails
+  document.querySelectorAll('.fr-thumb').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.fr-thumb').forEach(t2 => t2.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Föreningskatalog — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  .cat-head { background: var(--paper-soft); padding: 56px 0 48px; border-bottom: 1px solid var(--ink-line); position: relative; overflow: hidden; }
+  .cat-head::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.04)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>"); background-size: 200px 200px; }
+  .cat-head > * { position: relative; z-index: 1; }
+  .cat-head h1 { font-family: var(--font-display); font-size: clamp(40px, 4vw, 56px); font-weight: 400; letter-spacing: -0.014em; line-height: 1.06; margin: 0 0 16px; text-wrap: balance; }
+  .cat-head .lead { font-family: var(--font-display); font-size: 20px; color: var(--ink-2); font-weight: 300; margin: 0 0 32px; max-width: 720px; }
+  .cat-cta-row { display: flex; gap: 12px; align-items: center; }
+
+  .city-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--ink-line); }
+  .city-pill { padding: 8px 16px; background: var(--paper); border: 1px solid var(--ink-line); border-radius: var(--r-pill); font-size: 13px; color: var(--ink-2); }
+  .city-pill.active { background: var(--forest); color: var(--paper); border-color: var(--forest); }
+  .city-pill .n { font-family: var(--font-mono); font-size: 11px; margin-left: 6px; opacity: 0.7; }
+
+  .cat-body { padding: 56px 0 96px; }
+  .org-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .org-card {
+    background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-xl);
+    padding: 28px; display: flex; flex-direction: column; gap: 16px;
+    transition: all 240ms ease; text-decoration: none; color: inherit;
+  }
+  .org-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); border-color: var(--copper-soft); }
+  .org-top { display: flex; align-items: flex-start; gap: 14px; }
+  .org-logo {
+    width: 56px; height: 56px; border-radius: var(--r-md); flex: 0 0 56px;
+    display: flex; align-items: center; justify-content: center; color: var(--paper);
+    font-family: var(--font-display); font-size: 22px; font-weight: 500;
+  }
+  .org-name { font-family: var(--font-display); font-size: 22px; line-height: 1.15; margin: 0; font-weight: 500; letter-spacing: -0.008em; }
+  .org-city { font-size: 12px; color: var(--ink-3); margin-top: 4px; letter-spacing: 0.04em; }
+  .org-desc { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+  .org-stats { display: flex; gap: 12px; padding-top: 12px; border-top: 1px solid var(--ink-line); margin-top: auto; }
+  .org-stat .num { font-family: var(--font-display); font-size: 20px; color: var(--forest); font-weight: 500; line-height: 1; }
+  .org-stat .lbl { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+
+  /* Anmäl band */
+  .anmal-band {
+    margin-top: 80px;
+    background: var(--forest); color: var(--paper);
+    border-radius: var(--r-2xl);
+    padding: 64px 56px;
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 48px; align-items: center;
+    position: relative; overflow: hidden;
+  }
+  .anmal-band::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>"); background-size: 220px 220px; }
+  .anmal-band > * { position: relative; z-index: 1; }
+  .anmal-band h2 { font-family: var(--font-display); font-size: 40px; font-weight: 400; line-height: 1.1; margin: 0 0 20px; color: var(--paper); }
+  .anmal-checks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .anmal-checks li { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: rgba(245, 240, 228, 0.85); }
+  .anmal-checks .ok { width: 20px; height: 20px; border-radius: 50%; background: var(--copper-soft); color: var(--copper-warm); display: flex; align-items: center; justify-content: center; flex: 0 0 20px; }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link">Insamlingar</a>
+    <a href="catalog.html" class="nav-link active">Föreningar</a>
+    <a href="map.html" class="nav-link">Karta</a>
+    <a href="community.html" class="nav-link">Community</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+<section class="cat-head">
+  <div class="container">
+    <div class="section-eyebrow" style="margin-bottom: 20px;"><span class="star-mark" id="s1"></span><span style="font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--copper-deep);">Föreningskatalogen · M10</span></div>
+    <h1>Muslimska föreningar &amp; moskéer i Sverige.</h1>
+    <p class="lead">Självregistrerad katalog. Alla föreningar är verifierade mot Skatteverket innan de publiceras. Vi listar inga föreningar åt dem — de söker sig hit.</p>
+    <div class="cat-cta-row">
+      <button class="btn btn-primary"><span id="add-1"></span> Anmäl er förening</button>
+      <button class="btn btn-secondary">36 föreningar · 18 städer</button>
+    </div>
+    <div class="city-bar">
+      <span class="city-pill active">Alla<span class="n">36</span></span>
+      <span class="city-pill">Stockholm<span class="n">12</span></span>
+      <span class="city-pill">Göteborg<span class="n">8</span></span>
+      <span class="city-pill">Malmö<span class="n">6</span></span>
+      <span class="city-pill">Uppsala<span class="n">3</span></span>
+      <span class="city-pill">Västerås<span class="n">2</span></span>
+      <span class="city-pill">Linköping<span class="n">2</span></span>
+      <span class="city-pill">Örebro<span class="n">1</span></span>
+      <span class="city-pill">Helsingborg<span class="n">1</span></span>
+      <span class="city-pill">+ 9 andra städer</span>
+    </div>
+  </div>
+</section>
+
+<section class="cat-body">
+  <div class="container">
+    <div class="org-grid">
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, var(--forest), var(--forest-deep));"><span id="b1"></span></div>
+          <div><h3 class="org-name">Hisingens Moské</h3><div class="org-city">Göteborg · Hisingen</div></div>
+        </div>
+        <p class="org-desc">Moské och utbildningscenter på Hisingen sedan 2014. Driver fredagsbön, koranskola, och årliga matprojekt under ramadan.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">4</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">186k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">88</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, var(--copper-warm), var(--copper-deep));"><span id="b2"></span></div>
+          <div><h3 class="org-name">Hjälpkraft Sverige</h3><div class="org-city">Malmö · 90-konto</div></div>
+        </div>
+        <p class="org-desc">Insamlingsförening med fokus på hjälp till krigsdrabbade familjer. Auktoriserad revisor och 90-konto sedan 2022.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">12</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">2,4&nbsp;mkr</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">96</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #5C7A6B, var(--forest));"><span id="b3"></span></div>
+          <div><h3 class="org-name">Stockholms Islamiska Centrum</h3><div class="org-city">Stockholm · Söder</div></div>
+        </div>
+        <p class="org-desc">Det största centret i Stockholm. Fredagsbön, utbildning, integrationsprojekt, ramadanmiddagar för 800+ personer.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">8</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">820k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">91</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #8B6334, #5E4321);"><span id="b4"></span></div>
+          <div><h3 class="org-name">Husby Moské</h3><div class="org-city">Stockholm · Husby</div></div>
+        </div>
+        <p class="org-desc">Moské och social mötesplats i Husby. Iftar-projekt och föräldraskaps-stödgrupp. Drivs ideellt av 14 frivilliga.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">3</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">142k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">85</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #2D6B4F, var(--forest));"><span id="b5"></span></div>
+          <div><h3 class="org-name">Uppsala Islamiska Stiftelse</h3><div class="org-city">Uppsala · Centrum</div></div>
+        </div>
+        <p class="org-desc">Studentmoské och utbildningscenter nära universitetet. Föreläsningsserier, fastebrytning för studenter, koranskola.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">2</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">68k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">79</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, var(--forest-mid), #0F2A1F);"><span id="b6"></span></div>
+          <div><h3 class="org-name">Mali-Solidaritet Sverige</h3><div class="org-city">Stockholm · Tensta</div></div>
+        </div>
+        <p class="org-desc">Insamlingsförening med fokus på vatten- och utbildningsprojekt i Mali. Diaspora-driven, etablerad 2019.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">9</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">680k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">93</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #B8843E, #5E4321);"><span id="b7"></span></div>
+          <div><h3 class="org-name">Helsingborgs Moské</h3><div class="org-city">Helsingborg · Söder</div></div>
+        </div>
+        <p class="org-desc">Moské och kulturhus. Familje-aktiviteter, utbildning för nyanlända, ungdomsprogram.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">2</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">94k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">82</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #5E4321, var(--copper-deep));"><span id="b8"></span></div>
+          <div><h3 class="org-name">Östermalms Islamiska Förening</h3><div class="org-city">Stockholm · Östermalm</div></div>
+        </div>
+        <p class="org-desc">Liten förening med fokus på interreligiös dialog och välgörenhetsmiddagar för hemlösa i Stockholm.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">1</div><div class="lbl">insamling</div></div>
+          <div class="org-stat"><div class="num">36k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">78</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+
+      <a href="#" class="org-card">
+        <div class="org-top">
+          <div class="org-logo" style="background: linear-gradient(135deg, #2D5947, var(--forest-deep));"><span id="b9"></span></div>
+          <div><h3 class="org-name">Linköpings Islamiska Center</h3><div class="org-city">Linköping · Ryd</div></div>
+        </div>
+        <p class="org-desc">Etablerad 2016. Fokus på studenter, integration och stöd för nyanlända familjer i Östergötland.</p>
+        <div class="org-stats">
+          <div class="org-stat"><div class="num">3</div><div class="lbl">insamlingar</div></div>
+          <div class="org-stat"><div class="num">128k</div><div class="lbl">insamlat</div></div>
+          <div class="org-stat"><div class="num">84</div><div class="lbl">trust</div></div>
+        </div>
+      </a>
+    </div>
+
+    <div class="row jcc mt-48">
+      <button class="btn btn-secondary btn-lg">Visa de 27 övriga föreningarna →</button>
+    </div>
+
+    <div class="anmal-band">
+      <div>
+        <div class="section-eyebrow" style="margin-bottom: 20px;"><span class="star-mark" id="s2" style="color: var(--copper-warm);"></span><span style="font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--copper-warm);">Är ni en muslimsk förening?</span></div>
+        <h2>Anmäl er på 8 minuter — vi granskar och publicerar inom en vecka.</h2>
+        <p style="font-size: 16px; color: rgba(245, 240, 228, 0.8); margin: 0 0 24px;">
+          Fyll i ett formulär: organisationsnummer, bilder, beskrivning, kontaktperson. Vi verifierar mot Skatteverket. När ni är publika kan ni driva egna insamlingar — eller stötta privatpersoners projekt som collab.
+        </p>
+        <button class="btn btn-copper btn-lg">Starta anmälan</button>
+      </div>
+      <div>
+        <ul class="anmal-checks">
+          <li><span class="ok" id="ok-1"></span> Måste vara registrerad ideell förening (org.nr)</li>
+          <li><span class="ok" id="ok-2"></span> Muslimsk inriktning · alla inriktningar välkomna</li>
+          <li><span class="ok" id="ok-3"></span> Granskning mot Skatteverket-registret automatisk</li>
+          <li><span class="ok" id="ok-4"></span> Kostnadsfritt · ingen plattformsavgift</li>
+          <li><span class="ok" id="ok-5"></span> Publiceras inom 7 dgr efter komplett anmälan</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div id="footer-slot"></div>
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+</script>
+<script>
+  document.getElementById('s1').innerHTML = SADAQA.STAR_MINI;
+  document.getElementById('s2').innerHTML = SADAQA.STAR_MINI;
+  document.getElementById('add-1').innerHTML = SADAQA.icon('plus', 14);
+  for (let i = 1; i <= 9; i++) {
+    const el = document.getElementById('b' + i);
+    if (el) el.innerHTML = SADAQA.icon('building', 24);
+  }
+  for (let i = 1; i <= 5; i++) document.getElementById('ok-' + i).innerHTML = SADAQA.icon('check', 12);
+</script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper-deep); }
+  .a-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .a-side {
+    background: var(--forest-deep); color: var(--paper);
+    padding: 20px 0; display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .a-side-head { padding: 4px 24px 20px; border-bottom: 1px solid rgba(245, 240, 228, 0.08); margin-bottom: 12px; }
+  .a-side-head .role-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 12px;
+    padding: 3px 10px;
+    background: rgba(184, 132, 62, 0.15);
+    color: var(--copper-warm);
+    border-radius: var(--r-pill);
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;
+  }
+  .a-nav { padding: 0 12px; flex: 1; }
+  .a-nav-section { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(245, 240, 228, 0.4); padding: 16px 12px 8px; }
+  .a-nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 12px; border-radius: var(--r-md);
+    font-size: 13px; color: rgba(245, 240, 228, 0.75);
+  }
+  .a-nav a:hover { background: rgba(245, 240, 228, 0.06); color: var(--paper); }
+  .a-nav a.active { background: rgba(245, 240, 228, 0.10); color: var(--paper); box-shadow: inset 2px 0 0 var(--copper); }
+  .a-nav a .count { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: rgba(245, 240, 228, 0.5); }
+  .a-nav a.alert .count { background: var(--copper); color: var(--paper); padding: 1px 7px; border-radius: var(--r-pill); }
+
+  /* Main */
+  .a-main { background: var(--paper); }
+  .a-bar { height: 64px; background: var(--paper-soft); border-bottom: 1px solid var(--ink-line); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 20; }
+  .a-content { padding: 32px 40px 64px; }
+  .h-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+  .h-row h1 { font-family: var(--font-display); font-size: 36px; font-weight: 400; letter-spacing: -0.014em; margin: 0; }
+  .h-row .sub { color: var(--ink-3); font-size: 14px; }
+
+  /* Status banner */
+  .status-banner {
+    background: linear-gradient(135deg, var(--forest), var(--forest-deep));
+    color: var(--paper);
+    border-radius: var(--r-xl);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .status-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M30 0L36 24L60 30L36 36L30 60L24 36L0 30L24 24Z'/></g></svg>");
+    background-size: 140px 140px;
+  }
+  .status-banner > * { position: relative; z-index: 1; }
+  .status-banner .item .lbl { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245, 240, 228, 0.6); margin-bottom: 8px; }
+  .status-banner .item .val { font-family: var(--font-display); font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -0.012em; font-variant-numeric: tabular-nums; }
+  .status-banner .item .delta { font-size: 11px; color: var(--copper-warm); margin-top: 6px; }
+  .status-banner .item .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+    color: var(--success);
+    background: rgba(45, 107, 79, 0.25);
+    padding: 4px 10px; border-radius: var(--r-pill);
+    margin-top: 6px;
+  }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+  .panel {
+    background: var(--paper-soft);
+    border: 1px solid var(--ink-line);
+    border-radius: var(--r-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .panel-head h3 { font-family: var(--font-display); font-size: 18px; font-weight: 500; margin: 0; }
+
+  /* Alert list */
+  .alert-row {
+    display: flex; gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--ink-line);
+    align-items: flex-start;
+  }
+  .alert-row:last-child { border-bottom: 0; }
+  .alert-icn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--copper-soft);
+    color: var(--copper-deep);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 32px;
+  }
+  .alert-icn.danger { background: var(--danger-soft); color: var(--danger); }
+  .alert-icn.success { background: var(--success-soft); color: var(--success); }
+  .alert-icn.info { background: var(--forest-soft); color: var(--forest); }
+  .alert-body { flex: 1; }
+  .alert-title { font-size: 14px; color: var(--ink-1); font-weight: 600; margin-bottom: 2px; }
+  .alert-sub { font-size: 12px; color: var(--ink-3); }
+  .alert-time { font-size: 11px; color: var(--ink-4); font-family: var(--font-mono); }
+  .alert-row .actions { display: flex; gap: 6px; align-items: center; }
+
+  /* Chart placeholder */
+  .chart {
+    height: 240px;
+    background: linear-gradient(180deg, transparent, rgba(31, 70, 54, 0.04));
+    border-radius: var(--r-md);
+    position: relative;
+    overflow: hidden;
+  }
+  .chart::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(0deg, transparent 0%, transparent 99%, var(--ink-line) 100%),
+      linear-gradient(90deg, transparent 0%, transparent 99%, var(--ink-line) 100%);
+    background-size: 100% 25%, 16.66% 100%;
+  }
+  .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* Mini-table */
+  .mini-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .mini-tbl th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+    border-bottom: 1px solid var(--ink-line);
+  }
+  .mini-tbl td {
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--ink-line);
+    color: var(--ink-1);
+    vertical-align: middle;
+  }
+  .mini-tbl tr:hover td { background: var(--paper-soft); }
+  .mini-tbl .num { font-family: var(--font-mono); text-align: right; color: var(--forest); font-weight: 600; }
+  .mini-tbl .av { width: 24px; height: 24px; border-radius: 50%; background: var(--copper); color: var(--paper); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; margin-right: 8px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<div class="a-shell">
+  <aside class="a-side">
+    <div class="a-side-head">
+      <span id="wordmark-slot"></span>
+      <span class="role-tag"><span id="shield-i"></span> Admin · drift</span>
+    </div>
+    <div class="a-nav">
+      <a href="#" class="active"><span id="i-1"></span> Översikt</a>
+      <a href="review.html" class="alert"><span id="i-2"></span> Granskningskö <span class="count">14</span></a>
+      <a href="#"><span id="i-3"></span> Användare <span class="count">2 184</span></a>
+      <a href="#"><span id="i-4"></span> Föreningar <span class="count">36</span></a>
+      <a href="#"><span id="i-5"></span> Insamlingar <span class="count">132</span></a>
+      <div class="a-nav-section">Pengar</div>
+      <a href="#"><span id="i-6"></span> Stripe-flöde</a>
+      <a href="#"><span id="i-7"></span> Refunds &amp; tvister <span class="count">2</span></a>
+      <a href="#"><span id="i-8"></span> Rapporter</a>
+      <div class="a-nav-section">Drift</div>
+      <a href="#" class="alert"><span id="i-9"></span> Larm <span class="count">3</span></a>
+      <a href="#"><span id="i-10"></span> Systemstatus</a>
+      <a href="team.html"><span id="i-11"></span> Team</a>
+      <a href="auth.html"><span id="i-12"></span> Logga ut</a>
+    </div>
+  </aside>
+
+  <main class="a-main">
+    <header class="a-bar">
+      <div class="row aic gap-12">
+        <span class="pill pill-success"><span class="dot dot-success dot-pulse"></span> Alla system grön</span>
+        <span class="xs">Senast kontrollerat 14:24:31</span>
+      </div>
+      <div class="row aic gap-12">
+        <button class="btn btn-ghost btn-sm"><span id="bell-i"></span></button>
+        <div class="a-side-user" style="background: var(--paper); padding: 6px 14px 6px 6px; border-radius: var(--r-pill); border: 1px solid var(--ink-line);">
+          <div class="av" style="width: 28px; height: 28px; font-size: 11px; background: var(--copper); color: var(--paper); border-radius: 50%; display: flex; align-items: center; justify-content: center;">ZM</div>
+          <div style="font-size: 12px;">
+            <div style="font-weight: 600; color: var(--ink);">Zivar M.</div>
+            <div style="font-size: 10px; color: var(--ink-3);">Super-admin</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="a-content">
+      <div class="h-row">
+        <div>
+          <h1>Översikt · idag</h1>
+          <div class="sub">Sadaqa Sweden — drift, granskning, pengar i realtid · senast uppdaterat 14:24</div>
+        </div>
+        <div class="row gap-8">
+          <select class="select" style="width: auto; padding: 0 32px 0 14px; height: 40px;">
+            <option>Idag</option><option>Senaste 7 dagar</option><option>Senaste 30 dagar</option>
+          </select>
+          <button class="btn btn-secondary btn-sm">Exportera</button>
+        </div>
+      </div>
+
+      <!-- Status banner -->
+      <div class="status-banner">
+        <div class="item">
+          <div class="lbl">Insamlat hittills</div>
+          <div class="val">8,4 mkr</div>
+          <div class="delta">+ 142 200 kr idag</div>
+        </div>
+        <div class="item">
+          <div class="lbl">Donatorer i år</div>
+          <div class="val">14 821</div>
+          <div class="delta">+ 38 idag</div>
+        </div>
+        <div class="item">
+          <div class="lbl">Aktiva insamlingar</div>
+          <div class="val">132</div>
+          <div class="delta">14 i granskning</div>
+        </div>
+        <div class="item">
+          <div class="lbl">SLA-överskridningar</div>
+          <div class="val" style="color: var(--copper-warm);">0</div>
+          <div class="badge"><span id="ok-i"></span> 100 % inom 72 h</div>
+        </div>
+        <div class="item">
+          <div class="lbl">Stripe-status</div>
+          <div class="val" style="font-size: 22px;">Operational</div>
+          <div class="badge"><span id="ok-i-2"></span> Inga avbrott</div>
+        </div>
+      </div>
+
+      <!-- Larm + revenue chart -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Donationer · senaste 30 dagar</h3>
+            <div class="row gap-8 small">
+              <span class="row aic gap-6"><span class="dot" style="background: var(--forest);"></span> Belopp</span>
+              <span class="row aic gap-6"><span class="dot" style="background: var(--copper);"></span> Antal donationer</span>
+            </div>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 600 240" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1F4636" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#1F4636" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0 180 L25 170 L50 165 L75 175 L100 150 L125 130 L150 140 L175 115 L200 120 L225 95 L250 100 L275 75 L300 80 L325 70 L350 55 L375 65 L400 40 L425 45 L450 30 L475 50 L500 35 L525 25 L550 30 L575 20 L600 15 L600 240 L0 240 Z" fill="url(#grad)"/>
+              <path d="M0 180 L25 170 L50 165 L75 175 L100 150 L125 130 L150 140 L175 115 L200 120 L225 95 L250 100 L275 75 L300 80 L325 70 L350 55 L375 65 L400 40 L425 45 L450 30 L475 50 L500 35 L525 25 L550 30 L575 20 L600 15" fill="none" stroke="#1F4636" stroke-width="2"/>
+              <path d="M0 200 L25 195 L50 200 L75 188 L100 185 L125 180 L150 178 L175 172 L200 168 L225 160 L250 158 L275 145 L300 148 L325 138 L350 130 L375 132 L400 118 L425 122 L450 108 L475 112 L500 100 L525 90 L550 92 L575 78 L600 70" fill="none" stroke="#B8843E" stroke-width="1.5" stroke-dasharray="3 3"/>
+            </svg>
+          </div>
+          <div class="row jcs mt-16 small" style="color: var(--ink-3);">
+            <span>23 apr</span><span>1 maj</span><span>8 maj</span><span>15 maj</span><span>22 maj · idag</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Aktiva larm</h3>
+            <span class="pill pill-copper">3</span>
+          </div>
+          <div class="alert-row">
+            <div class="alert-icn"><span id="al-1"></span></div>
+            <div class="alert-body">
+              <div class="alert-title">SAD-2840 nära SLA-deadline</div>
+              <div class="alert-sub">Granskning Aishas dotter · 6 t kvar av 72 h</div>
+            </div>
+            <div class="actions">
+              <span class="alert-time">14:22</span>
+              <button class="btn btn-secondary btn-sm">Öppna</button>
+            </div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-icn danger"><span id="al-2"></span></div>
+            <div class="alert-body">
+              <div class="alert-title">Refund-begäran · SAD-2812</div>
+              <div class="alert-sub">"Mat-projekt Bangladesh" — Stripe-refund pågår</div>
+            </div>
+            <div class="actions">
+              <span class="alert-time">11:38</span>
+              <button class="btn btn-secondary btn-sm">Öppna</button>
+            </div>
+          </div>
+          <div class="alert-row">
+            <div class="alert-icn info"><span id="al-3"></span></div>
+            <div class="alert-body">
+              <div class="alert-title">Ny förening väntar på godkännande</div>
+              <div class="alert-sub">"Uppsala Islamiska Stiftelse" — verifierad mot SKV</div>
+            </div>
+            <div class="actions">
+              <span class="alert-time">09:14</span>
+              <button class="btn btn-secondary btn-sm">Öppna</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module health + top campaigns + system -->
+      <div class="grid-3 mt-24" style="grid-template-columns: 1fr 1.4fr 1fr;">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Modul-hälsa</h3>
+            <span class="pill pill-success">Allt OK</span>
+          </div>
+          <table class="mini-tbl">
+            <tr><td>M3 Granskning</td><td class="num" style="color: var(--success);">100%</td></tr>
+            <tr><td>M5 Stripe Connect</td><td class="num" style="color: var(--success);">100%</td></tr>
+            <tr><td>M6 BankID</td><td class="num" style="color: var(--success);">99,8%</td></tr>
+            <tr><td>M7 Transparens</td><td class="num" style="color: var(--copper-deep);">94%</td></tr>
+            <tr><td>M15 Notiser</td><td class="num" style="color: var(--success);">100%</td></tr>
+            <tr><td>Cloudflare Workers</td><td class="num" style="color: var(--success);">99,99%</td></tr>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Topp 5 insamlingar idag</h3>
+            <a href="discovery.html" class="small" style="color: var(--copper-deep);">Se alla 132 ↗</a>
+          </div>
+          <table class="mini-tbl">
+            <thead><tr><th>Insamling</th><th>Donatorer</th><th>Idag</th></tr></thead>
+            <tr>
+              <td><span class="av">DI</span> Brunnen i Diabaly</td>
+              <td>+ 12</td>
+              <td class="num">+ 8 200 kr</td>
+            </tr>
+            <tr>
+              <td><span class="av" style="background: var(--forest);">AL</span> Iftar Aleppo</td>
+              <td>+ 18</td>
+              <td class="num">+ 7 400 kr</td>
+            </tr>
+            <tr>
+              <td><span class="av" style="background: #8B6334;">HM</span> Hisingens Moské</td>
+              <td>+ 9</td>
+              <td class="num">+ 12 300 kr</td>
+            </tr>
+            <tr>
+              <td><span class="av" style="background: var(--forest-mid);">ID</span> Skolböcker Idlib</td>
+              <td>+ 5</td>
+              <td class="num">+ 2 200 kr</td>
+            </tr>
+            <tr>
+              <td><span class="av" style="background: #2D6B4F;">GA</span> Föräldralösa Gaza</td>
+              <td>+ 22</td>
+              <td class="num">+ 18 800 kr</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Pengaflöde</h3></div>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--ink-3);">Tagit emot via Stripe</span>
+              <span class="mono" style="color: var(--forest); font-weight: 600;">142 200 kr</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--ink-3);">Stripe-avgift</span>
+              <span class="mono">2 484 kr</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--ink-3);">Plattformsavgift</span>
+              <span class="mono" style="color: var(--success);">0 kr</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--ink-3);">Refunds</span>
+              <span class="mono">– 1 200 kr</span>
+            </div>
+            <hr class="divider">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-weight: 600;">Till mottagare</span>
+              <span class="mono" style="color: var(--forest); font-weight: 600; font-size: 16px;">138 516 kr</span>
+            </div>
+            <div class="xs">100 % spårbart i Stripe Connect transfers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html', light: true, size: 18 });
+  document.getElementById('shield-i').innerHTML = SADAQA.icon('shield', 12);
+  document.getElementById('bell-i').innerHTML = SADAQA.icon('bell', 16);
+  document.getElementById('ok-i').innerHTML = SADAQA.icon('check', 10);
+  document.getElementById('ok-i-2').innerHTML = SADAQA.icon('check', 10);
+  document.getElementById('al-1').innerHTML = SADAQA.icon('clock', 14);
+  document.getElementById('al-2').innerHTML = SADAQA.icon('alert', 14);
+  document.getElementById('al-3').innerHTML = SADAQA.icon('users', 14);
+  const navIcons = ['dashboard','inbox','users','building','list','wallet','credit-card','bar','alert','pie','briefcase','log-out'];
+  navIcons.forEach((n, i) => {
+    const el = document.getElementById('i-' + (i + 1));
+    if (el) el.innerHTML = SADAQA.icon(n, 15);
+  });
+</script>
+
+</body>
+</html>

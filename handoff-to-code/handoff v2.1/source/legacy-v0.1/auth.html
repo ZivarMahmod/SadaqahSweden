@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logga in — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  body { background: var(--paper); }
+  .auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
+  .auth-left {
+    background: var(--forest-deep); color: var(--paper);
+    padding: 64px 80px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .auth-left::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>"); background-size: 240px 240px; }
+  .auth-left > * { position: relative; z-index: 1; }
+  .auth-left .top a { color: var(--paper); }
+  .auth-left h1 {
+    font-family: var(--font-display); font-size: 56px; line-height: 1.04;
+    font-weight: 400; letter-spacing: -0.014em; margin: 0; color: var(--paper);
+    max-width: 480px;
+  }
+  .auth-left h1 .italic { color: var(--copper-warm); }
+  .auth-left .quote {
+    font-family: var(--font-display); font-style: italic; font-size: 18px;
+    line-height: 1.5; color: rgba(245, 240, 228, 0.7);
+    padding-left: 24px; border-left: 2px solid var(--copper);
+    max-width: 440px;
+  }
+  .auth-left .quote .attr { font-style: normal; font-size: 12px; color: rgba(245, 240, 228, 0.55); margin-top: 8px; letter-spacing: 0.04em; }
+
+  .auth-right {
+    padding: 80px 80px;
+    display: flex; flex-direction: column; justify-content: center;
+    max-width: 580px;
+  }
+  .auth-right h2 { font-family: var(--font-display); font-size: 40px; font-weight: 400; line-height: 1.08; margin: 0 0 12px; letter-spacing: -0.012em; }
+  .auth-right .sub { font-family: var(--font-display); font-size: 18px; color: var(--ink-2); font-weight: 300; margin: 0 0 32px; }
+
+  /* BankID large button */
+  .bankid-btn {
+    width: 100%;
+    background: var(--forest);
+    color: var(--paper);
+    padding: 28px 32px;
+    border-radius: var(--r-lg);
+    display: flex; align-items: center; gap: 20px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    margin-bottom: 16px;
+  }
+  .bankid-btn:hover { background: var(--forest-deep); transform: translateY(-1px); box-shadow: var(--shadow-3); }
+  .bankid-btn .logo {
+    width: 56px; height: 56px;
+    border-radius: var(--r-md);
+    background: var(--paper);
+    color: var(--forest);
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 56px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .bankid-btn .text { flex: 1; text-align: left; }
+  .bankid-btn .title { font-size: 18px; font-weight: 600; }
+  .bankid-btn .meta { font-size: 12px; color: rgba(245, 240, 228, 0.7); margin-top: 4px; }
+  .bankid-btn .arrow { color: var(--copper-warm); }
+
+  .auth-alt {
+    text-align: center; padding: 16px 0;
+    font-size: 12px; color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+
+  .alt-row { display: flex; gap: 10px; }
+  .alt-btn { flex: 1; height: 52px; background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-md); font-size: 13px; color: var(--ink-1); display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  .field-block { margin-top: 32px; padding-top: 32px; border-top: 1px solid var(--ink-line); }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+  .auth-meta {
+    display: flex; gap: 24px; margin-top: 32px;
+    padding-top: 24px; border-top: 1px solid var(--ink-line);
+    font-size: 12px; color: var(--ink-3);
+  }
+  .auth-meta a { color: var(--forest); text-decoration: underline; }
+
+  .trust-strip-light {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: 12px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(245, 240, 228, 0.10);
+  }
+  .trust-strip-light .row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: rgba(245, 240, 228, 0.8); }
+  .trust-strip-light .row .icn { color: var(--copper-warm); flex: 0 0 18px; }
+</style>
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-left">
+    <div class="top">
+      <span id="wordmark-slot"></span>
+    </div>
+    <div>
+      <h1>Trygg inloggning <span class="italic">för dig som ger</span> — och du som tar ansvar.</h1>
+      <p style="font-family: var(--font-display); font-size: 18px; color: rgba(245, 240, 228, 0.7); margin: 32px 0 0; max-width: 440px; line-height: 1.5;">
+        BankID gör att vi vet att du är du. Du behöver det inte för att donera — men för att starta en insamling, granska, eller representera en förening.
+      </p>
+    </div>
+    <div class="trust-strip-light">
+      <div class="row"><span class="icn" id="t1"></span> Plattformen är en bro — vi rör aldrig pengarna juridiskt.</div>
+      <div class="row"><span class="icn" id="t2"></span> All identitet är skyddad enligt GDPR — vi sparar inte personnummer.</div>
+      <div class="row"><span class="icn" id="t3"></span> Granskning före publicering — varje insamling, varje gång.</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <h2>Logga in</h2>
+    <p class="sub">Välkommen tillbaka — eller välkommen för första gången.</p>
+
+    <button class="bankid-btn">
+      <div class="logo">BID</div>
+      <div class="text">
+        <div class="title">Logga in med BankID</div>
+        <div class="meta">Säkert · 5 sekunder · vi sparar inte personnumret</div>
+      </div>
+      <span class="arrow" id="ba"></span>
+    </button>
+
+    <div class="alt-row">
+      <button class="alt-btn"><span id="ai-1"></span> BankID på annan enhet</button>
+      <button class="alt-btn"><span id="ai-2"></span> QR-kod</button>
+    </div>
+
+    <div class="field-block">
+      <div class="auth-alt">— eller logga in med e-post —</div>
+      <div class="field">
+        <label class="label">E-post</label>
+        <input type="email" class="input" placeholder="du@exempel.se" value="">
+      </div>
+      <div class="field">
+        <label class="label">Lösenord</label>
+        <input type="password" class="input" placeholder="">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg">Logga in</button>
+      <div class="auth-meta">
+        <a href="#">Glömt lösenordet?</a>
+        <a href="#">Skapa konto</a>
+        <span style="margin-left: auto;">Behöver hjälp? <a href="mailto:support@sadaqasweden.se">support@sadaqasweden.se</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ light: true, href: 'index.html' });
+  document.getElementById('ba').innerHTML = SADAQA.icon('arrow-right', 22);
+  document.getElementById('ai-1').innerHTML = SADAQA.icon('shield', 14);
+  document.getElementById('ai-2').innerHTML = SADAQA.icon('grid', 14);
+  document.getElementById('t1').innerHTML = SADAQA.icon('shield-check', 14);
+  document.getElementById('t2').innerHTML = SADAQA.icon('lock', 14);
+  document.getElementById('t3').innerHTML = SADAQA.icon('check-circle', 14);
+</script>
+</body>
+</html>

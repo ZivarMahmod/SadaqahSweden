@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Karta — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  .map-head { background: var(--forest-deep); color: var(--paper); padding: 48px 0 32px; position: relative; overflow: hidden; }
+  .map-head::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(245,240,228,0.05)' stroke-width='0.5'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>"); background-size: 200px 200px; }
+  .map-head > * { position: relative; z-index: 1; }
+  .map-head h1 { font-family: var(--font-display); font-size: 44px; font-weight: 400; letter-spacing: -0.014em; margin: 0 0 12px; color: var(--paper); }
+  .map-head .lead { color: rgba(245, 240, 228, 0.7); font-family: var(--font-display); font-size: 18px; font-weight: 300; max-width: 580px; margin: 0; }
+
+  .map-stage {
+    display: grid; grid-template-columns: 1fr 360px;
+    height: calc(100vh - 72px - 200px);
+    min-height: 580px;
+    background: var(--paper);
+  }
+  .map-viewport {
+    background: var(--paper-soft);
+    border-right: 1px solid var(--ink-line);
+    position: relative;
+    overflow: hidden;
+  }
+  .map-svg-wrap {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .map-svg-wrap svg { max-height: 100%; height: 100%; }
+  .map-region {
+    fill: rgba(31, 70, 54, 0.08);
+    stroke: var(--forest);
+    stroke-width: 0.7;
+    transition: all 200ms ease;
+    cursor: pointer;
+  }
+  .map-region:hover { fill: var(--forest-soft); }
+  .map-region.active { fill: var(--copper-soft); stroke: var(--copper); stroke-width: 1.5; }
+  .map-pin {
+    fill: var(--copper);
+    stroke: var(--paper);
+    stroke-width: 1;
+  }
+  .map-pin-big { fill: var(--copper-deep); }
+  .map-controls {
+    position: absolute; top: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 6px;
+    background: var(--paper); border-radius: var(--r-md);
+    box-shadow: var(--shadow-2); padding: 4px;
+  }
+  .map-controls button { width: 36px; height: 36px; border-radius: var(--r-sm); color: var(--ink-2); }
+  .map-controls button:hover { background: var(--paper-soft); }
+
+  .map-legend {
+    position: absolute; bottom: 24px; left: 24px;
+    background: var(--paper); border-radius: var(--r-md);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-2);
+    font-size: 12px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .map-legend .row { display: flex; align-items: center; gap: 8px; }
+  .map-legend .swatch { width: 14px; height: 14px; border-radius: 3px; }
+
+  /* Side panel */
+  .map-side { padding: 24px; overflow-y: auto; }
+  .map-side h3 { font-family: var(--font-display); font-size: 22px; font-weight: 500; margin: 0 0 16px; letter-spacing: -0.008em; }
+
+  .filter-tabs { display: flex; gap: 4px; background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-md); padding: 3px; margin-bottom: 20px; }
+  .filter-tabs button { flex: 1; padding: 8px; font-size: 12px; font-weight: 500; color: var(--ink-3); border-radius: var(--r-sm); }
+  .filter-tabs button.active { background: var(--paper); color: var(--forest); box-shadow: var(--shadow-1); }
+
+  .region-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px;
+    background: var(--paper-soft); border: 1px solid var(--ink-line);
+    border-radius: var(--r-md);
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .region-row.active { background: var(--copper-soft); border-color: var(--copper); }
+  .region-row .pin { width: 32px; height: 32px; border-radius: 50%; background: var(--forest-soft); color: var(--forest); display: flex; align-items: center; justify-content: center; flex: 0 0 32px; }
+  .region-row.active .pin { background: var(--copper); color: var(--paper); }
+  .region-row .info { flex: 1; }
+  .region-row .name { font-weight: 600; color: var(--ink); font-size: 14px; }
+  .region-row .meta { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .region-row .num { font-family: var(--font-mono); color: var(--forest); font-weight: 600; font-size: 13px; }
+
+  /* Stats below */
+  .map-foot {
+    background: var(--paper-soft); border-top: 1px solid var(--ink-line);
+    padding: 32px 0;
+  }
+  .map-foot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
+  .map-foot .stat .num { font-family: var(--font-display); font-size: 36px; font-weight: 500; color: var(--forest); line-height: 1; letter-spacing: -0.012em; }
+  .map-foot .stat .lbl { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+  .map-foot .stat .sub { font-size: 12px; color: var(--ink-3); margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link">Insamlingar</a>
+    <a href="catalog.html" class="nav-link">Föreningar</a>
+    <a href="map.html" class="nav-link active">Karta</a>
+    <a href="community.html" class="nav-link">Community</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+
+<section class="map-head">
+  <div class="container">
+    <div class="section-eyebrow" style="margin-bottom: 20px;"><span class="star-mark" style="color: var(--copper-warm);" id="s1"></span><span style="font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--copper-warm);">Karta · M12</span></div>
+    <h1>Var insamlingarna kommer ifrån — och vart hjälpen landar.</h1>
+    <p class="lead">132 aktiva insamlingar driver av personer på 18 svenska orter. Pengarna går till 28 länder världen över.</p>
+  </div>
+</section>
+
+<div class="map-stage">
+  <div class="map-viewport">
+    <div class="map-svg-wrap">
+      <!-- Stylised Sweden silhouette -->
+      <svg viewBox="0 0 400 700" preserveAspectRatio="xMidYMid meet">
+        <!-- Region 1: north -->
+        <path class="map-region" d="M180 30 L260 30 L290 80 L280 140 L250 180 L210 200 L180 180 L150 130 L150 60 Z"/>
+        <!-- Region 2: middle north -->
+        <path class="map-region" d="M150 180 L260 200 L270 280 L250 340 L210 350 L170 330 L130 280 L130 220 Z"/>
+        <!-- Region 3: mellansverige -->
+        <path class="map-region active" d="M130 330 L260 340 L270 410 L240 460 L180 470 L140 450 L110 410 L110 360 Z"/>
+        <!-- Region 4: stockholm/uppsala -->
+        <path class="map-region active" d="M250 360 L320 380 L330 440 L290 470 L260 460 L250 410 Z"/>
+        <!-- Region 5: göteborg/väst -->
+        <path class="map-region active" d="M70 410 L160 440 L150 510 L100 540 L60 530 L40 480 L50 440 Z"/>
+        <!-- Region 6: skåne -->
+        <path class="map-region active" d="M110 540 L210 570 L220 630 L180 670 L120 660 L80 630 L80 580 Z"/>
+
+        <!-- Pins -->
+        <circle class="map-pin map-pin-big" cx="280" cy="400" r="9"/>
+        <text x="280" y="380" text-anchor="middle" font-size="11" font-family="Manrope" fill="#0F2A1F" font-weight="600">Stockholm · 38</text>
+
+        <circle class="map-pin" cx="80" cy="480" r="7"/>
+        <text x="80" y="460" text-anchor="middle" font-size="11" font-family="Manrope" fill="#0F2A1F" font-weight="600">Göteborg · 18</text>
+
+        <circle class="map-pin" cx="150" cy="620" r="7"/>
+        <text x="150" y="600" text-anchor="middle" font-size="11" font-family="Manrope" fill="#0F2A1F" font-weight="600">Malmö · 14</text>
+
+        <circle class="map-pin" cx="295" cy="390" r="5"/>
+        <text x="305" y="394" font-size="10" font-family="Manrope" fill="#0F2A1F">Uppsala</text>
+
+        <circle class="map-pin" cx="190" cy="430" r="5"/>
+        <text x="200" y="434" font-size="10" font-family="Manrope" fill="#0F2A1F">Västerås</text>
+
+        <circle class="map-pin" cx="230" cy="500" r="5"/>
+        <text x="240" y="504" font-size="10" font-family="Manrope" fill="#0F2A1F">Linköping</text>
+
+        <circle class="map-pin" cx="210" cy="270" r="5"/>
+        <text x="220" y="274" font-size="10" font-family="Manrope" fill="#0F2A1F">Sundsvall</text>
+
+        <circle class="map-pin" cx="170" cy="100" r="5"/>
+        <text x="180" y="104" font-size="10" font-family="Manrope" fill="#0F2A1F">Umeå</text>
+      </svg>
+    </div>
+    <div class="map-controls">
+      <button id="zi"></button>
+      <button id="zo"></button>
+      <button id="zr"></button>
+    </div>
+    <div class="map-legend">
+      <div class="row"><span class="swatch" style="background: var(--copper);"></span> Insamlare bor här</div>
+      <div class="row"><span class="swatch" style="background: var(--copper-soft); border: 1px solid var(--copper);"></span> Region med &gt;5 insamlingar</div>
+      <div class="row"><span class="swatch" style="background: var(--forest-soft); border: 1px solid var(--forest);"></span> Region med 1–5 insamlingar</div>
+    </div>
+  </div>
+
+  <aside class="map-side">
+    <div class="filter-tabs">
+      <button class="active">Insamlare</button>
+      <button>Mottagare</button>
+      <button>Föreningar</button>
+    </div>
+
+    <h3>Var insamlare bor</h3>
+    <div class="region-row active">
+      <div class="pin"><span id="p1"></span></div>
+      <div class="info"><div class="name">Stockholms län</div><div class="meta">12 städer · 38 insamlingar</div></div>
+      <div class="num">38</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p2"></span></div>
+      <div class="info"><div class="name">Västra Götaland</div><div class="meta">Göteborg, Borås, Trollhättan</div></div>
+      <div class="num">22</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p3"></span></div>
+      <div class="info"><div class="name">Skåne</div><div class="meta">Malmö, Lund, Helsingborg</div></div>
+      <div class="num">18</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p4"></span></div>
+      <div class="info"><div class="name">Uppsala län</div><div class="meta">Uppsala</div></div>
+      <div class="num">8</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p5"></span></div>
+      <div class="info"><div class="name">Östergötland</div><div class="meta">Linköping, Norrköping</div></div>
+      <div class="num">6</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p6"></span></div>
+      <div class="info"><div class="name">Västmanland</div><div class="meta">Västerås</div></div>
+      <div class="num">4</div>
+    </div>
+    <div class="region-row">
+      <div class="pin"><span id="p7"></span></div>
+      <div class="info"><div class="name">Norrland</div><div class="meta">Sundsvall, Umeå, Luleå</div></div>
+      <div class="num">5</div>
+    </div>
+  </aside>
+</div>
+
+<section class="map-foot">
+  <div class="container">
+    <div class="map-foot-grid">
+      <div class="stat">
+        <div class="lbl">Sverige</div>
+        <div class="num">132</div>
+        <div class="sub">aktiva insamlingar · 18 städer</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Mottagarländer</div>
+        <div class="num">28</div>
+        <div class="sub">Mali, Syrien, Palestina, Somalia, Bangladesh m.fl.</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Mest hjälp</div>
+        <div class="num">Mali</div>
+        <div class="sub">42 % av totalt insamlat</div>
+      </div>
+      <div class="stat">
+        <div class="lbl">Mest aktiv stad</div>
+        <div class="num">Stockholm</div>
+        <div class="sub">38 insamlingar · 3,2 mkr</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div id="footer-slot"></div>
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+</script>
+<script>
+  document.getElementById('s1').innerHTML = SADAQA.STAR_MINI;
+  document.getElementById('zi').innerHTML = SADAQA.icon('plus', 14);
+  document.getElementById('zo').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"><path d="M5 12h14"/></svg>';
+  document.getElementById('zr').innerHTML = SADAQA.icon('map', 14);
+  for (let i = 1; i <= 7; i++) {
+    document.getElementById('p' + i).innerHTML = SADAQA.icon('map-pin', 14);
+  }
+  document.querySelectorAll('.region-row').forEach(r => {
+    r.addEventListener('click', () => {
+      document.querySelectorAll('.region-row').forEach(x => x.classList.remove('active'));
+      r.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.filter-tabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tabs button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

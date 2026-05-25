@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Community &amp; events — Sadaqa Sweden</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/shared.js"></script>
+<style>
+  .c-head { background: var(--paper-soft); padding: 56px 0 40px; border-bottom: 1px solid var(--ink-line); position: relative; overflow: hidden; }
+  .c-head::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><g fill='none' stroke='rgba(31,70,54,0.04)' stroke-width='0.6'><path d='M40 0L48 32L80 40L48 48L40 80L32 48L0 40L32 32Z'/></g></svg>"); background-size: 200px 200px; }
+  .c-head > * { position: relative; z-index: 1; }
+  .c-head h1 { font-family: var(--font-display); font-size: clamp(40px, 4.5vw, 56px); font-weight: 400; letter-spacing: -0.014em; margin: 0 0 12px; }
+  .c-head .lead { font-family: var(--font-display); font-size: 18px; color: var(--ink-2); font-weight: 300; max-width: 720px; }
+
+  .c-tabs { display: flex; gap: 8px; margin-top: 28px; }
+  .c-tab { padding: 10px 18px; background: var(--paper); border: 1px solid var(--ink-line); border-radius: var(--r-pill); font-size: 13px; color: var(--ink-2); cursor: pointer; }
+  .c-tab.active { background: var(--forest); color: var(--paper); border-color: var(--forest); }
+
+  .c-body { padding: 56px 0 96px; display: grid; grid-template-columns: 1fr 360px; gap: 56px; }
+
+  /* Event grid */
+  .ev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ev-card { background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-xl); padding: 24px; transition: all 200ms ease; }
+  .ev-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--copper-soft); }
+  .ev-date { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .ev-date .day { font-family: var(--font-display); font-size: 40px; line-height: 1; color: var(--copper-deep); font-weight: 500; }
+  .ev-date .mon { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+  .ev-date .meta { flex: 1; font-size: 12px; color: var(--ink-3); padding-top: 4px; }
+  .ev-card h3 { font-family: var(--font-display); font-size: 22px; line-height: 1.2; font-weight: 500; margin: 0 0 8px; letter-spacing: -0.008em; }
+  .ev-card .body { font-size: 13px; color: var(--ink-2); line-height: 1.5; margin-bottom: 14px; }
+  .ev-card .footer { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid var(--ink-line); font-size: 12px; color: var(--ink-3); }
+  .ev-card .footer .av { width: 24px; height: 24px; border-radius: 50%; background: var(--forest); color: var(--paper); display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
+
+  /* Discussion thread */
+  .discussion-section { margin-top: 48px; }
+  .post { background: var(--paper-soft); border: 1px solid var(--ink-line); border-radius: var(--r-xl); padding: 24px; margin-bottom: 12px; }
+  .post-head { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+  .post-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
+  .post-info .name { font-weight: 600; font-size: 14px; color: var(--ink); }
+  .post-info .meta { font-size: 11px; color: var(--ink-3); }
+  .post-tag { margin-left: auto; padding: 4px 10px; background: var(--copper-soft); color: var(--copper-deep); border-radius: var(--r-pill); font-size: 11px; font-weight: 600; }
+  .post-body { font-size: 14px; color: var(--ink-1); line-height: 1.6; margin: 0 0 14px; }
+  .post-foot { display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--ink-line); align-items: center; }
+  .post-react { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--paper); border: 1px solid var(--ink-line); border-radius: var(--r-pill); font-size: 12px; color: var(--ink-2); }
+  .post-react .ar { font-family: var(--font-display); color: var(--copper-deep); font-style: italic; }
+  .post-react.dua { background: var(--copper-soft); border-color: var(--copper); color: var(--copper-deep); }
+
+  /* Side */
+  .c-side .card { margin-bottom: 16px; }
+  .c-side .featured-card { background: var(--forest); color: var(--paper); border-color: transparent; }
+
+  .principles-list li { display: flex; gap: 10px; padding: 8px 0; font-size: 13px; color: var(--ink-2); border-bottom: 1px solid var(--ink-line); }
+  .principles-list li:last-child { border-bottom: 0; }
+  .principles-list .icn { color: var(--copper-deep); flex: 0 0 18px; }
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <span id="wordmark-slot"></span>
+  <nav class="nav-links">
+    <a href="discovery.html" class="nav-link">Insamlingar</a>
+    <a href="catalog.html" class="nav-link">Föreningar</a>
+    <a href="map.html" class="nav-link">Karta</a>
+    <a href="community.html" class="nav-link active">Community</a>
+  </nav>
+  <div class="row aic gap-12">
+    <a href="auth.html" class="btn btn-ghost btn-sm">Logga in</a>
+    <a href="wizard.html" class="btn btn-primary btn-sm">Starta insamling</a>
+  </div>
+</header>
+
+<section class="c-head">
+  <div class="container">
+    <div class="section-eyebrow" style="margin-bottom: 20px;"><span class="star-mark" id="s1"></span><span style="font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--copper-deep);">Community &amp; events · M13 + M14</span></div>
+    <h1>Möt platsen — inte väggen.</h1>
+    <p class="lead">Strukturerade samtal kring insamlingar, dua för bröder och systrar, händelser som händer. Det här är inte ett socialt media-flöde — det är en plats för broderskap och fokus.</p>
+    <div class="c-tabs">
+      <button class="c-tab active">Allt</button>
+      <button class="c-tab">Händelser · 18</button>
+      <button class="c-tab">Dua-trådar · 12</button>
+      <button class="c-tab">Diskussion · 8</button>
+      <button class="c-tab">Min stad</button>
+    </div>
+  </div>
+</section>
+
+<div class="container c-body">
+  <main>
+    <!-- Events -->
+    <h2 class="h2 mb-24" style="margin: 0 0 24px;">Kommer snart</h2>
+    <div class="ev-grid">
+      <div class="ev-card">
+        <div class="ev-date">
+          <div><div class="day">02</div><div class="mon">JUN 2026</div></div>
+          <div class="meta">18:00 — 20:30<br>Husby Moské, Stockholm</div>
+        </div>
+        <h3>Iftar för 600 — Husby Moské</h3>
+        <p class="body">Fastebrytning med familjefokus. Yasmins insamling stöttar maten — kom och var med, ta inget för givet.</p>
+        <div class="footer">
+          <span class="row aic gap-8"><span class="av">YA</span> Yasmin A. + Husby Moské</span>
+          <span class="pill pill-copper">42 anmälda</span>
+        </div>
+      </div>
+
+      <div class="ev-card">
+        <div class="ev-date">
+          <div><div class="day">07</div><div class="mon">JUN 2026</div></div>
+          <div class="meta">15:00 — 17:00<br>Hisingens Moské, Göteborg</div>
+        </div>
+        <h3>Föreläsning: Sadaqah som livshållning</h3>
+        <p class="body">Salma K. och Ahmed N. talar om vad det betyder att ge öppet, granska väl, och bevisa resultat — i fiqh och i praktiken.</p>
+        <div class="footer">
+          <span>Hisingens Moské</span>
+          <span class="pill pill-paper">86 anmälda</span>
+        </div>
+      </div>
+
+      <div class="ev-card">
+        <div class="ev-date">
+          <div><div class="day">12</div><div class="mon">JUN 2026</div></div>
+          <div class="meta">10:00 — 12:00<br>Online · Zoom</div>
+        </div>
+        <h3>Workshop: Driv en bra insamling</h3>
+        <p class="body">För nya insamlare. Vi går igenom hela wizarden, vanliga fallgropar i granskningen, och hur du bygger bevis-arbetet.</p>
+        <div class="footer">
+          <span>Sadaqa-teamet</span>
+          <span class="pill pill-paper">Plats kvar</span>
+        </div>
+      </div>
+
+      <div class="ev-card">
+        <div class="ev-date">
+          <div><div class="day">14</div><div class="mon">JUN 2026</div></div>
+          <div class="meta">19:00<br>Stockholm Islamiska Center</div>
+        </div>
+        <h3>Avslutning Diabaly-insamlingen</h3>
+        <p class="body">När brunnen i Mali är beställd håller vi en kort ceremoni — vi berättar resan, donatorer som anmäler sig får möta Yasmin.</p>
+        <div class="footer">
+          <span class="row aic gap-8"><span class="av" style="background: var(--copper-deep);">YA</span> Yasmin A.</span>
+          <span class="pill pill-paper">28 anmälda</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dua & discussion -->
+    <div class="discussion-section">
+      <h2 class="h2 mb-24" style="margin: 0 0 24px;">Senaste i samtalet</h2>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background: var(--copper-soft); color: var(--copper-deep);">FM</div>
+          <div class="post-info">
+            <div class="name">Familjen Mohammed</div>
+            <div class="meta">för 2 timmar sedan · på #SAD-2840</div>
+          </div>
+          <span class="post-tag">Dua-tråd</span>
+        </div>
+        <p class="post-body">
+          Vår dotter Aisha — 4 år — opereras på torsdag för sin hjärtmissbildning. Vi har fått ihop alla pengar tack vare er. Be för hennes hjärta, in shaa Allah. Jazak Allah khairan.
+        </p>
+        <div class="post-foot">
+          <button class="post-react dua"><span class="ar">دعاء</span> Dua · 142</button>
+          <button class="post-react"><span id="r-1"></span> 24</button>
+          <button class="post-react"><span id="r-2"></span> 8 kommentarer</button>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background: var(--forest-soft); color: var(--forest);">HK</div>
+          <div class="post-info">
+            <div class="name">Hjälpkraft Sverige</div>
+            <div class="meta">för 5 timmar sedan</div>
+          </div>
+          <span class="post-tag" style="background: var(--forest-soft); color: var(--forest);">Uppdatering</span>
+        </div>
+        <p class="post-body">
+          Iftar-paketen i Aleppo är på väg — 92 % av målet nått, sista delen kör vi vidare med. Bilder från lasten kommer i kväll. Allahumma barik fi rizqana.
+        </p>
+        <div class="post-foot">
+          <button class="post-react dua"><span class="ar">دعاء</span> Dua · 58</button>
+          <button class="post-react"><span id="r-3"></span> 36</button>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background: var(--forest); color: var(--paper);">AB</div>
+          <div class="post-info">
+            <div class="name">Abdulrahman B.</div>
+            <div class="meta">igår · på #SAD-2832</div>
+          </div>
+          <span class="post-tag">Fråga</span>
+        </div>
+        <p class="post-body">
+          Jag vill driva en liknande insamling — vatten till en by i norra Somalia. Men jag är osäker på hur man verifierar lokala NGO:er. Någon som har gjort detta som kan tipsa?
+        </p>
+        <div class="post-foot">
+          <button class="post-react"><span id="r-4"></span> 12 svar</button>
+          <button class="post-react"><span id="r-5"></span> 18</button>
+          <button class="post-react"><span class="ar">شكراً</span> Tack · 4</button>
+        </div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-av" style="background: var(--copper); color: var(--paper);">Z</div>
+          <div class="post-info">
+            <div class="name">Zivar M. <span style="color: var(--copper-deep); font-weight: 500;">· Sadaqa-teamet</span></div>
+            <div class="meta">i förrgår</div>
+          </div>
+          <span class="post-tag" style="background: var(--copper); color: var(--paper);">Från teamet</span>
+        </div>
+        <p class="post-body">
+          Vi har nu 1 000 publicerade insamlingar sedan starten — och 0 fall där pengar försvunnit. Detta är ert verk. Tack för att ni litar på oss att granska. Vi kommer fortsätta vara försiktiga.
+        </p>
+        <div class="post-foot">
+          <button class="post-react dua"><span class="ar">شكراً</span> Tack · 218</button>
+          <button class="post-react"><span id="r-6"></span> 84</button>
+          <button class="post-react"><span id="r-7"></span> 24 kommentarer</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="c-side">
+    <div class="card featured-card">
+      <h4 class="eyebrow mb-12" style="color: var(--copper-warm);">Tre samtals-regler</h4>
+      <ul class="principles-list" style="color: rgba(245, 240, 228, 0.85);">
+        <li><span class="icn" id="pr-1"></span> Strukturerade trådar — varje samtal hänger ihop med en insamling eller händelse</li>
+        <li><span class="icn" id="pr-2"></span> Dua-knappen är inte en "like" — den är en dua. Använd därefter</li>
+        <li><span class="icn" id="pr-3"></span> Hate-tal, sekterism, diskriminering = blockerat &amp; rapporterat</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4 class="eyebrow mb-12">Min stad — Stockholm</h4>
+      <div style="font-size: 13px; color: var(--ink-2); line-height: 1.5;">
+        12 föreningar · 38 aktiva insamlare · 5 events denna månad
+      </div>
+      <a href="map.html" class="btn btn-secondary btn-sm mt-12">Öppna kartan</a>
+    </div>
+
+    <div class="card">
+      <h4 class="eyebrow mb-12">Topp 5 dua-trådar</h4>
+      <div style="font-size: 13px; line-height: 1.8;">
+        <div>Aisha (4 år) · operation — <strong>142 dua</strong></div>
+        <div>Förlossning · syster M — <strong>98 dua</strong></div>
+        <div>Reseplaner för hajj — <strong>74 dua</strong></div>
+        <div>Examen · Ahmad — <strong>62 dua</strong></div>
+        <div>Sjukdom · vår mormor — <strong>58 dua</strong></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 class="eyebrow mb-12">Anmäl ett event</h4>
+      <div class="small" style="color: var(--ink-2); margin-bottom: 12px;">Föreningar, moskéer, granskade insamlare kan publicera events. Vi godkänner inom 24 t.</div>
+      <button class="btn btn-primary btn-sm">Skapa event</button>
+    </div>
+  </aside>
+</div>
+
+
+<div id="footer-slot"></div>
+<script>
+  document.getElementById('wordmark-slot').innerHTML = SADAQA.wordmark({ href: 'index.html' });
+  document.getElementById('footer-slot').innerHTML = SADAQA.footer();
+</script>
+<script>
+  document.getElementById('s1').innerHTML = SADAQA.STAR_MINI;
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('r-' + i);
+    if (el) el.innerHTML = SADAQA.icon(['heart','message','heart','message','heart','heart','message'][i-1], 12);
+  }
+  for (let i = 1; i <= 3; i++) document.getElementById('pr-' + i).innerHTML = SADAQA.icon('check', 14);
+</script>
+</body>
+</html>
