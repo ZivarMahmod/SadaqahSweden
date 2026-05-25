@@ -25,8 +25,8 @@ export default async function EventGranskningsKo() {
     .limit(50);
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Event-granskning</h1>
         <p className="lead mt-2">SLA 48 h. Lättare checklista — bra för samhället, ingen diskriminering, riktig arrangör.</p>
 

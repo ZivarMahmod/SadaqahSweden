@@ -15,7 +15,8 @@ export default function InternLayout({ children }: { children: React.ReactNode }
       <ChromeAdmin />
       <div className="admin-layout">
         <AdminSidebar />
-        <main className="admin-content">{children}</main>
+        {/* Wrapper, inte semantic <main> — varje sida ansvarar för sitt eget main-element. */}
+        <div className="admin-content">{children}</div>
       </div>
     </>
   );

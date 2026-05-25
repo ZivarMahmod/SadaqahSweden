@@ -29,8 +29,8 @@ export default async function RegionrapportListsida() {
   const aggByKod = new Map((agg ?? []).map((a) => [a.omrade_kod, a]));
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Regionrapporter</h1>
         <p className="lead mt-2">
           Underlag per län — att lägga på kommunens eller regionens bord.

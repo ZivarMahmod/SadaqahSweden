@@ -20,8 +20,8 @@ export default async function LarmListsida() {
     .limit(100);
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Larm</h1>
         <p className="lead mt-2">Aktiva först, sedan avfärdade/behandlade. Inga aktiva = grönt läge.</p>
 

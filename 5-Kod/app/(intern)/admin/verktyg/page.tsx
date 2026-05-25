@@ -31,8 +31,8 @@ export default async function VerktygSida() {
     .limit(50);
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Verktygslåda</h1>
         <p className="lead mt-2">
           Refund-verktyget: återbetala en enskild donation eller alla

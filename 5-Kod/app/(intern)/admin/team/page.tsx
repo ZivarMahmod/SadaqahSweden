@@ -32,8 +32,8 @@ export default async function TeamSida() {
   ]);
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Team</h1>
         <p className="lead mt-2">Inga självregistreringar — admin bjuder in. TOTP är obligatorisk.</p>
 

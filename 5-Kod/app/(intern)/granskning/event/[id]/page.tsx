@@ -34,8 +34,8 @@ export default async function EventGranskning({ params }: { params: Params }) {
   const arrangor = (org as { namn?: string } | null | undefined)?.namn ?? (profil as { visningsnamn?: string } | null | undefined)?.visningsnamn ?? "—";
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <div className="flex flex-wrap items-center gap-2">
           <Pill tone="copper">{EVENT_TYP_LABEL[e.typ as keyof typeof EVENT_TYP_LABEL]}</Pill>
           {e.plats_typ === "digital" && <Pill tone="paper">Digitalt</Pill>}

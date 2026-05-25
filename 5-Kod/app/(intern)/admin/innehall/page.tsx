@@ -47,11 +47,6 @@ export default async function InnehallListPage() {
         </Link>
       </header>
 
-      <nav className="mb-6 flex gap-3 text-sm">
-        <Link href="/admin" className="btn btn-ghost btn-sm">← Admin</Link>
-        <Link href="/admin/faq" className="btn btn-secondary btn-sm">FAQ</Link>
-        <Link href="/admin/lard" className="btn btn-secondary btn-sm">Lärd-profiler</Link>
-      </nav>
 
       <section className="card card-tight">
         <table className="table w-full">

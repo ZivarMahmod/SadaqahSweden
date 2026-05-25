@@ -38,8 +38,8 @@ export default async function StickprovPage() {
   const rader = (data ?? []) as Rad[];
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Stickprov — avvikande granskare</h1>
         <p className="lead mt-2 max-w-[640px]">
           Granskare med <strong>&gt;60% avvisningsandel</strong> och minst 5

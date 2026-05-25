@@ -48,8 +48,8 @@ export default async function BevisDetalj({ params }: { params: Params }) {
   const insamlare = ins.profiles;
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <div className="flex flex-wrap items-center gap-3">
           <LinkButton href="/granskning/bevis" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
             Tillbaka till kön

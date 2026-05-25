@@ -31,11 +31,6 @@ export default async function FaqAdminPage() {
         <Link href="/admin/faq/ny" className="btn btn-primary">Ny FAQ-post</Link>
       </header>
 
-      <nav className="mb-6 flex gap-3 text-sm">
-        <Link href="/admin" className="btn btn-ghost btn-sm">← Admin</Link>
-        <Link href="/admin/innehall" className="btn btn-secondary btn-sm">Innehållssidor</Link>
-      </nav>
-
       <section className="card card-tight">
         <table className="table w-full">
           <thead>

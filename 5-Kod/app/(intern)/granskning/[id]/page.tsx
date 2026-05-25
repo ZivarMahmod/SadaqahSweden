@@ -72,8 +72,8 @@ export default async function GranskarArendePage({ params }: { params: Params })
   const insamlare = ins.profiles;
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <div className="flex flex-wrap items-center gap-3">
           <LinkButton
             href="/granskning"

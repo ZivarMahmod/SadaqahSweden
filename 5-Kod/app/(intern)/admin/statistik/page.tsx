@@ -61,8 +61,8 @@ export default async function AdminStatistik() {
     : 0;
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Statistik (intern)</h1>
         <p className="lead mt-2">Bredare än publika sidan. Räknar från råa rader — uppdateras direkt.</p>
 

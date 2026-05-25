@@ -30,8 +30,8 @@ export default async function OverklagandenPage() {
   const avgjorda = (rader ?? []).filter((r) => r.status !== "inkommit");
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <h1 className="heading-2">Överklaganden</h1>
         <p className="lead mt-2 max-w-[640px]">
           Insamlare vars projekt avvisats av en region-admin kan överklaga{" "}

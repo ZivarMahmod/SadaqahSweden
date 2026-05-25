@@ -78,7 +78,7 @@ export default async function GranskningKoPage() {
   const eskalerade = rader?.filter((r) => r.eskalerad).length ?? 0;
 
   return (
-    <Section tone="paper" spacing="default">
+    <Section tone="paper" spacing="tight">
       <Container>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>

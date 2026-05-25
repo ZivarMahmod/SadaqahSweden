@@ -25,7 +25,7 @@ export default async function OrgKo() {
     .order("created_at", { ascending: true });
 
   return (
-    <Section tone="paper" spacing="default">
+    <Section tone="paper" spacing="tight">
       <Container>
         <div className="flex flex-wrap items-center gap-3">
           <LinkButton href="/granskning" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>

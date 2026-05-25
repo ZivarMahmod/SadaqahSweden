@@ -51,8 +51,8 @@ export default async function GranskaOrg({ params }: { params: Params }) {
   }
 
   return (
-    <Section tone="paper" spacing="default">
-      <Container width="narrow">
+    <Section tone="paper" spacing="tight">
+      <Container width="default">
         <LinkButton href="/granskning/organisationer" variant="ghost" size="sm" leftIcon={<Icon name="arrow-left" size={14} />}>
           Tillbaka till kön
         </LinkButton>
