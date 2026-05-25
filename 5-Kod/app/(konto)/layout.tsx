@@ -1,13 +1,14 @@
 // Modul M9 — inloggad konto-grupp.
-// Design: handoff-to-code/account.html (app shell). Sidebar lämnas till M9 utbyggnad —
-// nu bara SiteNav + Footer för konsistens.
-import { SiteNav } from "@/components/layout/site-nav";
+// F5: ChromeInsamlare ger avatar-pill + bell + primär-CTA "+ Ny insamling"
+// över publika chrome-skalet; BurgerDrawer inbakad i komponenten.
+// Design: handoff v2.1/source/studio/components.jsx (ChromeInsamlare).
+import { ChromeInsamlare } from "@/components/layout/chrome-insamlare";
 import { Footer } from "@/components/layout/footer";
 
 export default function KontoLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <SiteNav />
+      <ChromeInsamlare />
       {children}
       <Footer />
     </>

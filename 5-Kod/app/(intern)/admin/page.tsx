@@ -8,15 +8,13 @@ import { createClient } from "@/lib/supabase/server";
 import { Container, Section } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Pill } from "@/components/ui/pill";
-import { LinkButton } from "@/components/ui/button";
 import { kortBelopp, antal } from "@/lib/format";
 
 export const metadata = { title: "Admin — Sadaqah Sweden" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminDriftoversikt() {
-  const me = await kraver(["granskare", "admin"]);
-  const arSuperadmin = me.profil.admin_niva === "superadmin";
+  await kraver(["granskare", "admin"]);
   const supabase = await createClient();
 
   const [
@@ -101,20 +99,7 @@ export default async function AdminDriftoversikt() {
   return (
     <Section tone="paper" spacing="default">
       <Container width="narrow">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h1 className="heading-2">Drift &amp; admin</h1>
-          <nav className="flex flex-wrap gap-2">
-            <LinkButton href="/admin/larm" variant="ghost" size="sm">Larm</LinkButton>
-            <LinkButton href="/admin/logg" variant="ghost" size="sm">Ingreppslogg</LinkButton>
-            <LinkButton href="/admin/verktyg" variant="ghost" size="sm">Verktyg</LinkButton>
-            <LinkButton href="/admin/statistik" variant="ghost" size="sm">Statistik</LinkButton>
-            <LinkButton href="/admin/overklaganden" variant="ghost" size="sm">Överklaganden</LinkButton>
-            {arSuperadmin && (
-              <LinkButton href="/admin/stickprov" variant="ghost" size="sm">Stickprov</LinkButton>
-            )}
-            <LinkButton href="/granskning" variant="ghost" size="sm">Granskningskö</LinkButton>
-          </nav>
-        </div>
+        <h1 className="heading-2">Drift &amp; admin</h1>
 
         {/* Larm-band — visas bara när det finns aktivt */}
         {roda.length + gula.length > 0 && (

@@ -718,13 +718,12 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* Admin-layout: sidebar + content */
+/* Admin-layout: sidebar + content (standalone — utan studio-shell).
+   60px = chrome-admin-höjd; sidobaren stickar under chrome. */
 .admin-layout {
   display: grid;
   grid-template-columns: 240px 1fr;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  min-height: calc(100svh - 60px);
 }
 .admin-sidebar {
   background: var(--paper-soft);
@@ -734,6 +733,10 @@ body {
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
+  position: sticky;
+  top: 60px;
+  height: calc(100svh - 60px);
+  align-self: start;
 }
 .admin-sb-label {
   font-family: var(--font-mono);
@@ -775,8 +778,8 @@ body {
 
 .admin-content {
   padding: 32px 40px 80px;
-  overflow-y: auto;
   background: var(--paper);
+  min-width: 0;
 }
 
 /* ============================================================
