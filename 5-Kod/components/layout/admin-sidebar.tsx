@@ -24,6 +24,8 @@ const BAS_NAV: { label: string; items: NavItemBas[] }[] = [
     label: "Drift",
     items: [
       { href: "/granskning/organisationer", label: "Föreningar", iconKey: "building" },
+      { href: "/admin/donatorer", label: "Donatörer", iconKey: "users" },
+      { href: "/admin/transaktioner", label: "Transaktioner", iconKey: "gift" },
       { href: "/admin/statistik", label: "Statistik", iconKey: "sparkles" },
       { href: "/admin/region-rapport", label: "Region-rapport", iconKey: "map-pin" },
       { href: "/admin/overklaganden", label: "Överklaganden", iconKey: "flag" },
@@ -53,7 +55,11 @@ const BAS_NAV: { label: string; items: NavItemBas[] }[] = [
   },
   {
     label: "Team",
-    items: [{ href: "/admin/team", label: "Arbetsyta", iconKey: "users" }],
+    items: [
+      { href: "/admin/inkommande", label: "Inkommande", iconKey: "inbox" },
+      { href: "/admin/community-modd", label: "Community-modd", iconKey: "alert-triangle" },
+      { href: "/admin/team", label: "Arbetsyta", iconKey: "user" },
+    ],
   },
 ];
 
