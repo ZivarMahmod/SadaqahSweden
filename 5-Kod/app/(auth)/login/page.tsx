@@ -5,6 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { aktuellAnvandare } from "@/lib/auth";
 import { arAdminHost } from "@/lib/host";
+import { SIGNUP_LOCKED } from "../signup-lock";
 import { LoginForm } from "./login-form";
 
 export const metadata = {
@@ -55,11 +56,16 @@ export default async function LoginPage() {
         className="mt-8 flex flex-wrap items-center gap-6 pt-6 text-xs"
         style={{ borderTop: "1px solid var(--color-ink-line)", color: "var(--color-ink-3)" }}
       >
-        {!arAdmin && (
-          <Link href="/registrera" style={{ color: "var(--color-forest)", textDecoration: "underline" }}>
-            Skapa konto
-          </Link>
-        )}
+        {!arAdmin &&
+          (SIGNUP_LOCKED ? (
+            <span style={{ color: "var(--color-ink-3)" }} aria-live="polite">
+              Skapa konto · kommer snart
+            </span>
+          ) : (
+            <Link href="/registrera" style={{ color: "var(--color-forest)", textDecoration: "underline" }}>
+              Skapa konto
+            </Link>
+          ))}
         <span className="ml-auto">
           Behöver hjälp?{" "}
           <a

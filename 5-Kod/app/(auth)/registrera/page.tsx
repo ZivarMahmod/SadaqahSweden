@@ -32,7 +32,7 @@ export default async function RegistreraPage() {
           letterSpacing: "-0.012em",
         }}
       >
-        Skapa konto
+        {SIGNUP_LOCKED ? "Skapa konto — kommer snart" : "Skapa konto"}
       </h2>
 
       {SIGNUP_LOCKED ? (
@@ -55,7 +55,7 @@ export default async function RegistreraPage() {
                 color: "var(--color-ink-1)",
               }}
             >
-              Tillfälligt avstängt
+              Kommer snart
             </p>
             <p
               className="mt-3"
@@ -66,8 +66,9 @@ export default async function RegistreraPage() {
                 margin: 0,
               }}
             >
-              Kontoskapande är pausat just nu. Vi öppnar registreringen vid lansering — kom
-              tillbaka snart, inshaAllah.
+              Kontoskapande öppnar längre fram. Vi vill säkerställa att
+              granskningsstegen och pengaflödet är trygga innan vi släpper
+              bredd-registrering — kom tillbaka snart, inshaAllah.
             </p>
             <p
               className="mt-3"

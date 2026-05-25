@@ -53,7 +53,7 @@ export async function registrera(formData: FormData): Promise<AuthResult> {
   if (SIGNUP_LOCKED) {
     return {
       ok: false,
-      message: "Kontoskapande är tillfälligt avstängt. Öppnar vid lansering.",
+      message: "Kontoskapande kommer snart. Öppnar längre fram — kom tillbaka.",
     };
   }
 
