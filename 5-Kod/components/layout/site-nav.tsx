@@ -1,10 +1,13 @@
-// Designsystem-chrome — public/app site nav.
-// Designreferens: handoff-to-code/assets/style.css § TOP NAV.
+// Designsystem-chrome — ChromePublic (publik topbar, magasin v0.2).
+// Designreferens: handoff v2.1/source/studio/styles.css § CHROME (.chrome-public)
+// + handoff v2.1/source/studio/components.jsx (ChromePublic) + § "Hamburger".
 // Säkerhet: roll/inloggning läses serverside via aktuellAnvandare (RLS-skyddad).
+// All server-logik (host-typ, roll-gating, notis-count) intakt från F3-refactor.
 import Link from "next/link";
 import { aktuellAnvandare } from "@/lib/auth";
 import { loggaUt } from "@/app/(auth)/actions";
 import { Wordmark } from "@/components/layout/wordmark";
+import { BurgerDrawer, type DrawerSection } from "@/components/layout/burger-drawer";
 import { createClient } from "@/lib/supabase/server";
 import { aktuellHostTyp } from "@/lib/host";
 
@@ -13,7 +16,6 @@ const PUBLIC_LINKS = [
   { href: "/foreningar", label: "Föreningar" },
   { href: "/events", label: "Events" },
   { href: "/karta", label: "Karta" },
-  // TODO (M11): /om-plattformen — informationsida.
 ];
 
 export async function SiteNav() {
@@ -41,124 +43,153 @@ export async function SiteNav() {
     olasta = count ?? 0;
   }
 
+  const drawerSections: DrawerSection[] = [
+    {
+      label: "Utforska",
+      items: [
+        { href: "/insamlingar", label: "Insamlingar", mono: "01" },
+        { href: "/foreningar", label: "Föreningar", mono: "02" },
+        { href: "/events", label: "Events", mono: "03" },
+        { href: "/karta", label: "Karta", mono: "04" },
+        { href: "/statistik", label: "Statistik", mono: "05" },
+        { href: "/faq", label: "Frågor & svar", mono: "06" },
+      ],
+    },
+    ...(me
+      ? ([
+          {
+            label: "Mitt konto",
+            items: [
+              ...(arInsamlare
+                ? [{ href: "/insamling", label: "Mina insamlingar" }]
+                : []),
+              { href: "/konto", label: "Översikt" },
+              { href: "/konto/donationer", label: "Mina donationer" },
+              { href: "/konto/foreningar", label: "Föreningar" },
+              { href: "/konto/notiser", label: "Notiser" },
+              { href: "/konto/profil", label: "Profil" },
+            ],
+          },
+          ...(arGranskare
+            ? [
+                {
+                  label: "Team",
+                  items: [
+                    { href: "/granskning", label: "Granskningskö" },
+                    { href: "/granskning/event", label: "Event-kö" },
+                    { href: "/admin", label: "Maskinrum" },
+                  ],
+                },
+              ]
+            : []),
+        ] as DrawerSection[])
+      : ([
+          {
+            label: "Konto",
+            items: [
+              { href: "/login", label: "Logga in" },
+              ...(visaSkapaKonto
+                ? [{ href: "/registrera", label: "Skapa konto" }]
+                : []),
+            ],
+          },
+        ] as DrawerSection[])),
+  ];
+
   return (
-    <header
-      className="sticky top-0 z-50 border-b backdrop-blur"
-      style={{
-        height: 72,
-        background: "rgba(251, 247, 236, 0.85)",
-        borderBottomColor: "var(--color-ink-line)",
-      }}
-    >
-      <div className="mx-auto flex h-full w-full max-w-[1280px] items-center justify-between px-6 md:px-12">
-        <Link href="/" aria-label="Sadaqah Sweden — hem">
-          <Wordmark />
-        </Link>
+    <header className="chrome-public">
+      <Link href="/" aria-label="Sadaqah Sweden — hem">
+        <Wordmark />
+      </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Huvudmeny">
-          {PUBLIC_LINKS.map((l) => (
+      <nav className="nav-links" aria-label="Huvudmeny">
+        {PUBLIC_LINKS.map((l) => (
+          <Link key={l.href} href={l.href} className="nav-link">
+            {l.label}
+          </Link>
+        ))}
+        {arGranskare && (
+          <>
             <Link
-              key={l.href}
-              href={l.href}
-              className="text-sm font-medium transition-colors"
-              style={{ color: "var(--color-ink-2)" }}
+              href="/granskning"
+              className="nav-link"
+              style={{ color: "var(--color-copper-deep)", fontWeight: 600 }}
             >
-              {l.label}
+              Granskningskö
             </Link>
-          ))}
-          {arGranskare && (
-            <>
-              <Link
-                href="/granskning"
-                className="text-sm font-semibold transition-colors"
-                style={{ color: "var(--color-copper-deep)" }}
-              >
-                Granskningskö
-              </Link>
-              <Link
-                href="/granskning/event"
-                className="text-sm font-semibold transition-colors"
-                style={{ color: "var(--color-copper-deep)" }}
-              >
-                Event-kö
-              </Link>
-              <Link
-                href="/admin"
-                className="text-sm font-semibold transition-colors"
-                style={{ color: "var(--color-copper-deep)" }}
-              >
-                Admin
-              </Link>
-              {me.roll === "admin" && (
-                <Link
-                  href="/admin/team"
-                  className="text-sm font-semibold transition-colors"
-                  style={{ color: "var(--color-copper-deep)" }}
-                >
-                  Team
-                </Link>
-              )}
-            </>
-          )}
-        </nav>
+            <Link
+              href="/admin"
+              className="nav-link"
+              style={{ color: "var(--color-copper-deep)", fontWeight: 600 }}
+            >
+              Maskinrum
+            </Link>
+          </>
+        )}
+      </nav>
 
-        <div className="flex items-center gap-3">
-          {me ? (
-            <>
-              {arInsamlare && (
-                <Link href="/insamling" className="btn btn-ghost btn-sm">
-                  Mina insamlingar
-                </Link>
-              )}
-              <Link
-                href="/konto/notiser"
-                className="btn btn-ghost btn-sm"
-                aria-label={`Notiser${olasta > 0 ? ` (${olasta} olasta)` : ""}`}
-                title="Notiser"
-              >
-                {olasta > 0 ? (
+      <div className="nav-actions">
+        {me ? (
+          <>
+            {arInsamlare && (
+              <Link href="/insamling" className="mag-btn mag-btn-ghost mag-btn-sm">
+                Mina insamlingar
+              </Link>
+            )}
+            <Link
+              href="/konto/notiser"
+              className="mag-btn mag-btn-ghost mag-btn-sm"
+              aria-label={`Notiser${olasta > 0 ? ` (${olasta} olasta)` : ""}`}
+              title="Notiser"
+            >
+              {olasta > 0 ? (
+                <span aria-hidden className="inline-flex items-center gap-1">
+                  Notiser
                   <span
-                    aria-hidden
-                    className="inline-flex items-center gap-1"
+                    className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-[var(--sr-1)] px-1.5 text-[11px] font-semibold"
+                    style={{
+                      background: "var(--color-copper)",
+                      color: "var(--color-paper)",
+                    }}
                   >
-                    Notiser
-                    <span
-                      className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[11px] font-semibold"
-                      style={{
-                        background: "var(--color-copper)",
-                        color: "var(--color-paper)",
-                      }}
-                    >
-                      {olasta > 99 ? "99+" : olasta}
-                    </span>
+                    {olasta > 99 ? "99+" : olasta}
                   </span>
-                ) : (
-                  "Notiser"
-                )}
-              </Link>
-              <Link href="/konto" className="btn btn-secondary btn-sm">
-                {me.profil.visningsnamn}
-              </Link>
-              <form action={loggaUt}>
-                <button type="submit" className="btn btn-ghost btn-sm" aria-label="Logga ut">
-                  Logga ut
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="btn btn-ghost btn-sm">
-                Logga in
-              </Link>
-              {visaSkapaKonto && (
-                <Link href="/registrera" className="btn btn-primary btn-sm">
-                  Skapa konto
-                </Link>
+                </span>
+              ) : (
+                "Notiser"
               )}
-            </>
-          )}
-        </div>
+            </Link>
+            <Link href="/konto" className="mag-btn mag-btn-secondary mag-btn-sm">
+              {me.profil.visningsnamn}
+            </Link>
+            <form action={loggaUt}>
+              <button
+                type="submit"
+                className="mag-btn mag-btn-ghost mag-btn-sm"
+                aria-label="Logga ut"
+              >
+                Logga ut
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <Link href="/login" className="mag-btn mag-btn-ghost mag-btn-sm">
+              Logga in
+            </Link>
+            {visaSkapaKonto && (
+              <Link href="/registrera" className="mag-btn mag-btn-primary mag-btn-sm">
+                Skapa konto
+              </Link>
+            )}
+          </>
+        )}
+        <BurgerDrawer sections={drawerSections} />
       </div>
     </header>
   );
 }
+
+// Behåll bakåtkompatibelt alias så befintliga layouts som importerar SiteNav
+// fortsätter fungera även när de pekas mot ChromePublic i F5.
+export { SiteNav as ChromePublic };
