@@ -1204,12 +1204,35 @@ body {
   50% { opacity: 0.6; transform: scale(1.4); }
 }
 
+/* Mobil-toggle för AdminSidebar (visas bara <1100px). */
+.admin-mobile-toggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-2);
+  background: var(--paper-soft);
+  color: var(--ink-1);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  margin: 16px 20px 0;
+  width: fit-content;
+}
+.admin-mobile-toggle:hover {
+  border-color: var(--ink-2);
+  background: var(--paper);
+}
+
 /* ============================================================
    RESPONSIVT
    ============================================================ */
 @media (max-width: 1100px) {
   .admin-layout { grid-template-columns: 1fr; }
   .admin-sidebar { display: none; }
+  .admin-mobile-toggle { display: inline-flex; }
   .mag-container, .mag-container-tight { padding: 0 32px; }
   .chrome-public { padding: 0 24px; }
   .chrome-public .nav-links { display: none; }
