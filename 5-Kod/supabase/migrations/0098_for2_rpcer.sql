@@ -2,7 +2,8 @@
 -- Sadaqah Sweden — Migration 0098
 -- Brief 41 (Föreningar) F4+F6 — verifierings-flöde + block/företrädar-RPC:er.
 -- Säkerhet: public INVOKER-wrapper -> private DEFINER-impl (authenticated-only).
--- Verifiering = sätt organisation.status='verifierad' (verifierat schema).
+-- Verifiering = sätt organisation.status='publicerad' (godkänn) / 'avvisad' (neka).
+-- (organisation_status saknar 'verifierad'; publicerad = live+verifierad.)
 --
 -- Rollback: 0098_for2_rpcer.rollback.sql.
 -- =====================================================================
@@ -15,8 +16,8 @@ BEGIN
     RAISE EXCEPTION 'Behorighet saknas for foreningsverifiering.' USING ERRCODE='insufficient_privilege';
   END IF;
   UPDATE public.organisation
-     SET status = CASE WHEN p_godkann THEN 'verifierad'::public.organisation_status
-                       ELSE 'publik'::public.organisation_status END
+     SET status = CASE WHEN p_godkann THEN 'publicerad'::public.organisation_status
+                       ELSE 'avvisad'::public.organisation_status END
    WHERE id=p_org_id;
   PERFORM private.audit('andrade','organisation', p_org_id::text, jsonb_build_object('verifierad',p_godkann));
 END;

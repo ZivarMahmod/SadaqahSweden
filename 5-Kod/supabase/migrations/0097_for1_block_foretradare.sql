@@ -3,10 +3,10 @@
 -- Brief 41 (Föreningar) F1-F3+F5 — block-ramverk, företrädare, org-fält, koppling.
 -- Säkerhet: SAKERHETSREGLER.md. Bygger PÅ live public.organisation.
 --
--- VERIFIERAT SCHEMA: organisation har INGEN `verifierad`-boolean. Verifiering =
--- status-enum-värdet 'verifierad' (organisation_status: utkast,publik,dold,
--- arkiverad,verifierad,kommer_snart). Ägare = forenings_konto_user_id /
--- skapad_av_user_id. Publik synlighet = status IN ('publik','verifierad').
+-- VERIFIERAT SCHEMA: organisation_status = utkast,inskickad,godkand,avvisad,
+-- publicerad,arkiverad (INGEN 'verifierad'/'publik'). Verifierad+publik förening
+-- = status IN ('godkand','publicerad'). Ägare = forenings_konto_user_id /
+-- skapad_av (INTE skapad_av_user_id).
 --
 -- Rollback: 0097_for1_block_foretradare.rollback.sql.
 -- =====================================================================
@@ -49,7 +49,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = ''
 AS $$
   SELECT EXISTS (SELECT 1 FROM public.organisation_foretradare WHERE organisation_id=p_org_id AND user_id=p_user_id)
       OR EXISTS (SELECT 1 FROM public.organisation WHERE id=p_org_id
-                 AND (forenings_konto_user_id=p_user_id OR skapad_av_user_id=p_user_id));
+                 AND (forenings_konto_user_id=p_user_id OR skapad_av=p_user_id));
 $$;
 REVOKE EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) TO authenticated, service_role;
@@ -60,7 +60,7 @@ ALTER TABLE public.organisation_foretradare ENABLE ROW LEVEL SECURITY; ALTER TAB
 -- block: publik läser synliga block för publika/verifierade föreningar (ingen private-fn för anon).
 DROP POLICY IF EXISTS organisation_block_publik ON public.organisation_block;
 CREATE POLICY organisation_block_publik ON public.organisation_block FOR SELECT TO anon, authenticated
-  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.status IN ('publik','verifierad')));
+  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.status IN ('godkand','publicerad')));
 DROP POLICY IF EXISTS organisation_block_intern ON public.organisation_block;
 CREATE POLICY organisation_block_intern ON public.organisation_block FOR SELECT TO authenticated
   USING (private.aktuell_roll()='admin' OR private.ar_foretradare(organisation_id,(SELECT auth.uid())));
