@@ -32,6 +32,42 @@ icke-kod-steg är gjorda** (de kräver konto/infra/människa, inte mer migration
 9. **leaked-password-skydd PÅ** (Supabase auth-config, Zivar) — enda kvarvarande
    advisor-WARN utanför de avsiktliga DEFINER-endpointsen.
 
+## ⚠️ VERIFIERINGENS GRÄNSER — läs före merge (ärlig avgränsning)
+
+1. **Migrationerna är INTE replay-testade från noll.** Varje migration
+   författades mot live-DB:n och patchades tills den applicerade. Flera rättades
+   av SENARE migrationer (0070→0069, 0089→0084, 0099→0093/0096, 0101→0097/0098)
+   och `.sql`-filerna handredigerades till att matcha live. Sekvensen `0063→0110`
+   har därför ALDRIG körts end-to-end mot en tom databas. Ett ordningsfel (en fn
+   som refererar en kolumn från en senare fil, ett enum-värde använt i samma fil
+   det deklareras) skulle först visa sig vid en `supabase db reset`. Shadow-DB/
+   branch fanns inte tillgänglig i den här körningen. **Rekommendation: kör
+   `supabase db reset` på en Supabase-branch FÖRE merge till main.** Rollback+
+   reapply är spot-check-bevisad på 0068 + 0102, inte på hela kedjan.
+2. **"Verifierat" betyder olika saker:** RLS-grindar är EXEKVERINGS-testade
+   (`set local role anon` + roll-tester gav faktiska rader/0). Mutations-RPC:er
+   är till största del STRUKTURELLT verifierade (funktionen finns, advisor ren) +
+   MÖNSTER-bevisade: H5-trigger-bypass kördes skarpt i `admin_verifiera_identitet`
+   (0072) men dess syskon `granskning_besluta` (0092, samma mönster) och
+   `forening_verifiera` är inte var för sig end-to-end-körda. Mönstret är bevisat
+   en gång; kopiorna antas korrekta.
+3. **Flaggor (avsiktliga deferrals, ej buggar att fixa nu):**
+   - `fraga.fraga_text` + `fraga.svar_text` (brief 37) lagras i KLARTEXT. En
+     inskickad religiös fråga kan vara art.9 — brief 37 ville ev. gallra/kryptera
+     råtexten. imam_kontakt-fritext ÄR krypterad (0110); fraga är det inte.
+     Avvägning för konsument-briefen (FAQ-kurator måste läsa kön) — flaggat.
+   - `donation_follows` (0093) har kolumnen `follow_token` för ANONYM följning,
+     men ingen anrops-RPC för anon-vägen finns (bara authenticated egen-RLS).
+     Anonym-följ-flödet (brief 39 för utloggade givare) är OFULLSTÄNDIGT — kräver
+     en service_role-RPC som skapar token-raden. Backend-behållaren finns; vägen in
+     saknas.
+   - `processing_register` (art.30) = dokument-mall i SAKERHET-FORBUDSLISTA.md,
+     fylls av J1 (redan flaggat).
+4. **cf-build-timing:** sista `cf-build` (grön, exit 0) kördes efter de sista
+   TS-filerna (lib/betalning, lib/storage.ts). Migrationerna 0102–0110 därefter
+   är rena DB-ändringar (ingen `.ts`) och kan inte påverka bygget — därför inte
+   omkört, korrekt.
+
 **Verifierat säkerhetsläge:** existens-baserad RLS-audit (ALLA public-tabeller).
 Alla 39 NYA tabeller (0063+) har RLS ENABLE+FORCE. De enda public-tabeller utan
 FORCE är 7 BEFINTLIGA tabeller jag aldrig rörde (migr ≤0061): `faq_post`,
