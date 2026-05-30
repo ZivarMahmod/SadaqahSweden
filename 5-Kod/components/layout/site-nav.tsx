@@ -2,21 +2,22 @@
 // Designreferens: handoff v2.1/source/studio/styles.css § CHROME (.chrome-public)
 // + handoff v2.1/source/studio/components.jsx (ChromePublic) + § "Hamburger".
 // Säkerhet: roll/inloggning läses serverside via aktuellAnvandare (RLS-skyddad).
-// All server-logik (host-typ, roll-gating, notis-count) intakt från F3-refactor.
+// All server-logik (host-typ, roll-gating, notis-count) intakt.
+//
+// v0.3 (brief 35, F6): topbar-navet renderas nu ur navigationskonfigurationen
+// (lib/navigation.ts) — de fem rummen som förstaklassens nav (via RoomNav). På
+// mobil göms topbar-navet (CSS .nav-links), så de fem rummen ligger även först i
+// drawern. De sekundära ytorna (om/juridik) kommer ur DRAWER_SECONDARY. Ingen
+// roll-/host-/notis-logik ändrad — bara VAD navet listar.
 import Link from "next/link";
 import { aktuellAnvandare } from "@/lib/auth";
 import { loggaUt } from "@/app/(auth)/actions";
 import { Wordmark } from "@/components/layout/wordmark";
 import { BurgerDrawer, type DrawerSection } from "@/components/layout/burger-drawer";
+import { RoomNav } from "@/components/layout/room-nav";
+import { ROOMS, DRAWER_SECONDARY } from "@/lib/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { aktuellHostTyp } from "@/lib/host";
-
-const PUBLIC_LINKS = [
-  { href: "/insamlingar", label: "Insamlingar" },
-  { href: "/foreningar", label: "Föreningar" },
-  { href: "/events", label: "Events" },
-  { href: "/karta", label: "Karta" },
-];
 
 export async function SiteNav() {
   const me = await aktuellAnvandare();
@@ -43,17 +44,23 @@ export async function SiteNav() {
     olasta = count ?? 0;
   }
 
+  // Granskare-genvägar i topbaren (bara icke-publik host). Drawern har dem också
+  // under "Team". Rummen är den primära publika navigationen.
+  const granskarLankar = arGranskare
+    ? [
+        { href: "/granskning", label: "Granskningskö" },
+        { href: "/admin", label: "Maskinrum" },
+      ]
+    : [];
+
   const drawerSections: DrawerSection[] = [
     {
-      label: "Utforska",
-      items: [
-        { href: "/insamlingar", label: "Insamlingar", mono: "01" },
-        { href: "/foreningar", label: "Föreningar", mono: "02" },
-        { href: "/events", label: "Events", mono: "03" },
-        { href: "/karta", label: "Karta", mono: "04" },
-        { href: "/statistik", label: "Statistik", mono: "05" },
-        { href: "/faq", label: "Frågor & svar", mono: "06" },
-      ],
+      label: "Rummen",
+      items: ROOMS.map((r, i) => ({
+        href: r.href,
+        label: r.label,
+        mono: String(i + 1).padStart(2, "0"),
+      })),
     },
     ...(me
       ? ([
@@ -94,6 +101,7 @@ export async function SiteNav() {
             ],
           },
         ] as DrawerSection[])),
+    ...DRAWER_SECONDARY,
   ];
 
   return (
@@ -102,31 +110,7 @@ export async function SiteNav() {
         <Wordmark />
       </Link>
 
-      <nav className="nav-links" aria-label="Huvudmeny">
-        {PUBLIC_LINKS.map((l) => (
-          <Link key={l.href} href={l.href} className="nav-link">
-            {l.label}
-          </Link>
-        ))}
-        {arGranskare && (
-          <>
-            <Link
-              href="/granskning"
-              className="nav-link"
-              style={{ color: "var(--color-copper-deep)", fontWeight: 600 }}
-            >
-              Granskningskö
-            </Link>
-            <Link
-              href="/admin"
-              className="nav-link"
-              style={{ color: "var(--color-copper-deep)", fontWeight: 600 }}
-            >
-              Maskinrum
-            </Link>
-          </>
-        )}
-      </nav>
+      <RoomNav extra={granskarLankar} />
 
       <div className="nav-actions">
         {me ? (
@@ -191,5 +175,5 @@ export async function SiteNav() {
 }
 
 // Behåll bakåtkompatibelt alias så befintliga layouts som importerar SiteNav
-// fortsätter fungera även när de pekas mot ChromePublic i F5.
+// fortsätter fungera även när de pekas mot ChromePublic.
 export { SiteNav as ChromePublic };
