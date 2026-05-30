@@ -217,6 +217,23 @@ Beslut: collector=user med roll='insamlare', campaign=insamling (ingen fork).
 Bevisat: tre-siffror-RPC fungerar som anon. Bygger PÅ live transparens-tabeller +
 donation/insamling/transfers. Advisor baslinje.
 
+### Brief 40 — Stöd Sadaqa (#12/#13) — migr 0095–0096 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 memberships | 0095 | ✅ | singel 2900/familj 8900 öre; status gratis_manad/aktiv/uppsagd/utgangen; EGEN tabell (princip F) |
+| F2 platform_donations | 0095 | ✅ | engångsgåva, konto ej krav; ingen publik total |
+| F3 family_members | 0095 | ✅ | förälder-admin + förvaltade konton, max 4; barn-graduation-redo |
+| F4 gratis månad | 0096 | ✅ | `membership_aktivera_gratis_manad` — en/person, ingen kortuppgift |
+| F5 RPC:er | 0096 | ✅ | teckna/säg upp/familj/plattforms_gava + `stodmedlems_antal` (anon, anonymt) |
+| F6 UI | — | flaggad — design-lane | |
+
+**Flaggat (människo-steg):** Stripe-produkter/priser + subscription-debitering
+(provider_subscription_id sätts av webhook när Zivar skapat produkterna).
+Bevisat: stodmedlems_antal anon=0. Pengaflöden åtskilda (princip F). Advisor baslinje.
+
+## GE-KLUSTRET KLART (38–40). Migr 0090–0096.
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
