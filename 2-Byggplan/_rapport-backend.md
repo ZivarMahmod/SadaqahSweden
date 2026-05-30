@@ -245,6 +245,13 @@ helper. F5 `insamling.organisation_id` (additiv koppling). F4+F6 RPC:er:
 intern) per anon-private-fn-regeln. Aldrig forum (permanent nej). Advisor baslinje.
 UI = design-lane.
 
+### Brief 49 — FAQ/Kunskap (#9) — migr 0108 ✅ · Brief 50 — Hitta imam (#10) — migr 0109–0110 ✅
+49: `kunskap_resurs` (islam.nu-modellen — egen beskrivning+källänk+video-embed,
+aldrig kopierad text; två spår religios[lärd-grindat via CHECK+kunskap_lard_godkann]
+/praktisk; princip E). 50: `imam_profil` (hybrid-def, väg A v1) + `imam_kontakt`
+(art.9-fritext krypterad bytea/F6); `imam_skicka_kontakt` kräver imam_kontakt-
+samtycke(31). Gratis (DEL7), inget DM (B). Väg B fristående=v1.1 (flaggad).
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
