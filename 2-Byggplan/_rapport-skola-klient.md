@@ -83,12 +83,20 @@ som **vilande, flaggat skal** och wire:as in utan ombygge när backend landar.
 
 ## Reconcile-punkter för Cowork (vid merge)
 
-1. **Nav-config:** `components/layout/site-nav.tsx` fick en `/kunskap`-länk (topbar +
-   drawer). Nav-config ägs egentligen av designsystem-instansen (#35). Lätt att
-   reconcile:a — flytta in i #35:s nav-config när den finns.
-2. **Mock → riktig data:** `lib/skola/mock.ts`-getters har samma returtyper som
+**Delade filer som rörts (alla additivt — kan krocka med #35:s fem-rums-IA/nav-config):**
+1. `components/layout/site-nav.tsx` — `/kunskap`-länk (topbar + drawer). Nav-config ägs av
+   #35; flytta in där när den finns.
+2. `app/layout.tsx` — la till **Amiri**-fonten (`--font-arabic`) för Koran-skrift-canvasen.
+   Rent additivt (en `next/font`-import + en className-variabel).
+3. `app/(public)/kunskap/page.tsx` — Kunskap-rummets hub-route. #35 äger rummets slutliga
+   IA; min hub är en hållbar ingång tills dess.
+4. `eslint.config.mjs` — la till `public/**` i `ignores` (annars lintar eslint den
+   self-hostade, minifierade pdf.js-workern → falska fel). Konventionellt korrekt.
+
+**Datakoppling (inget UI-ombygge):**
+5. **Mock → riktig data:** `lib/skola/mock.ts`-getters har samma returtyper som
    `lib/skola/typer.ts`. Backend-instansen byter dem mot Supabase-queries; UI orört.
-3. **`harTillgang` / membership:** mock-grinden speglar `private.school_har_tillgang`-
+6. **`harTillgang` / membership:** mock-grinden speglar `private.school_har_tillgang`-
    signaturen — koppla mot riktig membership-tabell när #12 finns.
 
 ---
@@ -123,6 +131,9 @@ som **vilande, flaggat skal** och wire:as in utan ombygge när backend landar.
 ## Verifiering
 
 - `tsc --noEmit`: **rent** (före och efter granskningsfixar).
+- `npm run lint` (eslint): **grön (0 errors)** — skol-koden ger 0 problem; kvarvarande
+  3 warnings är förbefintliga i filer jag inte rört (karta, admin-sidebar, ett script).
+  (CLAUDE.md varnar att Cloudflare kan faila tyst på ESLint-fel — därför explicit kört.)
 - `npm run cf-build`: **grön (EXIT=0)** — baseline (orörd worktree) + efter bygget +
   efter granskningsfixarna.
 - **Live (Playwright mot `next dev`):** hem, koran-skrift, verktyg (Excalidraw monterad)

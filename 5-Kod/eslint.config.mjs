@@ -21,6 +21,8 @@ const eslintConfig = [
       ".open-next/**",
       ".wrangler/**",
       "cloudflare-env.d.ts",
+      // Statiska assets — aldrig källkod (t.ex. self-hostad pdf.js-worker).
+      "public/**",
     ],
   },
 ];
