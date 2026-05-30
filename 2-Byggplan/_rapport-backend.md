@@ -234,6 +234,17 @@ Bevisat: stodmedlems_antal anon=0. Pengaflöden åtskilda (princip F). Advisor b
 
 ## GE-KLUSTRET KLART (38–40). Migr 0090–0096.
 
+### Brief 41 — Föreningar (#2) — migr 0097–0098 ✅ KLAR (DB-lager)
+
+Bygger PÅ live `organisation` (hade redan verifierad/verifierad_av). F1 additiva
+fält (friday_prayer, bonschema; madhhab EJ v1). F2 `organisation_block` (block-
+ramverk, 7 typer, config jsonb). F3 `organisation_foretradare` + `ar_foretradare`-
+helper. F5 `insamling.organisation_id` (additiv koppling). F4+F6 RPC:er:
+`forening_verifiera` (granskningsråd), `forening_lagg_foretradare`,
+`forening_spara_block` (wrapper). Block-RLS delad (anon publik / authenticated
+intern) per anon-private-fn-regeln. Aldrig forum (permanent nej). Advisor baslinje.
+UI = design-lane.
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
