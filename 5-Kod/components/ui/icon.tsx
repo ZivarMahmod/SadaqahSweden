@@ -32,6 +32,12 @@ const PATHS: Record<string, string> = {
   gift: "M3 8h18v13H3zM3 12h18M12 8v13M7 8s-1-5 5-3-5 3-5 3M17 8s1-5-5-3 5 3 5 3",
   external: "M14 3h7v7M21 3l-9 9M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6",
   flag: "M4 21V4M4 4h12l-2 4 2 4H4",
+  // v0.3-tillägg (brief 35) — additivt, samma stroke-stil.
+  info: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 8h.01M12 11v5",
+  refresh: "M21 12a9 9 0 1 1-2.64-6.36M21 4v5h-5",
+  "cloud-off": "M3 3l18 18M6.5 10A4 4 0 0 0 7 18h9.5M9 5.6A6 6 0 0 1 18 9a3.5 3.5 0 0 1 2.4 6",
+  sun: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1",
+  "book-open": "M12 7v14M12 7C10.5 5.5 8 5 6 5H3v13h3c2 0 4.5.5 6 2 1.5-1.5 4-2 6-2h3V5h-3c-2 0-4.5.5-6 2z",
 };
 
 type IconName = keyof typeof PATHS | string;
