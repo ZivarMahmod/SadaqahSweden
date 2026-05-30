@@ -47,14 +47,20 @@ CREATE POLICY fraga_insert
   ON public.fraga FOR INSERT TO anon, authenticated
   WITH CHECK (stallare_id = (SELECT auth.uid()) OR stallare_id IS NULL);
 
--- SELECT: publika besvarade syns för alla; frågeställaren ser sin egen; FAQ-
--- kurator/lärd/admin ser kön.
-DROP POLICY IF EXISTS fraga_select ON public.fraga;
-CREATE POLICY fraga_select
+-- SELECT: delad i två policys så ANON aldrig tvingas evaluera en private-
+-- funktion (anon saknar EXECUTE på private; en sammanslagen policy gav
+-- "permission denied for function aktuell_roll"). Se 0089.
+-- Publik: bara publik+publicerad. Intern: egen fråga + kurator/lärd/admin.
+DROP POLICY IF EXISTS fraga_publik ON public.fraga;
+CREATE POLICY fraga_publik
   ON public.fraga FOR SELECT TO anon, authenticated
+  USING (publik = true AND status = 'publicerad');
+
+DROP POLICY IF EXISTS fraga_intern ON public.fraga;
+CREATE POLICY fraga_intern
+  ON public.fraga FOR SELECT TO authenticated
   USING (
-    (publik = true AND status = 'publicerad')
-    OR stallare_id = (SELECT auth.uid())
+    stallare_id = (SELECT auth.uid())
     OR private.aktuell_roll() = 'admin'
     OR private.har_operativ_roll('faq_kurator')
     OR private.har_operativ_roll('lard_verifierare')
