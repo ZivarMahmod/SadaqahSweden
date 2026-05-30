@@ -80,7 +80,7 @@ export default function Forrummet() {
                   Starta din egen
                 </LinkButton>
               </div>
-              <p className="mt-10 pt-8 text-sm" style={{ borderTop: "1px solid var(--color-ink-line)", color: "var(--color-ink-3)", maxWidth: 540 }}>
+              <p className="mt-10 pt-8" style={{ borderTop: "1px solid var(--color-ink-line)", color: "var(--color-ink-2)", fontSize: 16, lineHeight: 1.55, maxWidth: 540 }}>
                 Allt religiöst och uppdragskritiskt är fritt: läsa Koranen, bönetider, kartan,
                 donera och delta. Inget av hjärtat ligger bakom betalning.
               </p>

@@ -23,8 +23,8 @@
   --color-ink: #0E1411;
   --color-ink-1: #1A211C;
   --color-ink-2: #3A453E;
-  --color-ink-3: #6B7269;
-  --color-ink-4: #9AA098;
+  --color-ink-3: #646B62; /* v0.3 F7: mörkad från #6B7269 (4.36:1 → ≥4.5:1 på paper). WCAG-tvingad kontrast-justering (#18 R15, beslut 4). */
+  --color-ink-4: #9AA098; /* OBS: aldrig läsbar info — bara dividers/dim. F7 B2. */
   --color-ink-line: rgba(14, 20, 17, 0.10);
 
   /* Copper — accent */
@@ -1618,4 +1618,62 @@ body {
 .entity-card.entity-card-compact .entity-card-title {
   font-size: 16px;
   font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   F7 — WCAG 2.1 AA-golvet (revision: docs/A11Y-REVISION-v0.3.md)
+   Globala a11y-regler. Token-justeringar (ink-3) ovan i @theme.
+   ------------------------------------------------------------ */
+
+/* prefers-reduced-motion — ALL v0.3-animation (+ v0.2 pulse/fade) stillnar.
+   #18 F7 p5, princip D. Komponenterna visas i sitt slutläge, inget hoppar. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .skeleton::after,
+  .dot-pulse,
+  .fade-up,
+  .bottom-sheet-panel {
+    animation: none !important;
+  }
+}
+
+/* Synlig fokus-indikator för alla interaktiva element. :where() → specificitet 0,
+   så komponent-egna fokusstilar (t.ex. .verified-tag-trigger) vinner. #18 F7 p6. */
+:where(a, button, [role="button"], input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: 2px;
+  border-radius: var(--sr-1);
+}
+/* På mörka/forest-ytor: ljus ring istället. */
+.card-forest :focus-visible,
+.burger-drawer-panel :focus-visible {
+  outline-color: var(--color-copper-warm);
+}
+/* Stärkt input-fokusring vid tangentbordsfokus (den svaga forest-soft-glödet
+   ensamt når inte 3:1). */
+.input:focus-visible,
+.textarea:focus-visible,
+.select:focus-visible {
+  border-color: var(--color-forest);
+  box-shadow: 0 0 0 2px var(--color-paper-soft), 0 0 0 4px var(--color-forest);
+}
+
+/* ≥44×44 px effektiv träffyta för v0.3:s interaktiva primitiver. #18 F7 p4. */
+.bottom-sheet-close {
+  min-width: 44px;
+  min-height: 44px;
+}
+.verified-tag-trigger {
+  min-width: 44px;
+  justify-content: center;
 }

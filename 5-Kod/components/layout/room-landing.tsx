@@ -20,7 +20,7 @@ export function RoomComingSoon({ room }: { room: NavRoom }) {
     <ToneSurface tone={room.tone} as="main">
       <Section tone="cream" spacing="loose">
         <Container width="narrow">
-          <div className="flex items-center gap-3" style={{ color: "var(--color-copper)" }}>
+          <div className="flex items-center gap-3" style={{ color: "var(--color-copper-deep)" }}>
             <Icon name={room.icon} size={22} />
             <span className="eyebrow">{room.label}</span>
           </div>
