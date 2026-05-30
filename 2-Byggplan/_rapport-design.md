@@ -120,4 +120,8 @@ Calendar → 46/47/48). Nästa: `RoomTabs`/`Tabs` (nivå-2-flik-navigering som v
 rum behöver men ingen yta renderar än). Loggas nedan allteftersom.
 
 ### Tillägg efter F9
-- (fylls på)
+- **Tvärgående primitiver (round 1):** `Tabs` (generisk in-page, a11y: tablist/
+  tab/tabpanel + piltangenter), `RoomTabs` (nivå-2-rumsflikar ur `lib/navigation.ts`
+  med aktiv-markering + comingSoon-markör), `Dialog` (centrerad modal, fokus-trap/
+  ESC/overlay, 44px stäng). Alla mot mock-data, inga domän-komponenter. Tillagda
+  i komponent-galleriet. cf-build grön + pushad.

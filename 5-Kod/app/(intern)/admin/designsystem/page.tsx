@@ -16,6 +16,9 @@ import { EntityCard } from "@/components/ui/entity-card";
 import { VerifiedTag } from "@/components/ui/verified-tag";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { InsamlingCard, type InsamlingCardData } from "@/components/ui/insamling-card";
+import { Tabs } from "@/components/ui/tabs";
+import { Dialog } from "@/components/ui/dialog";
+import { RoomTabs } from "@/components/layout/room-tabs";
 import { Pill } from "@/components/ui/pill";
 import { Icon } from "@/components/ui/icon";
 
@@ -73,6 +76,7 @@ function ToneCompare({ children }: { children: React.ReactNode }) {
 export default function DesignsystemGalleri() {
   const [retries, setRetries] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <ToneSurface tone="utility" as="main">
@@ -207,6 +211,44 @@ export default function DesignsystemGalleri() {
         <p className="ar-text" lang="ar" dir="rtl">
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </p>
+      </Block>
+
+      <Block title="Tvärgående · RoomTabs / Tabs / Dialog" note="Primitiver klustren behöver men ingen yta renderar än: nivå-2-rumsflikar (ur nav-config), tabbat innehåll och en centrerad modal.">
+        <div className="mb-8">
+          <div className="mb-2 f-mono" style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--color-ink-3)" }}>RoomTabs — nivå-2 ur nav-config (Gemenskap)</div>
+          <RoomTabs roomKey="gemenskap" />
+        </div>
+        <div className="mb-8">
+          <div className="mb-2 f-mono" style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--color-ink-3)" }}>Tabs — in-page</div>
+          <Tabs
+            ariaLabel="Demo-flikar"
+            items={[
+              { key: "a", label: "Översikt", content: <p className="text-sm" style={{ color: "var(--color-ink-2)" }}>Tabbat innehåll, panel A. Piltangenter byter flik.</p> },
+              { key: "b", label: "Detaljer", content: <p className="text-sm" style={{ color: "var(--color-ink-2)" }}>Panel B.</p> },
+              { key: "c", label: "Historik", content: <p className="text-sm" style={{ color: "var(--color-ink-2)" }}>Panel C.</p> },
+            ]}
+          />
+        </div>
+        <div>
+          <div className="mb-2 f-mono" style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--color-ink-3)" }}>Dialog — centrerad modal</div>
+          <button type="button" className="mag-btn mag-btn-secondary" onClick={() => setDialogOpen(true)}>
+            Öppna Dialog
+          </button>
+          <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} title="Bekräfta">
+            <p className="text-sm" style={{ color: "var(--color-ink-2)", lineHeight: 1.55 }}>
+              En centrerad modal för bekräftelser. ESC, overlay-klick eller stäng-knappen stänger;
+              fokus fångas och återställs.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" className="mag-btn mag-btn-ghost mag-btn-sm" onClick={() => setDialogOpen(false)}>
+                Avbryt
+              </button>
+              <button type="button" className="mag-btn mag-btn-primary mag-btn-sm" onClick={() => setDialogOpen(false)}>
+                Bekräfta
+              </button>
+            </div>
+          </Dialog>
+        </div>
       </Block>
     </ToneSurface>
   );

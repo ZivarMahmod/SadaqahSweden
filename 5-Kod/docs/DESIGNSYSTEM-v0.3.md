@@ -187,3 +187,23 @@ Fullständig revision: [`A11Y-REVISION-v0.3.md`](./A11Y-REVISION-v0.3.md). I kor
 - **Synlig fokus-indikator** på alla interaktiva element; korrekt fokushantering
   i `BottomSheet` (trap) och `BurgerDrawer`.
 - **Brödtext ≥16px**; layouten tål 200 % textzoom.
+
+---
+
+## Tillägg — tvärgående primitiver (efter brief 35)
+
+Delade primitiver klustren behöver, byggda mot mock-data (inga domän-komponenter
+— QiblaDial/ReaderView/PrayerRow/Calendar ägs av briefs 46/47/48):
+
+- **`Tabs`** (`components/ui/tabs.tsx`) — generisk in-page-flikkomponent
+  (role=tablist/tab/tabpanel, roving tabindex, piltangents-nav). För tabbat
+  innehåll på en yta.
+- **`RoomTabs`** (`components/layout/room-tabs.tsx`) — nivå-2-rumsflikar
+  renderade ur ett rums `tabs` i `lib/navigation.ts`, med aktiv-markering och
+  `snart`-markör för `comingSoon`. **Använd den här** för rummens flik-rad —
+  uppfinn ingen egen.
+- **`Dialog`** (`components/ui/dialog.tsx`) — centrerad modal för bekräftelser/
+  korta formulär (kompletterar `BottomSheet`). Fokus-trap, ESC, overlay-klick,
+  44px stäng.
+
+Alla tre demonstreras i komponent-galleriet (`/admin/designsystem`).

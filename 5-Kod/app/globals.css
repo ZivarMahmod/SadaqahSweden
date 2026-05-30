@@ -1677,3 +1677,134 @@ body {
   min-width: 44px;
   justify-content: center;
 }
+
+/* ------------------------------------------------------------
+   DELADE TVÄRGÅENDE PRIMITIVER (efter brief 35 — klustren behöver dem)
+   Tabs (in-page) · RoomTabs (nivå-2-rumsflikar) · Dialog (centrerad modal).
+   Samma tokens/radier. Inga domän-komponenter (de ägs av sina briefar).
+   ------------------------------------------------------------ */
+
+/* Tabs — in-page, tabbat innehåll */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--ink-1);
+}
+.tab.active {
+  color: var(--forest);
+  border-bottom-color: var(--accent);
+}
+.tab-panel {
+  padding-top: 20px;
+}
+
+/* RoomTabs — nivå-2, route-länkar */
+.room-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.room-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -1px;
+  padding: 12px 14px;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.room-tab:hover {
+  color: var(--ink-1);
+}
+.room-tab.active {
+  color: var(--forest);
+  border-bottom-color: var(--accent);
+}
+.room-tab-soon {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--copper-deep);
+  background: var(--copper-soft);
+  padding: 1px 5px;
+  border-radius: var(--sr-1);
+}
+
+/* Dialog — centrerad modal */
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(14, 20, 17, 0.5);
+  backdrop-filter: blur(3px);
+}
+.dialog-panel {
+  width: 100%;
+  background: var(--paper-soft);
+  border-radius: var(--sr-3);
+  box-shadow: var(--shadow-4);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 28px;
+  animation: dialog-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.dialog-close {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-2);
+  background: var(--paper);
+  color: var(--ink-1);
+  cursor: pointer;
+}
+.dialog-close:hover {
+  background: var(--forest);
+  color: var(--paper);
+  border-color: var(--forest);
+}
