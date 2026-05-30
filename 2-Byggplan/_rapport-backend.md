@@ -72,8 +72,14 @@ brancher som rör `.ts/.tsx`) → commit → push.
 
 ## Statuslogg per brief
 
-### Brief 31 — Säkerhetsbasen (#17) — migrationer 0063–0069
-*Pågår.*
+### Brief 31 — Säkerhetsbasen (#17) — migrationer 0063–0069 ✅ KLAR (DB-lager)
+
+DB-lagret klart och verifierat mot live. F10: ledger 0063–0069 applicerad; alla
+objekt finns (5 nya tabeller, 9 private-fn, privat bucket); rollback+reapply
+bevisad på 0068 (funktioner droppade → återställda → round-trip ok). Advisor:
+baslinje + 2 avsiktliga INFO, noll ERROR. Frontend (F7 Art9ConsentGate, F8
+Dataskydd-UI) = design-lane, flaggat. Server-action-wiring av rate_limit =
+flaggat (koordineras med RateLimitNotice-komponenten).
 
 | Punkt | Migration | Status | Commit |
 |---|---|---|---|
