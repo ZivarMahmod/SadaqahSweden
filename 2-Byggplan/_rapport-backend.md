@@ -109,10 +109,42 @@ publikt fynd att flagga.
 
 ---
 
+### Brief 32 — Identitetstrappan (#1/#17) — migrationer 0071–0074 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 tre identitetslager | 0071 | ✅ | `private.identitet_niva`, `private.har_verifierad_roll` |
+| F2 identity_verification + manuell väg | 0072 | ✅ | tabell+RLS+`admin_verifiera_identitet` (wrapper). BankID-broker = TODO-flagga |
+| F3 role_application | 0073 | ✅ | tabell+RLS, öppen-ansökan-unikt, roll-check insamlare/forening |
+| F4 kan_ansoka_roll (karenstid) | 0074 | ✅ | 6-mån karens efter avslag (DEL 7) |
+| F5 /konto/identitet (UI) | — | flaggad — design-lane | RPC-kontrakt klart |
+
+**Bevis (empiriskt mot live):** `admin_verifiera_identitet` — non-admin nekas;
+admin sätter `bankid_verifierad=true` genom `profiles_skydda_falt`-triggern via
+transaktions-lokal `request.jwt.claim.role=service_role` (H5/0062-mönstret);
+verifieringsrad blir `godkand`. Testprofil återställd till ursprungligt läge.
+Advisor: baslinje + 2 INFO, noll ERROR/nya lints.
+
+---
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
-*(fylls på löpande)*
+- **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
+  status-flöde + manuell admin-väg) byggd. Broker-anropet (klient→broker→webhook
+  sätter `status=godkand`+`bankid_verifierad` via service_role) byggs när
+  broker-avtal finns. Env: `BANKID_BROKER_*` i `.env.example`.
+- **Frontend-ytor (design-lane):** brief 31 F7 `Art9ConsentGate`, F8
+  Dataskydd-panel (`/konto/dataskydd`); brief 32 F5 `/konto/identitet`. Backend-
+  kontrakten (RPC:er/tabeller) finns; UI byggs mot designsystem v0.3 av design-
+  instansen. Rör ej route-dirs (57-MASTER).
+- **rate_limit-wiring i login/donation-server-actions** — RPC klar; kopplas in
+  tillsammans med `RateLimitNotice`-komponenten (design-lane).
 
 ## Batchade människo-steg (J1 jurist, lärd, BankID-broker, Stripe-produkter)
 
-*(fylls på löpande)*
+- **J1 (jurist):** art.9-samtyckestexternas exakta lydelse; fyll
+  `data_retention_jobs.retention_period` + `jurist_godkand`; DPIA;
+  `processing_register`-mallen i `docs/SAKERHET-FORBUDSLISTA.md`.
+- **Schemaläggning av gallring:** `private.kor_gallring()` finns; koppla till
+  pg_cron/scheduled edge function efter J1 + driftsbeslut.
+- **BankID-broker, Stripe-produkter:** se ovan / brief 33+40.
