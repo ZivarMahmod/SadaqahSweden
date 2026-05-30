@@ -182,7 +182,26 @@ HTTP) = TODO i `skapa_notis` (kräver broker-credentials, brief 51 + människo-s
 
 ---
 
-## FUNDAMENT KLART (31–37). Migr 0063–0088 applicerade + verifierade mot live.
+## FUNDAMENT KLART (31–37). Migr 0063–0089 applicerade + verifierade mot live.
+
+## KLUSTER (38–50) — pågår
+
+### Brief 38 — Insamlare-modellen (#1) — migr 0090–0092 ✅ KLAR (DB-lager)
+
+**RECONCILE (viktigt):** briefen säger "campaigns/collectors" (engelska) men
+live-plattformen har redan `public.insamling` (insamlingar) + `public.donation`
+(96 rader) + `profiles.roll='insamlare'`. Byggde därför **INGA** parallella
+campaigns/collectors/donations (det vore en fork av live-pengadomänen).
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1+F2 förtroende-nätverk + ansökningar | 0090 | ✅ | `trusted_nodes`, `vouches`, `application_references`, `collector_applications` + RLS (sökanden+granskningsråd, ingen publik graf) |
+| F3 risk/donor (additivt på live) | 0091 | ✅ | `insamling.risk_niva`+`cross_border`, `donation.donor_visibility` (default anonym) |
+| F4 RPC:er | 0092 | ✅ | ansökan/referens/intyg/beslut/risk — wrapper-mönster; godkännande ger `profiles.roll='insamlare'` (H5-bypass) + trusted_nodes-rad; karenstid 6 mån |
+| F5–F7 UI/granskningskonsol | — | flaggad — design-lane | backend-kontrakt klart |
+
+Bevisat: anon ser 0 collector_applications (art.9-skydd). Advisor baslinje.
+Beslut: collector=user med roll='insamlare', campaign=insamling (ingen fork).
 
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
