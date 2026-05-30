@@ -127,6 +127,30 @@ Advisor: baslinje + 2 INFO, noll ERROR/nya lints.
 
 ---
 
+### Brief 33 — Betal-abstraktionslagret (#15) — migr 0075 + lib/betalning ✅ KLAR (uttag)
+
+`PaymentProvider`/`PayoutProvider`-interfaces + `StripeProvider` (parallell-wrap
+av befintliga Edge Functions, live-flödet oförändrat) + registry (default stripe).
+`insamling.betal_provider`-fält (0075, additivt). cf-build grön, advisor ren.
+Pengaflöden åtskilda (F), 0% avgift (G). **Flaggat:** full Edge-Function-refaktor
+(F4–F6) + destination-charge (J3) + Zivar pengaregression = senare/människo-steg.
+
+### Brief 34 — Religiösa innehållsregistret (#6) — migr 0076–0078 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 register + grind + ar_lard | 0076 | ✅ | `religious_content_register`; helpers `ar_lard`/`lard_profil_id` (via `lard_profil.kopplad_profil_id`) |
+| F2 content_edition | 0077 | ✅ | versioner (översättning/recitation/qiraah/translit), egen grind |
+| F3 verifierings-RPC:er | 0078 | ✅ | `lard_godkann_innehall/edition` (kopplad lärd), `admin_klarera_licens` (wrapper) |
+
+**GRINDEN bevisad mot live (princip E):** seedade utkast / godkänt-men-oklarerat /
+godkänt+klarerat → läst som `anon` → **bara godkänt+klarerat syntes**. Övriga
+osynliga. Test städat. CHECK: `godkand` kräver `verifierad_av`+`verifierad_at`.
+Lärd-koppling rättad mot verifierat schema (`lard_profil` har ingen user_id/status;
+kopplingen ÄR `kopplad_profil_id`). Advisor baslinje, noll nya lints.
+**Flaggat:** Koran-läsaren/FAQ/bönetider (46/47/49) konsumerar grinden senare;
+lärd-bemanning + första editioner = lärd-paketet (människo-steg).
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
