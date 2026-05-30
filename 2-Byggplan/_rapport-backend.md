@@ -151,6 +151,20 @@ kopplingen ÄR `kopplad_profil_id`). Advisor baslinje, noll nya lints.
 **Flaggat:** Koran-läsaren/FAQ/bönetider (46/47/49) konsumerar grinden senare;
 lärd-bemanning + första editioner = lärd-paketet (människo-steg).
 
+### Brief 36 — Roll-konsoler + moderering (#17/#3) — migr 0079–0083 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 operativa roller | 0079 | ✅ | enum `operativ_roll` (7) + `operativ_roll_def` seedad + RLS |
+| F2+F3 team_member + helper | 0080 | ✅ | `team_member` (unik user+roll) + `private.har_operativ_roll()` |
+| F4 moderation_reports | 0081 | ✅ | polymorf kö (objekt_typ+id); distinkt från `rapport` (kommentar) |
+| F5 moderator-RPC:er | 0082 | ✅ | `moderering_ta_ko`/`moderering_atgarda` (wrapper, moderator/admin) |
+| F6 säkerhetsansvarig-tillsyn | 0083 | ✅ | utökade `audit_log_select` (brief 31:s utökningspunkt) |
+| F7 konsol-UI | — | flaggad — design-lane | backend-RPC klart |
+
+De sex roll-RLS-grupperna finns nu (`har_operativ_roll`); briefs 38–50 grindar
+mot dem. Moderator-bemanning = Zivar/team (DEL 7 pkt 15). Advisor baslinje.
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
