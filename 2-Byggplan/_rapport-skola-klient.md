@@ -152,6 +152,9 @@ pdfjs bara i handler, premium grindar aldrig religiöst innehåll, markdown sane
 
 - **HIGH:** PDF-render avbröts inte vid snabba sid-/zoom-byten → "same canvas"-krasch.
   Fix: håller render-task, `cancel()` i cleanup, sväljer `RenderingCancelledException`.
+  **Runtime-verifierad:** laddade en 3-sidig PDF via den self-hostade workern
+  (`/pdf/pdf.worker.min.mjs`, samma origin), bläddrade sidor + zoomade snabbt upprepat —
+  **0 console-errors** (ingen "same canvas"-krasch). Fixen håller i praktiken.
 - **LOW:** pdf.js-workern flyttad från CDN till **self-hostad** (`public/pdf/`,
   samma origin) — offline-säker, CSP-säker, matchar "inget laddas upp"-löftet.
 - **LOW:** PDF-omritning nycklas nu på dokument-version (inte filnamn) — öppna om en
