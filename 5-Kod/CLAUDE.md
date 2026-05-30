@@ -50,6 +50,8 @@ Detaljer och motivering: `../2-Byggplan/00-Byggplan-oversikt.md`.
 
 **Next.js på Cloudflare:** appen deployas till **Cloudflare Workers + Static Assets** via OpenNext-adaptern `@opennextjs/cloudflare`. Paketet `next-on-pages` är utfasat — använd det INTE. Adaptern kräver `nodejs_compat`-flaggan och en någorlunda färsk `compatibility_date` (just nu `2025-12-30` i `wrangler.jsonc`). Adapter, `wrangler.jsonc`, `open-next.config.ts` och `.dev.vars` är inkopplade. Bygg lokalt med `npm run cf-build`; preview i Workers-runtime: `npm run preview`; deploy: `npm run deploy`. Verifiera alltid den aktuella metoden på `opennext.js.org/cloudflare` och `developers.cloudflare.com` — det här området ändras snabbt.
 
+**Design (frontend):** designsystemet är **v0.3** — en additiv utvidgning av v0.2. Kontraktet (de två tonlägena, `EntityCard`-familjen, tillstånds-grammatiken, `HumbleNote`/`VerifiedTag`/`BottomSheet`/arabisk textstil, navigationskonfigurationen `lib/navigation.ts`, A–N-reglerna) finns i **`docs/DESIGNSYSTEM-v0.3.md`**; WCAG 2.1 AA-revisionen i `docs/A11Y-REVISION-v0.3.md`. Konsumera v0.3 — uppfinn aldrig ett eget designspråk eller ett eget kort. Verifierings-yta: `/admin/designsystem`.
+
 ---
 
 ## Databassäkerhet — icke-förhandlingsbart
