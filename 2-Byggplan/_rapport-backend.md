@@ -165,6 +165,25 @@ lärd-bemanning + första editioner = lärd-paketet (människo-steg).
 De sex roll-RLS-grupperna finns nu (`har_operativ_roll`); briefs 38–50 grindar
 mot dem. Moderator-bemanning = Zivar/team (DEL 7 pkt 15). Advisor baslinje.
 
+### Brief 37 — Frågeintag + notiser (#9/#16) — migr 0084–0088 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 fraga (intag) | 0084 | ✅ | `fraga` + source_context; RLS: publik ser bara publicerad+publik; kö för faq_kurator/lärd/admin |
+| F2 fråge-routing | 0085 | ✅ | `fraga_besvara`/`fraga_publicera` (kategori-baserad behörighet, wrapper) |
+| F5 consent push-enum | 0086 | ✅ | `consent_purpose += push_notiser` |
+| F3+F5 push_devices | 0087 | ✅ | `push_devices` (egen-mapp-RLS) + `registrera_push_enhet` (kräver push_notiser-samtycke) |
+| F4 notis-RPC:er | 0088 | ✅ | `mina_notiser`/`notis_markera_last` (wrapper) + `private.skapa_notis` (respekterar notis_preferens; bygger PÅ befintliga notis/notis_preferens migr 0015) |
+
+Grind bevisad: anon ser bara publicerad+publik fråga. Inget DM (B) — envägsintag.
+Bygger på befintliga `notis`/`notis_preferens`. **Flaggat:** push-UTSKICK (FCM/APNs
+HTTP) = TODO i `skapa_notis` (kräver broker-credentials, brief 51 + människo-steg);
+"Ställ en fråga"-UI + notis-UI = design-lane.
+
+---
+
+## FUNDAMENT KLART (31–37). Migr 0063–0088 applicerade + verifierade mot live.
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
