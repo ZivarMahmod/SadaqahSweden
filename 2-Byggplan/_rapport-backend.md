@@ -1,5 +1,45 @@
 # Rapport — backend-bygget (branch `bygg/backend`)
 
+## ⚠️ INNAN NÅGOT BLIR ANVÄNDAR-SYNLIGT — människo-/infra-steg (samlat)
+
+Hela backend-DB-lagret (briefs 31–50, migr 0063–0110) är byggt, applicerat mot
+live och verifierat. Men **inget av det är användar-synligt förrän följande
+icke-kod-steg är gjorda** (de kräver konto/infra/människa, inte mer migrationer):
+
+1. **`npm run cf-build` grön ≠ deployad.** Branchen `bygg/backend` är pushad men
+   INTE mergad till `main` och INTE deployad till Cloudflare. Cowork mergar +
+   regenererar `types.ts` + deployar.
+2. **Frontend (design-lane).** Alla användarytor (Art9ConsentGate, Dataskydd-panel,
+   RateLimitNotice, /konto/identitet, insamlar-/förenings-/kart-/community-/Koran-/
+   bönetider-/kalender-/FAQ-/imam-ytor, "Stöd Sadaqa"-yta) byggs av design-/skola-
+   instanserna mot v0.3. Backend-kontrakten (RPC:er + tabeller) finns och är klara.
+3. **Stripe-produkter/priser** (brief 40): subscription-debitering kopplas in när
+   Zivar skapat produkterna; webhook sätter `memberships.provider_subscription_id`
+   + `platform_donations.provider_payment_id`. Tabellerna+RPC:erna finns.
+4. **BankID-broker** (brief 32): `identity_verification`-behållaren + manuell
+   admin-väg finns; broker-anropet (klient→broker→webhook) kopplas när avtal finns.
+   Env: `BANKID_BROKER_*`.
+5. **FCM/APNs push-credentials** (brief 37): `push_devices` + `private.skapa_notis`
+   finns; HTTP-utskicket är ett TODO i `skapa_notis` tills credentials finns.
+6. **`SADAQA_FALT_NYCKEL`** (brief 31 F6): server-only fält-krypteringsnyckel sätts
+   i Cloudflare-env (används av imam-kontakt art.9-fritext, brief 50). `.env.example`.
+7. **J1 jurist** (brief 31): fyll `data_retention_jobs.retention_period` +
+   `jurist_godkand`; schemalägg `private.kor_gallring()` (pg_cron). Art.9-texter.
+8. **Lärd-paketet** (brief 34/46/47/48/49): bemanna `lard_profil`, fyll
+   `religious_content_register`/`content_edition`/`kunskap_resurs`/`koran_sura`/
+   `kalender_handelse`/`bonemetod`-default. Grinden släpper inget religiöst förrän
+   `status=godkand` + (för register) `licens_klarerad`.
+9. **leaked-password-skydd PÅ** (Supabase auth-config, Zivar) — enda kvarvarande
+   advisor-WARN utanför de avsiktliga DEFINER-endpointsen.
+
+**Verifierat säkerhetsläge:** existens-baserad RLS-audit (alla public-tabeller) —
+de ENDA utan FORCE är 4 befintliga tabeller jag aldrig rörde (`geo_aggregat`,
+`mission`, `ordlista`, `plats_taxonomi`, migr 0022–0025). Alla 39 nya tabeller har
+RLS+FORCE. Live-pengaväg verifierad: webhook-formad `donation`-INSERT fungerar
+efter mina ALTER:s (donor_visibility defaultar `anonym`; 96 donationer orörda).
+
+---
+
 **Start:** 2026-05-30
 **Körfält:** Backend-lagret för hela Sadaqa-visionen (briefs 31–50). Äger ALLA
 migrationer från `0063` och uppåt. Worktree: `../sadaqa-backend`, branch
