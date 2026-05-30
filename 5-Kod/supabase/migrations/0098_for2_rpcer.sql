@@ -2,8 +2,7 @@
 -- Sadaqah Sweden — Migration 0098
 -- Brief 41 (Föreningar) F4+F6 — verifierings-flöde + block/företrädar-RPC:er.
 -- Säkerhet: public INVOKER-wrapper -> private DEFINER-impl (authenticated-only).
--- Verifiering = sätt organisation.status='publicerad' (godkänn) / 'avvisad' (neka).
--- (organisation_status saknar 'verifierad'; publicerad = live+verifierad.)
+-- Verifiering = organisation.status 'verifierad' (godkänn) / 'avvisad' (neka).
 --
 -- Rollback: 0098_for2_rpcer.rollback.sql.
 -- =====================================================================
@@ -13,11 +12,10 @@ RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
   IF NOT (private.har_operativ_roll('granskningsrad') OR private.ar_admin()) THEN
-    RAISE EXCEPTION 'Behorighet saknas for foreningsverifiering.' USING ERRCODE='insufficient_privilege';
+    RAISE EXCEPTION 'Behorighet saknas.' USING ERRCODE='insufficient_privilege';
   END IF;
   UPDATE public.organisation
-     SET status = CASE WHEN p_godkann THEN 'publicerad'::public.organisation_status
-                       ELSE 'avvisad'::public.organisation_status END
+     SET status = CASE WHEN p_godkann THEN 'verifierad'::public.organisation_status ELSE 'avvisad'::public.organisation_status END
    WHERE id=p_org_id;
   PERFORM private.audit('andrade','organisation', p_org_id::text, jsonb_build_object('verifierad',p_godkann));
 END;
@@ -79,4 +77,4 @@ RETURNS uuid LANGUAGE sql SET search_path = '' AS $$ SELECT private.forening_spa
 REVOKE EXECUTE ON FUNCTION public.forening_spara_block(uuid,public.organisation_block_typ,jsonb,uuid,integer,boolean) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.forening_spara_block(uuid,public.organisation_block_typ,jsonb,uuid,integer,boolean) TO authenticated;
 
-DO $$ BEGIN RAISE NOTICE 'F4+F6 förening-RPC:er ok'; END $$;
+DO $$ BEGIN RAISE NOTICE 'F4+F6 ok'; END $$;

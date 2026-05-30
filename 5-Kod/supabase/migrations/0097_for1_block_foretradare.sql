@@ -3,24 +3,22 @@
 -- Brief 41 (Föreningar) F1-F3+F5 — block-ramverk, företrädare, org-fält, koppling.
 -- Säkerhet: SAKERHETSREGLER.md. Bygger PÅ live public.organisation.
 --
--- VERIFIERAT SCHEMA: organisation_status = utkast,inskickad,godkand,avvisad,
--- publicerad,arkiverad (INGEN 'verifierad'/'publik'). Verifierad+publik förening
--- = status IN ('godkand','publicerad'). Ägare = forenings_konto_user_id /
--- skapad_av (INTE skapad_av_user_id).
+-- VERIFIERAT SCHEMA: organisation har kolumnerna status (enum
+-- organisation_status: utkast,inskickad,granskning,verifierad,avvisad,vilande),
+-- skapad_av_user_id, forenings_konto_user_id. Verifierad+publik = status='verifierad'.
+-- Ägar-check gatas på forenings_konto_user_id (förenings-kontot ÄR företrädaren).
 --
 -- Rollback: 0097_for1_block_foretradare.rollback.sql.
 -- =====================================================================
 
 ALTER TABLE public.organisation ADD COLUMN IF NOT EXISTS friday_prayer text;
 ALTER TABLE public.organisation ADD COLUMN IF NOT EXISTS bonschema jsonb;
-COMMENT ON COLUMN public.organisation.friday_prayer IS 'Brief 41: enkelt alltid-falt (DEL 7). madhhab visas EJ v1 (pkt14).';
 
 ALTER TABLE public.insamling ADD COLUMN IF NOT EXISTS organisation_id uuid REFERENCES public.organisation(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS insamling_organisation_idx ON public.insamling (organisation_id);
 
 DO $$ BEGIN
-  CREATE TYPE public.organisation_block_typ AS ENUM
-    ('presentation','bonetider','hogtider','insamlingar','events','imam','kontakt');
+  CREATE TYPE public.organisation_block_typ AS ENUM ('presentation','bonetider','hogtider','insamlingar','events','imam','kontakt');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 CREATE TABLE IF NOT EXISTS public.organisation_block (
@@ -48,8 +46,7 @@ CREATE OR REPLACE FUNCTION private.ar_foretradare(p_org_id uuid, p_user_id uuid)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = ''
 AS $$
   SELECT EXISTS (SELECT 1 FROM public.organisation_foretradare WHERE organisation_id=p_org_id AND user_id=p_user_id)
-      OR EXISTS (SELECT 1 FROM public.organisation WHERE id=p_org_id
-                 AND (forenings_konto_user_id=p_user_id OR skapad_av=p_user_id));
+      OR EXISTS (SELECT 1 FROM public.organisation WHERE id=p_org_id AND forenings_konto_user_id=p_user_id);
 $$;
 REVOKE EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) TO authenticated, service_role;
@@ -57,21 +54,19 @@ GRANT EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) TO authenticated, se
 ALTER TABLE public.organisation_block ENABLE ROW LEVEL SECURITY; ALTER TABLE public.organisation_block FORCE ROW LEVEL SECURITY;
 ALTER TABLE public.organisation_foretradare ENABLE ROW LEVEL SECURITY; ALTER TABLE public.organisation_foretradare FORCE ROW LEVEL SECURITY;
 
--- block: publik läser synliga block för publika/verifierade föreningar (ingen private-fn för anon).
+-- Publik: synliga block för verifierade föreningar (ingen private-fn för anon).
 DROP POLICY IF EXISTS organisation_block_publik ON public.organisation_block;
 CREATE POLICY organisation_block_publik ON public.organisation_block FOR SELECT TO anon, authenticated
-  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.status IN ('godkand','publicerad')));
+  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.status='verifierad'));
 DROP POLICY IF EXISTS organisation_block_intern ON public.organisation_block;
 CREATE POLICY organisation_block_intern ON public.organisation_block FOR SELECT TO authenticated
   USING (private.aktuell_roll()='admin' OR private.ar_foretradare(organisation_id,(SELECT auth.uid())));
-
 DROP POLICY IF EXISTS organisation_foretradare_select ON public.organisation_foretradare;
 CREATE POLICY organisation_foretradare_select ON public.organisation_foretradare FOR SELECT TO authenticated
   USING (user_id=(SELECT auth.uid()) OR private.aktuell_roll()='admin' OR private.ar_foretradare(organisation_id,(SELECT auth.uid())));
 
-DO $$
-BEGIN
+DO $$ BEGIN
   ASSERT (SELECT relforcerowsecurity FROM pg_class WHERE oid='public.organisation_block'::regclass), 'FORCE block';
   ASSERT (SELECT relforcerowsecurity FROM pg_class WHERE oid='public.organisation_foretradare'::regclass), 'FORCE foretr';
-  RAISE NOTICE 'F1-F3+F5 förening ok';
+  RAISE NOTICE 'F1-F3+F5 ok';
 END $$;
