@@ -1240,3 +1240,382 @@ body {
   .chrome-public { padding: 0 24px; }
   .chrome-public .nav-links { display: none; }
 }
+
+/* ============================================================
+   DESIGNSYSTEM v0.3 — additiv utvidgning av v0.2 (brief 35 / #18)
+   ------------------------------------------------------------
+   REGEL (#18 R7, DEL 7 pkt 22): v0.3 ÄR samma system som v0.2.
+   Inga nya färg-tokens, inga nya typsnitt (utom arabisk textstil, F5),
+   ingen ny radie-skala. Allt nedan bygger PÅ @theme:s --color-*, --sr-*,
+   --shadow-*, --font-* ovan. v0.2 ändras aldrig destruktivt.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   F1 — TVÅ TONLÄGEN INOM ETT SYSTEM (#18 R7)
+   ------------------------------------------------------------
+   editorial = v0.2 oförändrat (default; magasinslagret, drop-cap,
+               pull-quote, lead — lugn landning, läsande ytor).
+   utility   = nytt i v0.3 (opt-in per yta via data-tone="utility",
+               satt av <ToneSurface tone="utility">). Verktygsytor:
+               bönetider, qibla, kalender, kart-sheet, dashboards.
+
+   utility ändrar BARA: spacing-densitet (tätare), typografi-grad
+   (Manrope före Spectral display), siffer-framträdande (tabular),
+   och tar bort drop-cap/pull-quote/lead-emfas. SAMMA tokens, SAMMA
+   färger (--color-*), SAMMA radier (--sr-*). Det är INTE ett andra
+   temasystem — det finns ingen utility-färgpalett. Krockar löses
+   alltid till v0.2:s/editorial fördel.
+   ------------------------------------------------------------ */
+
+:root {
+  /* Tonläges-densitetsvariabler — konsumeras av v0.3-komponenter.
+     Editorial = default. utility-värdena nedan i [data-tone="utility"].
+     Samma idé som tokens: en komponent läser var(--tone-*) och blir
+     tonmedveten utan att känna till tonläget. */
+  --tone-card-pad: 24px;
+  --tone-card-gap: 14px;
+  --tone-stack-gap: 16px;
+  --tone-row-gap: 12px;
+  --tone-title-size: 22px;   /* EntityCard-titel, Spectral */
+  --tone-title-weight: 500;
+  --tone-meta-size: 14px;
+  --tone-eyebrow-size: 12px;
+  --tone-eyebrow-track: 0.16em;
+  --tone-section-pad: 64px;
+}
+
+[data-tone="utility"] {
+  /* Tätare rytm — verktygsdensitet. Inga färg-/radie-ändringar. */
+  --tone-card-pad: 16px;
+  --tone-card-gap: 10px;
+  --tone-stack-gap: 12px;
+  --tone-row-gap: 8px;
+  --tone-title-size: 17px;
+  --tone-title-weight: 600;
+  --tone-meta-size: 13px;
+  --tone-eyebrow-size: 10px;
+  --tone-eyebrow-track: 0.12em;
+  --tone-section-pad: 32px;
+  /* Funktionell text Manrope-driven; siffror framträdande/tabulära. */
+  font-feature-settings: 'tnum' on, 'ss01' on;
+}
+
+/* Editorial display-typ nedtonad i utility — Spectral kvar men i lägre
+   grad (mag-h3-nivå, inte mag-display). #18 F1. */
+[data-tone="utility"] .display,
+[data-tone="utility"] .h-display,
+[data-tone="utility"] .mag-display {
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+[data-tone="utility"] .heading-1,
+[data-tone="utility"] .mag-h1 {
+  font-size: clamp(24px, 2.4vw, 32px);
+}
+[data-tone="utility"] .heading-2,
+[data-tone="utility"] .mag-h2 {
+  font-size: clamp(20px, 2vw, 26px);
+}
+/* lead blir funktionell brödtext (Manrope), inte Spectral-emfas. */
+[data-tone="utility"] .lead,
+[data-tone="utility"] .mag-lead {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+/* Drop-cap och pull-quote hör editorial till — av i utility. */
+[data-tone="utility"] .mag-prose > p.lead::first-letter {
+  font: inherit;
+  float: none;
+  padding: 0;
+  color: inherit;
+}
+[data-tone="utility"] .mag-pull { display: none; }
+
+/* Tonmedvetna v0.3-hjälpklasser (komponenter använder var(--tone-*)). */
+.tone-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--tone-eyebrow-size);
+  letter-spacing: var(--tone-eyebrow-track);
+  text-transform: uppercase;
+  color: var(--copper-deep);
+}
+.tone-figure {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------
+   F2 — TILLSTÅNDS-GRAMMATIKEN (laddar/tomt/fel/klart)
+   Skeleton = laddar. EmptyState (v0.2, fryst) = tomt. ErrorState = fel.
+   "Klart" har ingen egen komponent. Spinner BARA för BankID/betalning.
+   ------------------------------------------------------------ */
+.skeleton {
+  position: relative;
+  background: var(--paper-deep);
+  border-radius: var(--sr-1);
+  overflow: hidden;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(245, 240, 228, 0.65), transparent);
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ------------------------------------------------------------
+   F5 — BOTTOMSHEET · ARABISK TEXTSTIL · VERIFIEDTAG
+   ------------------------------------------------------------ */
+
+/* BottomSheet — mobil: nerifrån. Desktop (≥768px): sidopanel från höger. */
+.bottom-sheet {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 20, 17, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 110;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.bottom-sheet-panel {
+  width: 100%;
+  background: var(--paper-soft);
+  border-top-left-radius: var(--sr-4);
+  border-top-right-radius: var(--sr-4);
+  box-shadow: var(--shadow-4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: sheet-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.bottom-sheet-grip {
+  width: 36px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ink-line);
+  margin: 10px auto 2px;
+}
+.bottom-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 20px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.bottom-sheet-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-2);
+  background: var(--paper);
+  color: var(--ink-1);
+  cursor: pointer;
+}
+.bottom-sheet-close:hover {
+  background: var(--forest);
+  color: var(--paper);
+  border-color: var(--forest);
+}
+.bottom-sheet-body {
+  padding: 18px 20px 28px;
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .bottom-sheet {
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+  .bottom-sheet-panel {
+    width: min(420px, 92vw);
+    height: 100%;
+    max-height: 100% !important; /* åsidosätter inline maxHeight på desktop */
+    border-radius: 0;
+    border-left: 1px solid var(--line);
+    animation: sheet-right 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .bottom-sheet-grip { display: none; }
+}
+@keyframes sheet-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Arabisk textstil — definierad EN gång. Typsnitts-valet ägs av #6/brief 46
+   (licens-/korrekthetsfråga); här ett tryggt fritt default som brief 46 byter
+   på ETT ställe via --font-arabic. RTL-ISOLERING (#18 R8): bara textblocket
+   vänds (unicode-bidi: isolate) — resten av appen förblir svensk LTR. Sätt
+   alltid lang="ar" dir="rtl" på elementet. */
+:root {
+  --font-arabic: "Amiri", "Scheherazade New", "Noto Naskh Arabic", "Traditional Arabic", "Geeza Pro", serif;
+}
+.ar-text {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+  line-height: 2;
+  font-size: 1.7em;
+  font-weight: 400;
+}
+.ar-inline {
+  font-family: var(--font-arabic);
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+/* VerifiedTag — synlig tagg ~22px, men ≥44px effektiv träffyta (F7).
+   Aldrig en banderoll: bygger på .mag-tag. */
+.verified-tag-wrap {
+  position: relative;
+  display: inline-block;
+}
+.verified-tag-trigger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  margin: -11px 0; /* utökar träffytan utan att flytta den synliga taggen */
+  background: none;
+  border: 0;
+}
+.verified-tag-trigger:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 2px;
+  border-radius: var(--sr-1);
+}
+.verified-tag-panel {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  min-width: 240px;
+  max-width: 320px;
+  background: var(--paper-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--sr-2);
+  box-shadow: var(--shadow-3);
+  padding: 14px 16px;
+}
+.verified-tag-attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.verified-tag-attribution > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.verified-tag-attribution dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.verified-tag-attribution dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-1);
+}
+.verified-tag-explanation {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------
+   F3 — ENTITYCARD-FAMILJEN
+   Gemensam kort-stomme. Insamlings-, förenings-, event-, imam- och FAQ-kort är
+   KONFIGURATIONER av den (#18 R3). Ingen betygs-/stjärn-/röst-prop (princip A).
+   Densitet via --tone-*; editorial-värdena reproducerar InsamlingCard exakt.
+   ------------------------------------------------------------ */
+.entity-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+.entity-card-media {
+  position: relative;
+  width: 100%;
+}
+.entity-card-tags {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.entity-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--tone-card-gap);
+  padding: var(--tone-card-pad);
+}
+.entity-card-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--tone-eyebrow-size);
+  letter-spacing: var(--tone-eyebrow-track);
+  text-transform: uppercase;
+  color: var(--copper-deep);
+}
+.entity-card-title {
+  font-family: var(--font-display);
+  font-size: var(--tone-title-size);
+  font-weight: var(--tone-title-weight);
+  line-height: 1.2;
+  letter-spacing: -0.008em;
+  color: var(--ink);
+  margin: 0;
+  text-wrap: balance;
+}
+.entity-card-meta {
+  font-size: var(--tone-meta-size);
+  color: var(--ink-2);
+  line-height: 1.45;
+  margin: 0;
+}
+.entity-card-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* compact = app-hemmets dagskort-anatomi (DEL 7-beslut 7). Anatomin byggs här;
+   brief 51 placerar den. Liten typ-etikett, innehållsrad, tyst ingång — ingen
+   badge, ingen siffra-som-larm. */
+.entity-card.entity-card-compact .entity-card-body {
+  padding: 14px 16px;
+  gap: 6px;
+}
+.entity-card.entity-card-compact .entity-card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
