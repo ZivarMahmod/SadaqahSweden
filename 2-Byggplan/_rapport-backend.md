@@ -203,6 +203,20 @@ campaigns/collectors/donations (det vore en fork av live-pengadomänen).
 Bevisat: anon ser 0 collector_applications (art.9-skydd). Advisor baslinje.
 Beslut: collector=user med roll='insamlare', campaign=insamling (ingen fork).
 
+### Brief 39 — Transparens (#11) — migr 0093–0094 ✅ KLAR (DB-lager)
+
+| Punkt | Migration | Status | Not |
+|---|---|---|---|
+| F1 tre ärliga siffrorna | 0093 | ✅ | `insamling_transparens(id)` DEFINER-aggregat (insamlat/utbetalt/kvar), anon-anropbar, ingen givaridentitet (princip A) |
+| F2 donation_follows | 0093 | ✅ | följ insamling (driver notiser); RLS egen följning; ingen publik följar-lista |
+| F3 uppdaterings-RPC | 0094 | ✅ | `transparens_skapa_uppdatering` (ägaren/admin) PÅ live `transparens_uppdatering` |
+| F4 kvitto-token | 0094 | ✅ | `donation.kvitto_token` (backfilld) + `kvitto_hamta(token)` anon-åtkomst utan konto |
+| F5 slutrapport-flagga | 0094 | ✅ | `insamling.slutrapport_forfallen` + `markera_slutrapport_forfallen()` (cron/service_role, ~3 mån) |
+| F6–F7 notis-koppling/UI | — | flaggad | notis via `skapa_notis`; UI design-lane; kvitto-epost = befintlig skicka-kvitto edge fn |
+
+Bevisat: tre-siffror-RPC fungerar som anon. Bygger PÅ live transparens-tabeller +
+donation/insamling/transfers. Advisor baslinje.
+
 ## Hoppade / flaggade (kräver konto/infra/människa)
 
 - **BankID-broker** (brief 32 F2) — behållaren (`identity_verification` +
