@@ -66,6 +66,8 @@ Kärnan, kort:
 
 Bakgrund: ett systerprojekt samlade 80+ databashål för att rollhygienen aldrig stramades åt från start. Sadaqah Sweden gör rätt från migration 001.
 
+**Permanent förbudslista + säkerhetsbasens standarder:** `docs/SAKERHET-FORBUDSLISTA.md` (brief 31). Läs den innan du bygger en ny yta — den listar vad som ALDRIG byggs (DM, betyg, gamifiering av tillbedjan, AI-religiösa svar, halal-lager m.m.) och de återanvändbara säkerhetsmekanismerna (consent_records/Art9-grind, audit_log, rate limiting, signerade URL:er, fält-kryptering, RPC-wrapper-konventionen).
+
 ## Byggprinciper — gäller varje steg
 
 1. **Ett steg i taget.** Följ byggsekvensen. Verifiera innan nästa steg.
