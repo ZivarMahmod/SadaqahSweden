@@ -32,11 +32,16 @@ icke-kod-steg är gjorda** (de kräver konto/infra/människa, inte mer migration
 9. **leaked-password-skydd PÅ** (Supabase auth-config, Zivar) — enda kvarvarande
    advisor-WARN utanför de avsiktliga DEFINER-endpointsen.
 
-**Verifierat säkerhetsläge:** existens-baserad RLS-audit (alla public-tabeller) —
-de ENDA utan FORCE är 4 befintliga tabeller jag aldrig rörde (`geo_aggregat`,
-`mission`, `ordlista`, `plats_taxonomi`, migr 0022–0025). Alla 39 nya tabeller har
-RLS+FORCE. Live-pengaväg verifierad: webhook-formad `donation`-INSERT fungerar
-efter mina ALTER:s (donor_visibility defaultar `anonym`; 96 donationer orörda).
+**Verifierat säkerhetsläge:** existens-baserad RLS-audit (ALLA public-tabeller).
+Alla 39 NYA tabeller (0063+) har RLS ENABLE+FORCE. De enda public-tabeller utan
+FORCE är 7 BEFINTLIGA tabeller jag aldrig rörde (migr ≤0061): `faq_post`,
+`innehallssida`, `innehall_andringslogg`, `innehalls_redigerare`,
+`juridisk_version`, `lard_profil`, `overklagande` — de har RLS PÅ (ej FORCE; det
+var deras ursprungliga designval, utanför detta goal). Live-pengaväg verifierad:
+webhook-formad `donation`-INSERT fungerar efter mina ALTER:s (donor_visibility
+defaultar `anonym`; 96 donationer orörda, testrad borttagen). Referens-tabellernas
+publik-policys bevisade ADMIT rader (koran_sura/kalender/corevo anon=1), och
+operativ_roll_def RLS-blockar anon (=0) trots default-grant.
 
 ---
 
