@@ -80,7 +80,7 @@ BEGIN
     'donationer', (SELECT coalesce(jsonb_agg(to_jsonb(d)), '[]'::jsonb)
                    FROM public.donation d WHERE d.donator_id = v_uid),
     'notiser', (SELECT coalesce(jsonb_agg(to_jsonb(n)), '[]'::jsonb)
-                FROM public.notis n WHERE n.profil_id = v_uid),
+                FROM public.notis n WHERE n.mottagare_id = v_uid),
     'notis_preferenser', (SELECT coalesce(jsonb_agg(to_jsonb(np)), '[]'::jsonb)
                           FROM public.notis_preferens np WHERE np.profil_id = v_uid),
     'raderingsbegaran', (SELECT coalesce(jsonb_agg(to_jsonb(r)), '[]'::jsonb)
