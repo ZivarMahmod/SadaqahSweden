@@ -88,12 +88,12 @@ flaggat (koordineras med RateLimitNotice-komponenten).
 | F2 audit_log (+ F1-RPC:er) | 0064 | ✅ klar | 564568b |
 | F3 rate limiting | 0065 | ✅ klar (DB) | ceb8a2e |
 | F4 privata buckets + lib/storage.ts | 0066 | ✅ klar | cd3943b |
-| F5 data_retention_jobs | 0067 | pågår | |
-| F6 krypteringsmönster | 0068 | — | |
+| F5 data_retention_jobs | 0067 | ✅ klar | 187dc20 |
+| F6 krypteringsmönster | 0068 | ✅ klar | 187dc20 |
 | F7 Art9ConsentGate | (frontend) | flaggad — design-lane; backend-RPC klar | |
-| F8 Dataskydd-panel (RPC-del) | 0069 | RPC byggs; UI flaggad (design-lane) | |
-| F9 förbudslista (dok) | — | byggs (riktig dokumentfil) | |
-| F10 verifiering/deploy | — | — | |
+| F8 Dataskydd-panel (RPC-del) | 0069 | ✅ RPC klar (0070-fix); UI flaggad (design-lane) | 0bd4744 |
+| F9 förbudslista (dok) | SAKERHET-FORBUDSLISTA.md | ✅ klar | 0bd4744 |
+| F10 verifiering/deploy | — | ✅ rollback+reapply 0068 bevisad | 71c0cdb |
 
 **F3-not:** `rate_limit_buckets` + `public.rate_limit_traff` (DEFINER, GRANT
 bara `service_role` — anropas server-side via admin-klient; linter-rent, ingen
