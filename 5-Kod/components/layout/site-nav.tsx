@@ -16,6 +16,9 @@ const PUBLIC_LINKS = [
   { href: "/foreningar", label: "Föreningar" },
   { href: "/events", label: "Events" },
   { href: "/karta", label: "Karta" },
+  // Skola-klient: ingång till Kunskap-rummet. Nav-config ägs egentligen av
+  // designsystem-instansen (#35) — reconcile-punkt, se _rapport-skola-klient.md.
+  { href: "/kunskap", label: "Kunskap" },
 ];
 
 export async function SiteNav() {
@@ -51,8 +54,9 @@ export async function SiteNav() {
         { href: "/foreningar", label: "Föreningar", mono: "02" },
         { href: "/events", label: "Events", mono: "03" },
         { href: "/karta", label: "Karta", mono: "04" },
-        { href: "/statistik", label: "Statistik", mono: "05" },
-        { href: "/faq", label: "Frågor & svar", mono: "06" },
+        { href: "/kunskap", label: "Kunskap", mono: "05" },
+        { href: "/statistik", label: "Statistik", mono: "06" },
+        { href: "/faq", label: "Frågor & svar", mono: "07" },
       ],
     },
     ...(me
