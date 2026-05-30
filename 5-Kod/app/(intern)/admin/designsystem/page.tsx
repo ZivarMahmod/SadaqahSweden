@@ -86,6 +86,12 @@ export default function DesignsystemGalleri() {
           Varje v0.3-komponent i varje tillstånd och båda tonlägena. Verifierings-yta
           för WCAG-revisionen (F7) och referens för briefs 38–51. Tonläge: utility.
         </p>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)", maxWidth: 680 }}>
+          Komponenter med sida-vid-sida-ruta visas i båda tonlägena. Övriga renderas i
+          sidans utility-ton — de delar samma tokens/färger/radier och svarar på
+          <code> --tone-*</code> (densitet); bara magasins-typografin (drop-cap, pull-quote,
+          display-grad) skiljer sig synligt mellan editorial och utility.
+        </p>
       </header>
 
       <Block title="F1 · Två tonlägen" note="Samma EntityCard i editorial vs utility — samma tokens, färger och radier; bara spacing, typografi-grad och densitet skiljer.">

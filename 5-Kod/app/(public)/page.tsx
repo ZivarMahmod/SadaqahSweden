@@ -73,7 +73,7 @@ export default function Forrummet() {
                 insamlaren, och varje projekt granskas innan publicering.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
-                <LinkButton href="/ge" size="lg" rightIcon={<Icon name="arrow-right" size={20} />}>
+                <LinkButton href="/insamlingar" size="lg" rightIcon={<Icon name="arrow-right" size={20} />}>
                   Utforska insamlingar
                 </LinkButton>
                 <LinkButton href="/registrera" size="lg" variant="secondary">

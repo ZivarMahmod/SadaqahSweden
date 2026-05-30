@@ -6,7 +6,7 @@ fråga 6, #19 R15 — a11y är en egenskap hos fundamentet, inte ett efterarbete
 
 Granskade ytor: `app/globals.css` (tokens + v0.3-lagret), v0.3-komponenterna
 (`SkeletonState`, `ErrorState`, `EmptyState`, `HumbleNote`, `EntityCard`,
-`VerifiedTag`, `BottomSheet`, `ToneSurface`, `RoomNav`, `RoomComingSoon`) samt
+`VerifiedTag`, `BottomSheet`, `ToneSurface`, `RoomNav`, `RoomLanding`) samt
 webb-förrummet. Ratios beräknade med WCAG relativ-luminans-formeln (sRGB,
 `(L1+0.05)/(L2+0.05)`). Trösklar: normal text AA ≥ 4.5:1, stor text AA ≥ 3.0:1
 (≥24px, eller ≥18.66px fet), UI/grafik ≥ 3.0:1.

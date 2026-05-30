@@ -137,10 +137,10 @@ ytuttryck (princip N).
 - **Nivå 2 — `tabs`** per rum. **Brief 35 fyllde bara i det säkert kända** (de
   flikar #18/#19 listar + redan liveytor). **Varje yt-brief lägger till sina egna
   nivå-2-flikar i samma fil** när den bygger sitt rum. Ofärdiga flikar har
-  `comingSoon: true` och pekar tills vidare på rummets `RoomComingSoon`-landning.
+  `comingSoon: true` och pekar tills vidare på rummets `RoomLanding`-landning.
 - **Nivå 3 — `DRAWER_SECONDARY`** (om/juridik) i drawern.
 
-Rum vars yta inte byggts än har en lugn `RoomComingSoon`-landning (aldrig en 404).
+Rum vars yta inte byggts än har en lugn `RoomLanding`-landning (aldrig en 404).
 När en yt-brief bygger sitt rum ersätter den platshållaren och lyfter `comingSoon`.
 
 ---

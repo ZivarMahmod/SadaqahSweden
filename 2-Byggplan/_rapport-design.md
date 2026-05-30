@@ -8,6 +8,19 @@
 > verifieringen (F9:s sista punkt) är medvetet uppskjuten till Coworks merge —
 > se "Avvikelse 1" nedan. `npm run cf-build` är grön i varje pushat tillstånd.
 
+> **⚠ MERGE-NOT TILL COWORK (viktigt — branchen mergas till LIVE main):**
+> De fem rummen är nivå-1-nav, men rummens *innehåll* byggs av briefs 38–50.
+> Rum-hubbarna (`/ge` `/min-vardag` `/gemenskap` `/kunskap`) är adaptiva
+> `RoomLanding`-ytor: rum som redan har liveytor (Ge→insamlingar,
+> Gemenskap→events/föreningar, Kunskap→FAQ) lyfter dem **prominent** (titeln är
+> rummets namn, inte "öppnar snart"); bara helt tomma rum (Min vardag) visar
+> "öppnar snart". Förrummets hero-CTA "Utforska insamlingar" går **direkt till
+> live `/insamlingar`** (inte via hubben). Karta-rummet pekar på live `/karta`.
+> **Inga 404, ingen live-funnel gömd bakom en placeholder.** Men: när briefs
+> 38–50 bygger rummens riktiga ytor ska de *ersätta* `RoomLanding` och lyfta
+> `comingSoon` i `lib/navigation.ts`. Mergas detta före dem fungerar allt (live
+> innehåll nås), men rummen är "tunna hubbar" tills klustren fyllt dem.
+
 ---
 
 ## Per punkt
@@ -32,6 +45,16 @@ subagent** granskade hela diffen mot `16f9f5e` — **inga high-confidence-fynd**
 (InsamlingCard-adaptern verifierad fält-för-fält mot originalet; ChromePublics
 server-logik bevarad byte-för-byte; förrummet rent; tonläges-/fokus-CSS
 icke-regressiv).
+
+**Verifieringsmetod (ärlig not):** all verifiering är **statisk** — `tsc`,
+`cf-build` (full `next build` + OpenNext-buntning), fält-för-fält kodgranskning
+och beräknad WCAG-revision. **Ingen visuell rendering gjordes:** förrummets route
+renderas via den publika layouten vars `ChromePublic` läser Supabase (serverside),
+vilket kräver riktiga env-hemligheter — det strider mot mock-only/ingen-DB-gränsen
+(och blockerades korrekt av sandlådan). InsamlingCard-pariteten vilar därför på
+kodgranskningens fält-för-fält-jämförelse mot originalet (`16f9f5e`), inte en
+pixel-jämförelse. Visuell smak-/render-genomgång är en batchad mänsklig
+uppföljning (Cowork/Zivar) efter merge.
 
 ---
 
