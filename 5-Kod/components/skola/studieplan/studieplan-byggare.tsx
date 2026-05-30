@@ -125,7 +125,7 @@ function Byggare() {
                 type="button"
                 onClick={() => setModuler((arr) => arr.filter((x) => x.id !== m.id))}
                 aria-label={`Ta bort ${m.titel}`}
-                style={{ minWidth: 44, minHeight: 44, color: "var(--color-ink-4)", background: "transparent" }}
+                style={{ minWidth: 48, minHeight: 48, color: "var(--color-ink-4)", background: "transparent" }}
               >
                 ✕
               </button>
@@ -167,7 +167,7 @@ function Byggare() {
                 aria-pressed={vald}
                 className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] px-4 font-medium"
                 style={{
-                  minHeight: 44,
+                  minHeight: 48,
                   fontSize: 14,
                   background: vald ? "var(--color-forest-soft)" : "var(--color-paper-soft)",
                   border: `1px solid ${vald ? "var(--color-forest-line)" : "var(--color-paper-line)"}`,

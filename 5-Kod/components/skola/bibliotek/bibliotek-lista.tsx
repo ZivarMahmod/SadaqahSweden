@@ -35,7 +35,7 @@ export function BibliotekLista({ items }: { items: BibliotekItem[] }) {
             aria-pressed={amne === a}
             className="inline-flex items-center justify-center rounded-[var(--radius-pill)] px-4 font-medium"
             style={{
-              minHeight: 44,
+              minHeight: 48,
               fontSize: 14,
               background: amne === a ? "var(--color-forest)" : "var(--color-paper-soft)",
               color: amne === a ? "var(--color-paper-soft)" : "var(--color-ink-2)",
@@ -71,8 +71,8 @@ export function BibliotekLista({ items }: { items: BibliotekItem[] }) {
                   aria-pressed={bokmarken[i.id]}
                   aria-label={bokmarken[i.id] ? "Ta bort bokmärke" : "Bokmärk"}
                   style={{
-                    minWidth: 44,
-                    minHeight: 44,
+                    minWidth: 48,
+                    minHeight: 48,
                     fontSize: 20,
                     color: bokmarken[i.id] ? "var(--color-copper)" : "var(--color-ink-4)",
                     background: "transparent",

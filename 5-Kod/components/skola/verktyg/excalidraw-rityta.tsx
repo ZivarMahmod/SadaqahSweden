@@ -62,7 +62,7 @@ export function ExcalidrawRityta() {
           onClick={sparaLokalt}
           className="inline-flex items-center justify-center rounded-[var(--radius-md)] px-4 font-medium"
           style={{
-            minHeight: 44,
+            minHeight: 48,
             fontSize: 14,
             background: "var(--color-forest)",
             color: "var(--color-paper-soft)",

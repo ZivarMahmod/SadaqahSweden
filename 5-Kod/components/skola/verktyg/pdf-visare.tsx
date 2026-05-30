@@ -17,19 +17,25 @@ export function PdfVisare() {
   const [skala, setSkala] = useState(1.2);
   const [laddar, setLaddar] = useState(false);
   const [fel, setFel] = useState<string | null>(null);
+  // Räknare som ändras varje gång ett nytt dokument laddas → triggar omritning
+  // även om filnamnet råkar vara identiskt.
+  const [docVer, setDocVer] = useState(0);
 
   const oppnaFil = useCallback(async (file: File) => {
     setFel(null);
     setLaddar(true);
     try {
       const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+      // Self-hostad worker (samma origin) — inget tredjepartsanrop, fungerar
+      // offline och bryts inte av en framtida CSP. Filen ligger i public/pdf.
+      pdfjs.GlobalWorkerOptions.workerSrc = "/pdf/pdf.worker.min.mjs";
       const data = await file.arrayBuffer();
       const doc = await pdfjs.getDocument({ data }).promise;
       docRef.current = doc;
       setAntalSidor(doc.numPages);
       setSida(1);
       setFilnamn(file.name);
+      setDocVer((v) => v + 1);
     } catch (e) {
       setFel("Kunde inte öppna PDF:en. Kontrollera att filen är en giltig PDF.");
       console.error("PDF-fel:", e);
@@ -38,36 +44,47 @@ export function PdfVisare() {
     }
   }, []);
 
-  // Rendera aktuell sida när doc/sida/skala ändras.
+  // Rendera aktuell sida när doc/sida/skala ändras. Avbryt pågående render vid
+  // snabba sid-/zoom-byten — annars kraschar pdf.js på "same canvas during
+  // multiple render() operations" och sidan blir tom.
   useEffect(() => {
     let avbruten = false;
+    let task: { promise: Promise<unknown>; cancel: () => void } | null = null;
     const doc = docRef.current;
     if (!doc) return;
     (async () => {
       try {
         const page = await doc.getPage(sida);
+        if (avbruten) return;
         const viewport = page.getViewport({ scale: skala });
         const canvas = canvasRef.current;
-        if (!canvas || avbruten) return;
+        if (!canvas) return;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
         canvas.width = Math.floor(viewport.width);
         canvas.height = Math.floor(viewport.height);
         // v5 kräver `canvas`; skicka både canvas + canvasContext (v4/v5-säkert).
-        await page.render({ canvas, canvasContext: ctx, viewport } as never).promise;
+        task = page.render({ canvas, canvasContext: ctx, viewport } as never) as {
+          promise: Promise<unknown>;
+          cancel: () => void;
+        };
+        await task.promise;
       } catch (e) {
-        console.error("PDF-render-fel:", e);
+        // RenderingCancelledException vid avbrott är förväntat — ignorera tyst.
+        const namn = (e as { name?: string })?.name;
+        if (namn !== "RenderingCancelledException") console.error("PDF-render-fel:", e);
       }
     })();
     return () => {
       avbruten = true;
+      task?.cancel();
     };
-  }, [sida, skala, filnamn]);
+  }, [sida, skala, docVer]);
 
   const knapp =
     "inline-flex items-center justify-center rounded-[var(--radius-md)] px-4 font-medium";
   const knappStil: React.CSSProperties = {
-    minHeight: 44,
+    minHeight: 48,
     fontSize: 14,
     border: "1px solid var(--color-paper-line)",
     background: "var(--color-paper-soft)",
