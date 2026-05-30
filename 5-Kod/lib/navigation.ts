@@ -99,9 +99,10 @@ export const ROOMS: NavRoom[] = [
     tone: "editorial",
     description: "Koranen, frågor & svar och vägar till kunskap.",
     tabs: [
+      // Skolan (brief 56) — byggd yta (mock-only än), öppen att utforska.
+      { label: "Skolan", href: "/kunskap/skola" },
       { label: "Frågor & svar", href: "/faq" },
-      // Koran-läsaren (brief 46), Hitta imam (brief 50), Skolan (brief 56)
-      // läggs av sina briefar.
+      // Koran-läsaren (brief 46), Hitta imam (brief 50) läggs av sina briefar.
     ],
   },
 ];

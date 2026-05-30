@@ -2,7 +2,7 @@
 // Chrome (SiteNav/Footer) ligger i route-grupp-layouts: (public), (auth), (konto), (intern).
 // Designreferens: handoff-to-code/marketing.html · handoff-to-code/assets/style.css.
 import type { Metadata } from "next";
-import { Spectral, Manrope, JetBrains_Mono } from "next/font/google";
+import { Spectral, Manrope, JetBrains_Mono, Amiri } from "next/font/google";
 import "./globals.css";
 
 const spectral = Spectral({
@@ -22,6 +22,14 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
   weight: ["400", "500"],
+});
+
+// Arabisk calligrafi-font för Skolans Koran-skrift-canvas (F10). Amiri (OFL).
+// Exponeras som --font-arabic; canvasen läser familjenamnet därifrån.
+const amiri = Amiri({
+  variable: "--font-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -46,7 +54,7 @@ export default function RootLayout({
   return (
     <html
       lang="sv"
-      className={`${spectral.variable} ${manrope.variable} ${jetbrains.variable}`}
+      className={`${spectral.variable} ${manrope.variable} ${jetbrains.variable} ${amiri.variable}`}
     >
       <body>{children}</body>
     </html>
