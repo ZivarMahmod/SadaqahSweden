@@ -32,6 +32,9 @@ export function KoranSkriftCanvas({ ayahs }: { ayahs: DemoAyah[] }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const mallRef = useRef<HTMLCanvasElement>(null);
   const ritRef = useRef<HTMLCanvasElement>(null);
+  // Löst familjenamn för mall-texten — sätts till Amiri (--font-arabic) när
+  // den laddats, annars systemfallback.
+  const fontFamilyRef = useRef<string>(ARABISK_FONT);
 
   const strecken = useRef<Streck[]>([]);
   const aktivt = useRef<Streck | null>(null);
@@ -64,13 +67,13 @@ export function KoranSkriftCanvas({ ayahs }: { ayahs: DemoAyah[] }) {
 
     // Krymp tills texten ryms på ~88 % av bredden.
     let fontSize = Math.min(h * 0.46, w * 0.22);
-    ctx.font = `${fontSize}px ${ARABISK_FONT}`;
+    ctx.font = `${fontSize}px ${fontFamilyRef.current}`;
     let bredd = ctx.measureText(ayah.arabisk).width;
     const maxBredd = w * 0.88;
     let varv = 0;
     while (bredd > maxBredd && fontSize > 16 && varv < 40) {
       fontSize *= 0.92;
-      ctx.font = `${fontSize}px ${ARABISK_FONT}`;
+      ctx.font = `${fontSize}px ${fontFamilyRef.current}`;
       bredd = ctx.measureText(ayah.arabisk).width;
       varv++;
     }
@@ -151,6 +154,23 @@ export function KoranSkriftCanvas({ ayahs }: { ayahs: DemoAyah[] }) {
   // Rita om mallen när ayah/synlighet ändras.
   useEffect(() => {
     ritaMall();
+  }, [ritaMall]);
+
+  // Hämta Amiri-familjen från --font-arabic och rita om mallen när fonten
+  // laddats (annars kan första uppmätningen ske mot fallback-fonten).
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    let avbruten = false;
+    const v = getComputedStyle(document.documentElement).getPropertyValue("--font-arabic").trim();
+    if (v) fontFamilyRef.current = `${v}, ${ARABISK_FONT}`;
+    const ritaOm = () => {
+      if (!avbruten) ritaMall();
+    };
+    ritaOm();
+    document.fonts?.ready.then(ritaOm).catch(() => {});
+    return () => {
+      avbruten = true;
+    };
   }, [ritaMall]);
 
   // ---- Pekhändelser ----
