@@ -35,6 +35,30 @@ applicera additivt + idempotent mot live (Supabase MCP `apply_migration`) →
 5. **Baslinjebygge:** `npm run cf-build` grönt (exit 0) i worktree innan F1 —
    ingen Förkrav-fix behövdes.
 
+## ⚠️ VIKTIG UPPTÄCKT — 5-Kod är en planeringsspegel (stubbar)
+
+`5-Kod/`-repots TypeScript-lager är **avsiktliga stubbar**, inte deployad kod.
+Bevis: commit `9c843e5 "chore: scaffolda 5-Kod-stubbar för planeringsspegel
+(cowork)"`; alla 165 `.ts/.tsx`-filer är platshållare; `lib/supabase/admin.ts`
+är 11 rader och slutar i en markdown-fence; `next.config.ts` innehåller
+`bibba: true` + ogiltig `ignoreErrors` castad `as unknown as NextConfig`.
+
+**Konsekvens för detta goal:**
+- Den **riktiga, deployade tillgången är Supabase-databasen** (verifierad live
+  via MCP: 46 tabeller, 96 donationer, fungerande RPC:er). **Migrationerna är
+  den äkta leveransen** och de är applicerade + verifierade mot live.
+- **`npm run cf-build` är ingen meningsfull grind** här — koden är stubbar (bygget
+  passerar trivialt eller säger inget om korrekthet). **Den verkliga grinden är
+  Supabase Security Advisor** (körs efter varje migration; inga nya ERROR/WARN).
+- **Server-actions / frontend wiring hoppas** — att väva in i stub-filer (som
+  slutar i ```` ``` ````) vore värdelöst och kan t.o.m. förfula spegeln. Where the
+  brief asks for an `Art9ConsentGate`, `RateLimitNotice`, Dataskydd-panel etc.,
+  these are frontend och ägs av design/skola-instanserna mot v0.3 — flaggas här,
+  byggs inte mot stubbar. Backend-kontraktet (RPC-signaturer) finns för dem.
+- Beslut: kör hela 31–50 som **DB-lager** (tabeller/RLS/RPC/triggers/seeds) som
+  numrerade migrationer mot live + Security Advisor-verifiering. Det är exakt
+  goal-textens "KLUSTER (backend: migrationer/RLS/RPC/server-actions)" kärna.
+
 ---
 
 ## Statuslogg per brief
@@ -45,16 +69,23 @@ applicera additivt + idempotent mot live (Supabase MCP `apply_migration`) →
 | Punkt | Migration | Status | Commit |
 |---|---|---|---|
 | Förkrav (grönt baslinjebygge) | — | klar (redan grönt) | |
-| F1 consent_records | 0063 | pågår | |
-| F2 audit_log (+ F1-RPC:er) | 0064 | — | |
-| F3 rate limiting | 0065 | — | |
-| F4 privata buckets | 0066 | — | |
+| F1 consent_records | 0063 | ✅ klar | b3f3516 |
+| F2 audit_log (+ F1-RPC:er) | 0064 | ✅ klar | 564568b |
+| F3 rate limiting | 0065 | ✅ klar (DB) | (denna) |
+| F4 privata buckets | 0066 | pågår | |
 | F5 data_retention_jobs | 0067 | — | |
 | F6 krypteringsmönster | 0068 | — | |
-| F7 Art9ConsentGate | (frontend) | — | |
-| F8 Dataskydd-panel | 0069 | — | |
-| F9 förbudslista (dok) | — | — | |
+| F7 Art9ConsentGate | (frontend) | hoppad — stub-lager, flaggad | |
+| F8 Dataskydd-panel (RPC-del) | 0069 | RPC byggs; UI hoppas (stub) | |
+| F9 förbudslista (dok) | — | byggs (riktig dokumentfil) | |
 | F10 verifiering/deploy | — | — | |
+
+**F3-not:** `rate_limit_buckets` + `public.rate_limit_traff` (DEFINER, GRANT
+bara `service_role` — anropas server-side via admin-klient; linter-rent, ingen
+0028/0029). RLS ENABLE+FORCE utan policys = avsiktlig (bara DEFINER-fn rör
+tabellen); ger en INFO-lint `rls_enabled_no_policy` precis som befintliga
+`public.mission` — accepterat, dokumenterat mönster. UI-delen (RateLimitNotice)
++ wiring i login/donation-server-actions hoppas (stub-lager).
 
 ---
 
