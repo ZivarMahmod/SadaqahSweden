@@ -3,10 +3,10 @@
 -- Brief 41 (Föreningar) F1-F3+F5 — block-ramverk, företrädare, org-fält, koppling.
 -- Säkerhet: SAKERHETSREGLER.md. Bygger PÅ live public.organisation.
 --
--- VERIFIERAT SCHEMA: organisation har kolumnerna status (enum
--- organisation_status: utkast,inskickad,granskning,verifierad,avvisad,vilande),
--- skapad_av_user_id, forenings_konto_user_id. Verifierad+publik = status='verifierad'.
--- Ägar-check gatas på forenings_konto_user_id (förenings-kontot ÄR företrädaren).
+-- VERIFIERAT SCHEMA (auktoritativt mot live): organisation har INGEN status-enum.
+-- Publik synlighet = `katalog_status = 'publik'` (text; exakt vad den befintliga
+-- organisation_select_publik-policyn använder). Verifiering = `verifieringsniva`
+-- (text). Ägare/företrädare = `forenings_konto_user_id`.
 --
 -- Rollback: 0097_for1_block_foretradare.rollback.sql.
 -- =====================================================================
@@ -54,10 +54,11 @@ GRANT EXECUTE ON FUNCTION private.ar_foretradare(uuid,uuid) TO authenticated, se
 ALTER TABLE public.organisation_block ENABLE ROW LEVEL SECURITY; ALTER TABLE public.organisation_block FORCE ROW LEVEL SECURITY;
 ALTER TABLE public.organisation_foretradare ENABLE ROW LEVEL SECURITY; ALTER TABLE public.organisation_foretradare FORCE ROW LEVEL SECURITY;
 
--- Publik: synliga block för verifierade föreningar (ingen private-fn för anon).
+-- Publik: synliga block för katalog-publika föreningar (samma gate som
+-- organisation_select_publik; ingen private-fn för anon).
 DROP POLICY IF EXISTS organisation_block_publik ON public.organisation_block;
 CREATE POLICY organisation_block_publik ON public.organisation_block FOR SELECT TO anon, authenticated
-  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.status='verifierad'));
+  USING (synlig=true AND EXISTS (SELECT 1 FROM public.organisation o WHERE o.id=organisation_id AND o.katalog_status='publik'));
 DROP POLICY IF EXISTS organisation_block_intern ON public.organisation_block;
 CREATE POLICY organisation_block_intern ON public.organisation_block FOR SELECT TO authenticated
   USING (private.aktuell_roll()='admin' OR private.ar_foretradare(organisation_id,(SELECT auth.uid())));

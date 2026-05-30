@@ -2,7 +2,10 @@
 -- Sadaqah Sweden — Migration 0098
 -- Brief 41 (Föreningar) F4+F6 — verifierings-flöde + block/företrädar-RPC:er.
 -- Säkerhet: public INVOKER-wrapper -> private DEFINER-impl (authenticated-only).
--- Verifiering = organisation.status 'verifierad' (godkänn) / 'avvisad' (neka).
+--
+-- Verifiering (verifierat schema): godkänn = verifieringsniva='verifierad' +
+-- katalog_status='publik' (publicera i katalogen). Neka = verifieringsniva=
+-- 'avvisad' (katalog_status orörd → ej publik). Båda kolumnerna är text.
 --
 -- Rollback: 0098_for2_rpcer.rollback.sql.
 -- =====================================================================
@@ -14,9 +17,11 @@ BEGIN
   IF NOT (private.har_operativ_roll('granskningsrad') OR private.ar_admin()) THEN
     RAISE EXCEPTION 'Behorighet saknas.' USING ERRCODE='insufficient_privilege';
   END IF;
-  UPDATE public.organisation
-     SET status = CASE WHEN p_godkann THEN 'verifierad'::public.organisation_status ELSE 'avvisad'::public.organisation_status END
-   WHERE id=p_org_id;
+  IF p_godkann THEN
+    UPDATE public.organisation SET verifieringsniva='verifierad', katalog_status='publik' WHERE id=p_org_id;
+  ELSE
+    UPDATE public.organisation SET verifieringsniva='avvisad' WHERE id=p_org_id;
+  END IF;
   PERFORM private.audit('andrade','organisation', p_org_id::text, jsonb_build_object('verifierad',p_godkann));
 END;
 $$;
