@@ -125,9 +125,12 @@ som **vilande, flaggat skal** och wire:as in utan ombygge när backend landar.
 - `tsc --noEmit`: **rent** (före och efter granskningsfixar).
 - `npm run cf-build`: **grön (EXIT=0)** — baseline (orörd worktree) + efter bygget +
   efter granskningsfixarna.
-- **Live (Playwright mot `next dev`):** `/kunskap/skola`, `/kunskap/skola/koran-skrift`
-  och `/kunskap/skola/verktyg` (Excalidraw monterad) renderar alla **HTTP 200 med noll
-  console-errors**. Koran-canvasen och Excalidraw monterar utan `window`/SSR-fel.
+- **Live (Playwright mot `next dev`):** hem, koran-skrift, verktyg (Excalidraw monterad)
+  och quiz renderar alla **HTTP 200 med noll console-errors**. Koran-canvasen och
+  Excalidraw monterar utan `window`/SSR-fel; mall-texten ritas i **Amiri** (verifierat
+  visuellt). Quiz-flödet testat interaktivt (svar → rätt-markering → nästa). Layouten
+  verifierad på **mobil bredd (390px)**: sub-nav scrollar, verktygsrader wrappar,
+  klickytor ≥48px — touch-vänligt.
 
 ### Självgranskning (adversarial subagent) — åtgärdat
 
